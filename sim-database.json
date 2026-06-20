@@ -1,0 +1,300 @@
+{
+  "UtilityBlueprints": {
+    "ATK Nuker": {
+      "name": "ATK Nuker",
+      "upgrade_priority": ["GAU", "BOO", "CHE", "AMU", "BAN", "WEA", "RIN", "SHI", "HEL"],
+      "primary_targets": { "GAU": ["cd"], "CHE": ["atkP"], "BOO": ["spd"], "RIN": ["atk"], "AMU": ["cd"], "BAN": ["atk"] },
+      "ascension_targets": { "WEA": "atk", "HEL": "hp", "SHI": "def", "GAU": "cd", "CHE": "atkP", "BOO": "spd", "RIN": "atk", "AMU": "cd", "BAN": "atk" },
+      "perf_bounds": { "min": { "g": 30, "s": 15, "t": 18 }, "max": { "g": 65, "s": 12, "t": 6 } },
+      "stat_goals": { "g": ["cr", "cd", "spd", "atkP"], "s": ["atk"] },
+      "preset_goals": { "cr": 100, "spd": 250 }
+    },
+    "DEF Nuker": {
+      "name": "DEF Nuker",
+      "upgrade_priority": ["GAU", "BOO", "CHE", "AMU", "BAN", "WEA", "RIN", "SHI", "HEL"],
+      "primary_targets": { "GAU": ["cd"], "CHE": ["defP"], "BOO": ["spd"], "RIN": ["def"], "AMU": ["cd"], "BAN": ["def"] },
+      "ascension_targets": { "WEA": "def", "HEL": "hp", "SHI": "def", "GAU": "cd", "CHE": "defP", "BOO": "spd", "RIN": "def", "AMU": "cd", "BAN": "def" },
+      "perf_bounds": { "min": { "g": 30, "s": 15, "t": 18 }, "max": { "g": 65, "s": 12, "t": 6 } },
+      "stat_goals": { "g": ["cr", "cd", "spd", "defP"], "s": ["def"] },
+      "preset_goals": { "cr": 100, "spd": 250 }
+    },
+    "HP Nuker": {
+      "name": "HP Nuker",
+      "upgrade_priority": ["GAU", "BOO", "CHE", "AMU", "BAN", "WEA", "RIN", "SHI", "HEL"],
+      "primary_targets": { "GAU": ["cd"], "CHE": ["hpP"], "BOO": ["spd"], "RIN": ["hp"], "AMU": ["cd"], "BAN": ["hp"] },
+      "ascension_targets": { "WEA": "hp", "HEL": "hp", "SHI": "def", "GAU": "cd", "CHE": "hpP", "BOO": "spd", "RIN": "hp", "AMU": "cd", "BAN": "hp" },
+      "perf_bounds": { "min": { "g": 31, "s": 14, "t": 18 }, "max": { "g": 66, "s": 11, "t": 6 } },
+      "stat_goals": { "g": ["cr", "cd", "spd", "hpP"], "s": ["hp"] },
+      "preset_goals": { "cr": 100, "spd": 250 }
+    },
+    "Tank": {
+      "name": "Tank",
+      "upgrade_priority": ["CHE", "SHI", "GAU", "RIN", "HEL", "AMU", "BOO", "BAN", "WEA"],
+      "primary_targets": { "GAU": ["hpP"], "CHE": ["res"], "BOO": ["spd"], "RIN": ["def"], "AMU": ["hp"], "BAN": ["res"] },
+      "ascension_targets": { "WEA": "def", "HEL": "hp", "SHI": "def", "GAU": "hpP", "CHE": "res", "BOO": "spd", "RIN": "def", "AMU": "hp", "BAN": "res" },
+      "perf_bounds": { "min": { "g": 35, "s": 10, "t": 18 }, "max": { "g": 71, "s": 7, "t": 3 } },
+      "stat_goals": { "g": ["hpP", "defP", "spd", "res"], "s": ["hp", "def"] },
+      "preset_goals": { "spd": 250, "res": 400 }
+    },
+    "Support": {
+      "name": "Support",
+      "upgrade_priority": ["BOO", "CHE", "SHI", "HEL", "RIN", "BAN", "AMU", "WEA", "GAU"],
+      "primary_targets": { "GAU": ["hpP"], "CHE": ["acc"], "BOO": ["spd"], "RIN": ["def"], "AMU": ["hp"], "BAN": ["acc"] },
+      "ascension_targets": { "WEA": "hp", "HEL": "hp", "SHI": "def", "GAU": "hpP", "CHE": "acc", "BOO": "spd", "RIN": "hp", "AMU": "hp", "BAN": "spd" },
+      "perf_bounds": { "min": { "g": 33, "s": 11, "t": 19 }, "max": { "g": 69, "s": 8, "t": 4 } },
+      "stat_goals": { "g": ["hpP", "defP", "spd", "acc"], "s": ["hp", "def"] },
+      "preset_goals": { "spd": 300, "acc": 400 }
+    },
+    "Custom": {
+      "name": "Custom",
+      "upgrade_priority": ["BOO", "CHE", "GAU", "SHI", "HEL", "RIN", "AMU", "BAN", "WEA"],
+      "primary_targets": { "GAU": ["cd"], "CHE": ["atkP"], "BOO": ["spd"], "RIN": ["atk"], "AMU": ["cd"], "BAN": ["atk"] },
+      "ascension_targets": { "WEA": "atk", "HEL": "hp", "SHI": "def", "GAU": "cd", "CHE": "atkP", "BOO": "spd", "RIN": "atk", "AMU": "cd", "BAN": "atk" },
+      "perf_bounds": { "min": { "g": 30, "s": 15, "t": 18 }, "max": { "g": 65, "s": 10, "t": 6 } },
+      "stat_goals": { "g": [], "s": [] },
+      "preset_goals": {}
+    }
+  },
+  "AreaStats": {
+    "Potion Keep": {
+      "20": { "maxENEMY_SPD": 130, "recACC": 195, "recRES": 305 }
+    },
+    "Faction Wars": {
+      "Normal 21": { "maxENEMY_SPD": 104, "recACC": 245, "recRES": 305 },
+      "Hard 21": { "maxENEMY_SPD": 325, "recACC": 465, "recRES": 630 }
+    },
+    "Ice Golem's Peak": {
+      "Normal 25": { "maxENEMY_SPD": 105, "recACC": 225, "recRES": 305 },
+      "Hard 10": { "maxENEMY_SPD": 240, "recACC": 345, "recRES": 435 }
+    },
+    "Fire Knight's Castle": {
+      "Normal 25": { "maxENEMY_SPD": 100, "recACC": 225, "recRES": 305 },
+      "Hard 10": { "maxENEMY_SPD": 250, "recACC": 345, "recRES": 435 }
+    },
+    "Dragon's Lair": {
+      "Normal 25": { "maxENEMY_SPD": 101, "recACC": 225, "recRES": 305 },
+      "Hard 10": { "maxENEMY_SPD": 250, "recACC": 345, "recRES": 435 }
+    },
+    "Spider's Den": {
+      "Normal 25": { "maxENEMY_SPD": 150, "recACC": 225, "recRES": 305 },
+      "Hard 10": { "maxENEMY_SPD": 245, "recACC": 345, "recRES": 435 }
+    },
+    "Doom Tower": {
+      "Normal Fae 120": { "maxENEMY_SPD": 190, "recACC": 205, "recRES": 205 },
+      "Hard Fae 120": { "maxENEMY_SPD": 250, "recACC": 355, "recRES": 355 }
+    },
+    "Iron Twins Fortress ": {
+      "10": { "maxENEMY_SPD": 200, "recACC": 225, "recRES": 305 },
+      "15": { "maxENEMY_SPD": 250, "recACC": 375, "recRES": 505 }
+    },
+    "Demon Lord Battles": {
+      "Hard": { "maxENEMY_SPD": 140, "recACC": 100, "recRES": 155 },
+      "Ultra-Nightmare ": { "maxENEMY_SPD": 190, "recACC": 250, "recRES": 330 }
+    },
+    "Hydra Battles": {
+      "Hard": { "maxENEMY_SPD": 220, "recACC": 215, "recRES": 415 },
+      "Nightmare": { "maxENEMY_SPD": 250, "recACC": 360, "recRES": 455 }
+    },
+    "Sand Devil's Necropolis": {
+      "15": { "maxENEMY_SPD": 220, "recACC": 320, "recRES": 365 },
+      "25": { "maxENEMY_SPD": 270, "recACC": 495, "recRES": 655 }
+    },
+    "Phantom Shogun's Grove": {
+      "15": { "maxENEMY_SPD": 245, "recACC": 250, "recRES": 265 },
+      "25": { "maxENEMY_SPD": 350, "recACC": 425, "recRES": 555 }
+    },
+    "Cursed City": {
+      "Normal Amius": { "maxENEMY_SPD": 200, "recACC": 375, "recRES": 555 },
+      "Hard Amius": { "maxENEMY_SPD": 250, "recACC": 475, "recRES": 655 }
+    },
+    "No Selection -Chimera": {
+      "Hard": { "maxENEMY_SPD": 225, "recACC": 275, "recRES": 405 },
+      "Ultra-Nightmare": { "maxENEMY_SPD": 305, "recACC": 475, "recRES": 605 }
+    }
+  },
+  "Blessings": {
+    "Mythical": {
+      "1": { "HP": 10500 },
+      "2": { "ATK": 900 },
+      "3": { "DEF": 750 },
+      "4": { "HP": 1000, "C_DMG": 45 },
+      "5": { "RES": 90, "ACC": 90 },
+      "6": { "SPD": 20 }
+    },
+    "Legendary": {
+      "1": { "HP": 7500 },
+      "2": { "ATK": 750 },
+      "3": { "DEF": 600 },
+      "4": { "HP": 1000, "C_DMG": 38 },
+      "5": { "RES": 75, "ACC": 75 },
+      "6": { "SPD": 15 }
+    },
+    "Epic": {
+      "1": { "HP": 4500 },
+      "2": { "ATK": 600 },
+      "3": { "DEF": 450 },
+      "4": { "HP": 1000, "C_DMG": 30 },
+      "5": { "RES": 60, "ACC": 60 },
+      "6": { "SPD": 10 }
+    },
+    "Rare": {
+      "1": { "HP": 2250 },
+      "2": { "ATK": 450 },
+      "3": { "DEF": 300 },
+      "4": { "HP": 1000, "C_DMG": 23 },
+      "5": { "RES": 40, "ACC": 40 },
+      "6": { "SPD": 7 }
+    }
+  },
+  "Affinity": {
+    "1": { "ACC_RES": 5, "C_DMG": 2, "HP_ATK_DEF_PCT": 2 },
+    "2": { "ACC_RES": 10, "C_DMG": 4, "HP_ATK_DEF_PCT": 3 },
+    "3": { "ACC_RES": 15, "C_DMG": 6, "HP_ATK_DEF_PCT": 4 },
+    "4": { "ACC_RES": 20, "C_DMG": 8, "HP_ATK_DEF_PCT": 6 },
+    "5": { "ACC_RES": 30, "C_DMG": 10, "HP_ATK_DEF_PCT": 8 },
+    "6": { "ACC_RES": 40, "C_DMG": 12, "HP_ATK_DEF_PCT": 10 },
+    "7": { "ACC_RES": 50, "C_DMG": 15, "HP_ATK_DEF_PCT": 12 },
+    "8": { "ACC_RES": 60, "C_DMG": 18, "HP_ATK_DEF_PCT": 14 },
+    "9": { "ACC_RES": 70, "C_DMG": 21, "HP_ATK_DEF_PCT": 17 },
+    "10": { "ACC_RES": 80, "C_DMG": 25, "HP_ATK_DEF_PCT": 20 }
+  },
+  "FactionGuardians": {
+    "Mythical": null,
+    "Legendary": { "HP_ATK_DEF_PCT": 10, "SPD": 10, "C_DMG": 0, "ACC_RES": 30 },
+    "Epic": { "HP_ATK_DEF_PCT": 10, "SPD": 6, "C_DMG": 0, "ACC_RES": 15 },
+    "Rare": { "HP_ATK_DEF_PCT": 10, "SPD": 3, "C_DMG": 0, "ACC_RES": 7 },
+    "Uncommon": null,
+    "Common": null
+  },
+  "Empowerment": {
+    "Mythical": {
+      "1": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 15, "RES": 15 },
+      "2": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 10 },
+      "3": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 20, "RES": 20 },
+      "4": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 5, "C_DMG": 30, "C_RATE": 10 }
+    },
+    "Legendary": {
+      "1": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 15, "RES": 15 },
+      "2": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 10 },
+      "3": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 20, "RES": 20 },
+      "4": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 5, "C_DMG": 30, "C_RATE": 10 }
+    },
+    "Epic": {
+      "1": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10 },
+      "2": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 5, "C_DMG": 5 },
+      "3": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10 },
+      "4": { "HP": 10, "ATK": 10, "DEF": 10, "ACC": 10, "RES": 10, "SPD": 5, "C_DMG": 10, "C_RATE": 5 }
+    },
+    "Rare": null,
+    "Uncommon": null,
+    "Common": null
+  },
+  "ArtifactSettings": {
+    "SlotConfig": [
+      { "id": "WEA", "n": "WEAPON", "t": "AR", "po": ["atk"] },
+      { "id": "HEL", "n": "HELMET", "t": "AR", "po": ["hp"] },
+      { "id": "SHI", "n": "SHIELD", "t": "AR", "po": ["def"] },
+      { "id": "GAU", "n": "GLOVES", "t": "AR", "po": ["cr", "cd", "hpP", "defP", "atkP", "hp", "atk", "def"] },
+      { "id": "CHE", "n": "CHEST", "t": "AR", "po": ["acc", "res", "hpP", "defP", "atkP", "hp", "atk", "def"] },
+      { "id": "BOO", "n": "BOOTS", "t": "AR", "po": ["spd", "hpP", "defP", "atkP", "hp", "atk", "def"] },
+      { "id": "RIN", "n": "RING", "t": "AC", "po": ["hp", "def", "atk"] },
+      { "id": "AMU", "n": "AMULET", "t": "AC", "po": ["cd", "hp", "def", "atk"] },
+      { "id": "BAN", "n": "BANNER", "t": "AC", "po": ["acc", "res", "hp", "def", "atk"] }
+    ],
+    "SubstatPools": {
+      "WEA": ["hp", "hpP", "cr", "cd", "spd", "acc", "res", "atkP"],
+      "HEL": ["hpP", "def", "defP", "atk", "atkP", "cr", "cd", "spd", "acc", "res"],
+      "SHI": ["hp", "hpP", "defP", "cr", "cd", "spd", "acc", "res"],
+      "GAU": ["hp", "hpP", "def", "defP", "atk", "atkP", "cr", "cd", "spd", "acc", "res"],
+      "CHE": ["hp", "hpP", "def", "defP", "atk", "atkP", "cr", "cd", "spd", "acc", "res"],
+      "BOO": ["hp", "hpP", "def", "defP", "atk", "atkP", "cr", "cd", "spd", "acc", "res"],
+      "RIN": ["hp", "hpP", "def", "defP", "atk", "atkP"],
+      "AMU": ["hp", "def", "atk", "cd", "acc", "res"],
+      "BAN": ["hp", "hpP", "def", "defP", "atk", "atkP", "spd", "acc", "res"]
+    },
+    "PrimaryValues": {
+      "hp": { "5": { "AR": 3480, "AC": 2750 }, "6": { "AR": 4080, "AC": 3300 } },
+      "hpP": { "5": { "AR": 50, "AC": 50 }, "6": { "AR": 60, "AC": 60 } },
+      "def": { "5": { "AR": 225, "AC": 215 }, "6": { "AR": 265, "AC": 260 } },
+      "defP": { "5": { "AR": 50, "AC": 50 }, "6": { "AR": 60, "AC": 60 } },
+      "atk": { "5": { "AR": 225, "AC": 215 }, "6": { "AR": 265, "AC": 260 } },
+      "atkP": { "5": { "AR": 50, "AC": 50 }, "6": { "AR": 60, "AC": 60 } },
+      "cr": { "5": { "AR": 50, "AC": 50 }, "6": { "AR": 60, "AC": 60 } },
+      "cd": { "5": { "AR": 65, "AC": 33 }, "6": { "AR": 80, "AC": 40 } },
+      "spd": { "5": { "AR": 40, "AC": 40 }, "6": { "AR": 45, "AC": 45 } },
+      "acc": { "5": { "AR": 78, "AC": 78 }, "6": { "AR": 96, "AC": 96 } },
+      "res": { "5": { "AR": 78, "AC": 78 }, "6": { "AR": 96, "AC": 96 } }
+    },
+    "RngRollBounds": {
+      "hpP": { "n": "HP%", "p": true, "AR": { "5": [4, 6], "6": [5, 7] }, "AC": { "5": [4, 6], "6": [5, 7] } },
+      "atkP": { "n": "ATK%", "p": true, "AR": { "5": [4, 6], "6": [5, 7] }, "AC": { "5": [4, 6], "6": [5, 7] } },
+      "defP": { "n": "DEF%", "p": true, "AR": { "5": [4, 6], "6": [5, 7] }, "AC": { "5": [4, 6], "6": [5, 7] } },
+      "cr": { "n": "C. RATE", "p": true, "AR": { "3": [3, 5], "5": [3, 5], "6": [5, 7] }, "AC": { "5": [3, 5], "6": [5, 7] } },
+      "cd": { "n": "C. DMG", "p": true, "AR": { "5": [4, 6], "6": [5, 7] }, "AC": { "5": [4, 6], "6": [5, 7] } },
+      "spd": { "n": "SPD", "p": false, "AR": { "5": [3, 5], "6": [5, 6] }, "AC": { "5": [3, 5], "6": [5, 6] } },
+      "acc": { "n": "ACC", "p": false, "AR": { "5": [7, 10], "6": [9, 12] }, "AC": { "5": [7, 10], "6": [9, 12] } },
+      "res": { "n": "RES", "p": false, "AR": { "5": [7, 10], "6": [9, 12] }, "AC": { "5": [7, 10], "6": [9, 12] } },
+      "hp": { "n": "HP", "p": false, "AR": { "5": [140, 225], "6": [180, 315] }, "AC": { "5": [820, 950], "6": [1000, 1150] } },
+      "atk": { "n": "ATK", "p": false, "AR": { "5": [10, 18], "6": [14, 24] }, "AC": { "5": [45, 55], "6": [55, 70] } },
+      "def": { "n": "DEF", "p": false, "AR": { "5": [10, 18], "6": [14, 24] }, "AC": { "5": [45, 55], "6": [55, 70] } }
+    },
+    "AscensionValues": {
+      "hp": { "AR": { "5": 870, "6": 1224 }, "AC": { "5": 870, "6": 1224 } },
+      "hpP": { "AR": { "5": 13, "6": 20 }, "AC": { "5": 0, "6": 0 } },
+      "atk": { "AR": { "5": 56, "6": 80 }, "AC": { "5": 56, "6": 80 } },
+      "atkP": { "AR": { "5": 13, "6": 20 }, "AC": { "5": 0, "6": 0 } },
+      "def": { "AR": { "5": 56, "6": 80 }, "AC": { "5": 56, "6": 80 } },
+      "defP": { "AR": { "5": 13, "6": 20 }, "AC": { "5": 0, "6": 0 } },
+      "cr": { "AR": { "5": 8, "6": 10 }, "AC": { "5": 0, "6": 0 } },
+      "cd": { "AR": { "5": 14, "6": 20 }, "AC": { "5": 10, "6": 12 } },
+      "spd": { "AR": { "5": 9, "6": 12 }, "AC": { "5": 0, "6": 0 } },
+      "acc": { "AR": { "5": 20, "6": 29 }, "AC": { "5": 20, "6": 29 } },
+      "res": { "AR": { "5": 20, "6": 29 }, "AC": { "5": 20, "6": 29 } }
+    },
+    "AscensionPools": {
+      "WEA": ["hp", "atk", "def"],
+      "HEL": ["hp", "atk", "def"],
+      "SHI": ["hp", "atk", "def"],
+      "GAU": ["hp", "hpP", "atk", "atkP", "def", "defP", "cr", "cd"],
+      "CHE": ["hp", "hpP", "atk", "atkP", "def", "defP", "acc", "res"],
+      "BOO": ["hp", "hpP", "atk", "atkP", "def", "defP", "spd"],
+      "RIN": ["hp", "atk", "def"],
+      "AMU": ["hp", "atk", "def", "cd", "acc", "res"],
+      "BAN": ["hp", "atk", "def", "acc", "res"]
+    },
+    "GlyphDictionary": {
+      "green5": { "hp": 475, "hpP": 5, "atk": 30, "atkP": 5, "def": 30, "defP": 5, "spd": 5, "acc": 12, "res": 12 },
+      "green6": { "hp": 750, "hpP": 8, "atk": 40, "atkP": 8, "def": 40, "defP": 8, "spd": 8, "acc": 16, "res": 16 },
+      "blue6": { "hp": 850, "hpP": 9, "atk": 45, "atkP": 9, "def": 45, "defP": 9, "spd": 9, "acc": 18, "res": 18 },
+      "purple6": { "hp": 950, "hpP": 10, "atk": 50, "atkP": 10, "def": 50, "defP": 10, "spd": 10, "acc": 20, "res": 20 },
+      "gold6": { "hp": 1150, "hpP": 12, "atk": 60, "atkP": 12, "def": 60, "defP": 12, "spd": 12, "acc": 24, "res": 24 }
+    }
+  },
+  "SetDatabase": {
+    "lethal": { "n": "Lethal", "cat": "off", "type": 4, "stats": { "cr": 10, "ign": 25 } },
+    "savage": { "n": "Savage", "cat": "off", "type": 4, "stats": { "ign": 25 } },
+    "merciless": { "n": "Merciless", "cat": "off", "type": 9, "stats": { "1": { "atkP": 10 }, "2": { "cd": 15 }, "3": { "spdP": 5 }, "5": { "atkP": 15 }, "6": { "ign": 35 }, "7": { "spdP": 5 }, "8": { "cd": 15 } } },
+    "zeal": { "n": "Zeal", "cat": "off", "type": 2, "stats": { "cd": 20 } },
+    "slayer": { "n": "Slayer", "cat": "off", "type": 9, "stats": { "1": { "cr": 5 }, "2": { "cd": 10 }, "3": { "spdP": 5 }, "5": { "cr": 10 }, "6": { "ign": 30 }, "7": { "cd": 20 }, "8": { "spdP": 5 } } },
+    "stonecleaver": { "n": "Stonecleaver", "cat": "off", "type": 9, "stats": { "1": { "atkP": 10 }, "2": { "cd": 15 }, "3": { "spdP": 5 }, "5": { "atkP": 15 }, "6": { "ign": 20 }, "7": { "cd": 15 }, "8": { "spdP": 5 } } },
+    "cruel": { "n": "Cruel", "cat": "off", "type": 2, "stats": { "atkP": 15, "ign": 5 } },
+    "fatal": { "n": "Fatal", "cat": "off", "type": 2, "stats": { "atkP": 15, "cr": 5 } },
+    "crit_damage": { "n": "Crit Damage", "cat": "off", "type": 2, "stats": { "cd": 20 } },
+    "bloodthirst": { "n": "Bloodthirst", "cat": "off", "type": 4, "stats": { "cr": 12 } },
+    "affinitybreaker": { "n": "Affinitybreaker", "cat": "off", "type": 4, "stats": { "cd": 30 } },
+    "speed": { "n": "Speed", "cat": "spd", "type": 2, "stats": { "spdP": 12 } },
+    "supersonic": { "n": "Supersonic", "cat": "spd", "type": 9, "stats": { "1": { "res": 20 }, "2": { "hpP": 15 }, "3": { "spdP": 10 }, "5": { "spdP": 10 }, "7": { "res": 20 }, "8": { "spdP": 12 } } },
+    "pinpoint": { "n": "Pinpoint", "cat": "spd", "type": 9, "stats": { "1": { "acc": 20 }, "2": { "spdP": 10 }, "3": { "acc": 20 }, "5": { "spdP": 10 }, "7": { "acc": 20 }, "8": { "spdP": 12 } } },
+    "perception": { "n": "Perception", "cat": "spd", "type": 2, "stats": { "acc": 40, "spdP": 5 } },
+    "instinct": { "n": "Instinct", "cat": "spd", "type": 4, "stats": { "spdP": 12, "ign": 20 } },
+    "divine_speed": { "n": "Divine Speed", "cat": "spd", "type": 2, "stats": { "spdP": 12 } },
+    "impulse": { "n": "Impulse", "cat": "spd", "type": 2, "stats": { "spdP": 12 } },
+    "righteous": { "n": "Righteous", "cat": "spd", "type": 2, "stats": { "spdP": 10, "res": 40 } },
+    "chronophage": { "n": "Chronophage", "cat": "spd", "type": 9, "stats": { "1": { "res": 20 }, "2": { "spdP": 10 }, "3": { "res": 20 }, "5": { "spdP": 10 }, "7": { "res": 20 }, "8": { "spdP": 12 } } },
+    "mercurial": { "n": "Mercurial", "cat": "spd", "type": 9, "stats": { "1": { "res": 20 }, "2": { "hpP": 15 }, "3": { "spdP": 10 }, "5": { "spdP": 10 }, "7": { "res": 20 }, "8": { "spdP": 12 } } },
+    "stone_skin": { "n": "Stone Skin", "cat": "surv", "type": 9, "stats": { "1": { "res": 40 }, "2": { "hpP": 8 }, "3": { "defP": 15 }, "5": { "hpP": 8 }, "7": { "defP": 15 }, "8": { "res": 40 } } },
+    "protection": { "n": "Protection", "cat": "surv", "type": 9, "stats": { "1": { "res": 20 }, "2": { "hpP": 15 }, "3": { "spdP": 10 }, "5": { "spdP": 10 }, "7": { "res": 20 }, "8": { "spdP": 12 } } },
+    "swift_parry": { "n": "Swift Parry", "cat": "surv", "type": 9, "stats": { "1": { "cd": 10 }, "2": { "spdP": 10 }, "3": { "hpP": 10 }, "5": { "cd": 20 }, "7": { "hpP": 15 }, "8": { "spdP": 18 } } },
+    "rebirth": { "n": "Rebirth", "cat": "surv", "type": 9, "stats": { "1": { "res": 20 }, "2": { "hpP": 10 }, "3": { "spdP": 10 }, "5": { "spdP": 10 }, "7": { "res": 40 }, "8": { "spdP": 12 } } }
+  }
+}

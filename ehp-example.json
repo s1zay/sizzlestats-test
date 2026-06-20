@@ -1,0 +1,56 @@
+[
+  {
+    "name": "LVL 1 Normal Spiderling",
+    "HP": 2850,
+    "DEF": 32,
+    "ehp": 2902
+  },
+  {
+    "name": "LVL 1 Normal Spider",
+    "HP": 71430,
+    "DEF": 159,
+    "ehp": 78107
+  },
+  {
+    "name": "LVL 1 Hard Spiderling",
+    "HP": 295961,
+    "DEF": 807,
+    "ehp": 457912
+  },
+  {
+    "name": "LVL 1 Hard Spider",
+    "HP": 8744268,
+    "DEF": 4335,
+    "ehp": 44333187
+  },
+  {
+    "name": "LVL 1 Minotaur",
+    "HP": 24495,
+    "DEF": 122,
+    "ehp": 26237
+  },
+  {
+    "name": "LVL 15 Minotaur",
+    "HP": 610050,
+    "DEF": 3050,
+    "ehp": 2334997
+  },
+  {
+    "name": "LVL 1 Normal Dragon",
+    "HP": 29760,
+    "DEF": 159,
+    "ehp": 32542
+  },
+  {
+    "name": "LVL 1 Hard Dragon",
+    "HP": 4203968,
+    "DEF": 6726,
+    "ehp": 26341486
+  },
+  {
+    "name": "Demon Lord Easy",
+    "HP": 19021215,
+    "DEF": 294,
+    "ehp": 22411903
+  }
+]

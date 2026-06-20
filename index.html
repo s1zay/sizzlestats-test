@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>SizzleStats | Raid Shadow Legends Stat Scanner & Simulator</title>
+    <meta name="title" content="SizzleStats | Raid Shadow Legends Stat Scanner & Simulator" />
+    <meta name="description"
+        content="A free, lightning-fast OCR scanner to analyze champion builds, grade efficiency, and simulate account bonuses directly in your browser." />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sizzlestats.com/" />
+    <meta property="og:title" content="SizzleStats | Raid Shadow Legends Stat Scanner" />
+    <meta property="og:description"
+        content="Analyze your champion builds, grade efficiency, and simulate account bonuses instantly in your browser." />
+    <meta property="og:image" content="https://sizzlestats.com/img/social-preview.jpg" />
+
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://sizzlestats.com/" />
+    <meta property="twitter:title" content="SizzleStats | Raid Shadow Legends Stat Scanner" />
+    <meta property="twitter:description"
+        content="Analyze your champion builds, grade efficiency, and simulate account bonuses instantly in your browser." />
+    <meta property="twitter:image" content="https://sizzlestats.com/img/social-preview.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="style.css?v=999" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <script src="grid-data.js?v=1.2"></script>
+    <script src="style-card-engine.js?v=1.2"></script>
+    <script src="damage-engine.js?v=1.2"></script>
+    <script src="ehp-engine.js?v=1.2"></script>
+    <script src="sim-engine.js?v=1.2"></script>
+    <script src="splash.js?v=1.0"></script>
+    <script src="roll-engine.js?v=1.0"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@techstark/opencv-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+
+<body>
+    <header class="top-navigation">
+        <div class="brand-container">
+            <div class="brand-stamp">sizzlestats<span class="domain">.com</span></div>
+            <div class="brand-subtitle">Unofficial Raid: Shadow Legends Utility</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
+
+            <div class="dynamic-nav" id="mainNavigation" style="display: none;">
+                <div id="nav-state-lens" style="display: flex; gap: 10px;">
+                    <button class="nav-btn" onclick="resetToSplash()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5"></path>
+                            <path d="M12 19l-7-7 7-7"></path>
+                        </svg>
+                        New Scan
+                    </button>
+
+                    <button class="nav-btn nav-forward" onclick="switchView('mirage')">
+                        Sandbox
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"></path>
+                            <path d="M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="nav-state-sandbox" style="display: none; gap: 10px;">
+                    <button class="nav-btn" onclick="window.resetSandbox(); resetToSplash()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 17l-5-5 5-5"></path>
+                            <path d="M18 17l-5-5 5-5"></path>
+                        </svg>
+                        New Scan
+                    </button>
+
+                    <button class="nav-btn" onclick="window.resetSandbox(); switchView('lens')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5"></path>
+                            <path d="M12 19l-7-7 7-7"></path>
+                        </svg>
+                        Lens
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-container" id="splash-view"
+        style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 20px;">
+
+        <div
+            style="display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 40px; width: 100%;">
+
+            <div style="flex: 1 1 300px; max-width: 550px;">
+                <h1 style="color: var(--text-primary); margin-bottom: 24px; font-size: 2.2rem; line-height: 1.2;">Gauge
+                    Your Champion's Stats in Seconds.</h1>
+
+                <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start;">
+                    <div
+                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+                        1</div>
+                    <div>
+                        <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Open Total Stats</h3>
+                        <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Take a full, uncropped
+                            screenshot of your champion's stat panel.</p>
+                        <img src="example.png" alt="Example Stat Screen"
+                            style="margin-top: 12px; max-width: 200px; border: 1px solid var(--border-lowkey); border-radius: 8px;" />
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start;">
+                    <div
+                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+                        2</div>
+                    <div>
+                        <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Upload & Preview</h3>
+                        <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Drag the image into the box
+                            or tap to browse your camera roll.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <div
+                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+                        3</div>
+                    <div>
+                        <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Analyze</h3>
+                        <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Hit scan to instantly gauge
+                            your build and simulate potential stat rolls.</p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div style="flex: 1 1 300px; max-width: 450px; display: flex; flex-direction: column; gap: 20px;">
+
+                <div
+                    style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: -10px; font-weight: 500;">
+                    Drop your champion’s total stats screenshot below.
+                </div>
+
+                <div id="drop-zone"
+                    style="border: 2px dashed var(--indicator-active); border-radius: 12px; padding: 60px 20px; text-align: center; background: var(--bg-card); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(234, 179, 8, 0.1);"
+                    onclick="document.getElementById('imageLoader').click();">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indicator-active)"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Tap to Upload</h3>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">or drag and drop screenshot here
+                    </p>
+                    <input type="file" id="imageLoader" accept="image/*" style="display: none;"
+                        onchange="handleImagePreview(event)" />
+                </div>
+
+                <div id="preview-zone"
+                    style="display: none; flex-direction: column; gap: 16px; background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-lowkey);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="color: var(--text-primary); font-weight: bold;">Image Preview</span>
+                            <span id="preview-filename"
+                                style="font-size: 0.8rem; color: var(--indicator-active); font-family: monospace; margin-top: 2px;"></span>
+                        </div>
+                        <button onclick="resetUpload()" class="kebab-hover"
+                            style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 4px 8px; border-radius: 4px;">Replace</button>
+                    </div>
+                    <div
+                        style="width: 100%; height: 220px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                        <img id="image-preview-element" src="" alt="Preview"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                    </div>
+                    <button id="start-scan-btn" onclick="startScanProcess()"
+                        style="width: 100%; padding: 14px; background: var(--indicator-active); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); transition: transform 0.1s ease;">
+                        SCAN NOW
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 4px; padding: 0 10px;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="vertical-align: -2px; margin-right: 4px; color: var(--indicator-active);">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <strong>Privacy First:</strong> All scanning is 100% local. Images are never sent to any
+                        servers.
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <main class="app-container" id="lens-view" style="display: none">
+        <section class="viewport-column">
+
+            <div id="champ-identity-card" class="dashboard-card identity-card" style="position: relative;">
+                <div class="champ-name-row">
+                    <h2 id="champ-name" style="color: var(--text-muted)">Awaiting Upload...</h2>
+                </div>
+                <div class="champ-level-row">
+                    <span id="champ-lvl" class="champ-lvl"></span>
+                    <span id="champ-stars" class="champ-stars"></span>
+                    <span id="lens-mythical-badge" class="mythical-badge" style="display: none"></span>
+                </div>
+                <div class="champ-traits-row">
+                    <span id="champ-affinity" class="trait-affinity">-</span>
+                    <span id="champ-faction" class="trait-faction">-</span>
+                    <span id="champ-role" class="trait-role">-</span>
+                </div>
+            </div>
+
+            <div id="stat-matrix" class="stat-grid">
+                <div class="stat-box"><span class="stat-label">HP</span><span id="val-hp" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">SPD</span><span id="val-spd" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">RES</span><span id="val-res" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">ATK</span><span id="val-atk" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">C. RATE</span><span id="val-cr" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">ACC</span><span id="val-acc" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">DEF</span><span id="val-def" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">C. DMG</span><span id="val-cd" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">IGNORE DEF</span><span id="val-ign"
+                        class="stat-val">0%</span></div>
+            </div>
+
+            <div class="warning-text">
+                <div id="val-warnings" class="warning-text"
+                    style="display: none; color: var(--accent-warning); font-weight: 600; font-size: 0.85rem; text-align: center;">
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace-column">
+            <div class="action-bar" id="bar-style">
+                <div class="action-content">
+                    <span id="val-style-name">Build Style</span>
+                    <span id="val-style-match" class="action-highlight"></span>
+                </div>
+                <span class="action-icon"></span>
+            </div>
+            <div class="action-drawer" id="drawer-style">
+                <div id="val-style-details" style="display: flex; flex-direction: column; gap: 8px">
+                    <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
+                </div>
+            </div>
+
+            <div class="action-bar" id="bar-ehp">
+                <div class="action-content">
+                    <span id="ehp-accordion-title" style="transition: color 0.2s ease;">Survivability</span>
+                </div>
+                <span class="action-icon"></span>
+            </div>
+
+            <div class="action-drawer" id="drawer-ehp">
+                <div id="val-ehp-details" class="coach-drawer-content">
+                    <span id="ehp-waiting" class="waiting-text">Waiting for scan data...</span>
+
+                    <div id="ehp-coach-ui" class="coach-ui-container" style="display: none;">
+                        <p class="coach-score-text" id="ehp-score-text">
+                            Your [NN] has <strong id="ehp-inline-score" class="stat-highlight kraken-text"></strong>
+                            Effective Hit Points (eHP)
+                        </p>
+
+                        <div class="kraken-labels labels-top">
+                            <span>0 eHP</span>
+                            <span>1.2M eHP</span>
+                        </div>
+
+                        <div class="kraken-track">
+                            <div class="kraken-chunk chunk-1"></div>
+                            <div class="kraken-chunk chunk-2"></div>
+                            <div class="kraken-chunk chunk-3"></div>
+                            <div class="kraken-chunk chunk-4"></div>
+                            <div class="kraken-chunk chunk-5"></div>
+
+                            <div id="kraken-marker" class="kraken-marker"></div>
+                        </div>
+
+                        <div id="kraken-tier-label" class="kraken-tier-name">--</div>
+
+                        <p id="ehp-coach-desc" class="coach-description" style="margin-top: 16px;">
+                            eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability
+                            score.
+                            To improve your [NN]’s eHP, <strong id="inline-coach-target"
+                                class="stat-highlight-white"></strong> is the most efficient investment.
+                        </p>
+
+                        <button id="btn-ehp-show-me" class="coach-show-me-btn"
+                            onclick="document.getElementById('ledger-sheet').classList.add('open')">Improve eHP
+                            ▲</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="action-bar" id="bar-efficiency">
+                <div class="action-content">
+                    <span id="eff-accordion-title" style="transition: color 0.2s ease;">Damage</span>
+                </div>
+                <span class="action-icon"></span>
+            </div>
+
+            <div class="action-drawer" id="drawer-efficiency">
+                <div id="val-eff-details" class="coach-drawer-content">
+                    <span id="eff-waiting" class="waiting-text">Waiting for scan data...</span>
+
+                    <div id="eff-coach-ui" class="coach-ui-container" style="display: none;">
+
+                        <div id="eff-multi-warning" style="display: none; text-align: center; padding: 10px 5px;">
+                            <div id="eff-multi-warning-text"
+                                style="margin-bottom: 15px; font-size: 0.95rem; color: var(--text-primary);">
+                                [NN] uses multiple stats to scale damage.
+                            </div>
+                            <div id="eff-multi-pills"
+                                style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            </div>
+                        </div>
+
+                        <div id="eff-standard-ui">
+
+                            <div id="eff-primary-bar">
+                                <p class="coach-score-text">
+                                    Your damage efficiency is <strong id="eff-inline-score"
+                                        class="stat-highlight dmg-text"></strong>
+                                </p>
+
+                                <div class="kraken-labels labels-top">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                </div>
+
+                                <div class="dmg-track">
+                                    <div id="dmg-marker" class="kraken-marker"></div>
+                                </div>
+                            </div>
+
+                            <div id="eff-outlier-ui" style="display: none;">
+                                <div class="outlier-divider"></div>
+
+                                <p class="coach-score-text">
+                                    Utility Scaling: <strong id="outlier-inline-score"
+                                        class="stat-highlight purple-text"></strong> <span
+                                        id="outlier-stat-label"></span>
+                                </p>
+
+                                <div class="kraken-labels labels-top">
+                                    <span>0</span>
+                                    <span id="outlier-max-label"></span>
+                                </div>
+
+                                <div class="kraken-track">
+                                    <div class="kraken-chunk p-chunk-1"></div>
+                                    <div class="kraken-chunk p-chunk-2"></div>
+                                    <div class="kraken-chunk p-chunk-3"></div>
+                                    <div class="kraken-chunk p-chunk-4"></div>
+                                    <div class="kraken-chunk p-chunk-5"></div>
+
+                                    <div id="outlier-marker" class="kraken-marker"></div>
+                                </div>
+
+                                <div id="outlier-tier-label" class="kraken-tier-name">--</div>
+                            </div>
+
+                            <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
+                                Damage efficiency evaluates the balance between [NN]’s damage scaling stat,
+                                <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
+                                To improve your [NN]’s damage, <strong id="eff-coach-target"
+                                    class="stat-highlight-white"></strong> is the most efficient investment.
+                            </p>
+
+                            <button id="btn-eff-show-me" class="coach-show-me-btn"
+                                onclick="window.openDmgLedgerSheet()">Improve Damage Efficiency ▲</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar" id="bar-area">
+                <div class="action-content">
+                    <span id="val-area-name">No Area Selected</span>
+                </div>
+                <span class="action-icon"></span>
+            </div>
+            <div class="action-drawer" id="drawer-area">
+                <div id="val-area-details" style="display: flex; flex-direction: column">
+                    <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <main id="mirage-view" style="display: none; max-width: 1200px; margin: 0 auto; width: 100%;">
+        <!--<div
+            style="background: rgba(234, 179, 8, 0.1); border: 1px dashed var(--accent-warning); color: var(--accent-warning); padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 16px; font-weight: bold; font-size: 0.9em;">
+            Sandbox is in active development. Features may be broken or inaccurate.
+        </div>-->
+
+        <div class="dashboard-wrapper">
+
+            <div class="top-controls-wrapper">
+                <div id="mirage-identity-card" class="dashboard-card identity-card"
+                    style="position: relative; margin-bottom: 0; padding: 16px; display: flex; flex-direction: column; justify-content: center;">
+
+                    <div class="champ-name-row">
+                        <h2 id="mirage-champ-name"
+                            style="color: var(--text-muted); font-size: 1.4rem; text-align: center; width: 100%; margin: 0;">
+                            Awaiting Scan...</h2>
+                    </div>
+
+                    <div class="champ-level-row"
+                        style="display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <span id="mirage-champ-lvl" class="champ-lvl"></span>
+                        <span id="mirage-champ-stars" class="champ-stars"></span>
+
+                        <div style="position: relative; display: flex; align-items: center">
+                            <div style="cursor: pointer; padding: 2px; display: flex; align-items: center; transition: opacity 0.2s ease;"
+                                onclick="toggleAwakeningMenu()" class="kebab-hover">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-muted)">
+                                    <circle cx="12" cy="5" r="2.5"></circle>
+                                    <circle cx="12" cy="12" r="2.5"></circle>
+                                    <circle cx="12" cy="19" r="2.5"></circle>
+                                </svg>
+                            </div>
+
+                            <div id="awakening-dropdown"
+                                style="display: none; position: absolute; top: 24px; left: 50%; transform: translateX(-50%); background: var(--bg-card); border: 1px solid var(--border-lowkey); border-radius: 8px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+
+                                <input type="hidden" id="awkSelect" value="0">
+                                <input type="hidden" id="empSelect" value="0">
+
+                                <div class="champ-menu-columns">
+
+                                    <div class="champ-menu-col">
+                                        <div class="champ-menu-header">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#ef4444"
+                                                stroke="#ef4444" stroke-width="1" stroke-linejoin="round">
+                                                <polygon
+                                                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                                                </polygon>
+                                            </svg>
+                                        </div>
+                                        <button class="champ-menu-btn" onclick="setAwakening(0)">0</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(1)">1</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(2)">2</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(3)">3</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(4)">4</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(5)">5</button>
+                                        <button class="champ-menu-btn" onclick="setAwakening(6)">6</button>
+                                    </div>
+
+                                    <div class="champ-menu-col col-empowerment"
+                                        style="border-left: 1px solid var(--border-lowkey); padding-left: 20px;">
+                                        <div class="champ-menu-header">
+                                            <span class="gold-plus">+</span>
+                                        </div>
+                                        <button class="champ-menu-btn" onclick="window.setEmpowerment(0)">0</button>
+                                        <button class="champ-menu-btn" onclick="window.setEmpowerment(1)">1</button>
+                                        <button class="champ-menu-btn" onclick="window.setEmpowerment(2)">2</button>
+                                        <button class="champ-menu-btn" onclick="window.setEmpowerment(3)">3</button>
+                                        <button class="champ-menu-btn" onclick="window.setEmpowerment(4)">4</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <span id="mirage-mythical-badge" class="mythical-badge" style="display: none"></span>
+                    </div>
+
+                    <div class="champ-traits-row" style="justify-content: center; gap: 8px">
+                        <span id="mirage-champ-affinity" class="trait-affinity">-</span>
+                        <span id="mirage-champ-faction" class="trait-faction">-</span>
+                        <span id="mirage-champ-role" class="trait-role">-</span>
+                    </div>
+
+                    <div class="champ-action-row"
+                        style="width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-lowkey); display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                        <button class="rng-btn" style="flex: 1; padding: 4px 8px; font-size: 0.9em; max-width: 120px;"
+                            onclick="rollDice()">ROLL</button>
+                        <select id="utilitySelect" class="rng-btn"
+                            style="flex: 1.5; padding: 4px 20px 4px 4px; font-size: 0.9em; max-width: 150px; text-align: center; appearance: none; background-color: var(--bg-canvas); border: 1px solid var(--border-lowkey); cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=\%22http://www.w3.org/2000/svg\%22 viewBox=\%220 0 24 24\%22 fill=\%22%23a1a1aa\%22><path d=\%22M7 10l5 5 5-5z\%22/></svg>'); background-repeat: no-repeat; background-position: right 4px center; background-size: 16px;"
+                            onchange="window.RollEngine.updateUtilityProfile(this.value)">
+                            <option value="ATK Nuker">ATK Nuker</option>
+                            <option value="DEF Nuker">DEF Nuker</option>
+                            <option value="HP Nuker">HP Nuker</option>
+                            <option value="Tank">Tank</option>
+                            <option value="Support">Support</option>
+                            <option value="Custom" selected>Custom</option>
+                        </select>
+                        <button class="rng-btn reset-btn"
+                            style="flex: 1; padding: 4px 8px; font-size: 0.9em; max-width: 120px;"
+                            onclick="resetSubstats()">RESET</button>
+                    </div>
+
+                    <div class="champ-modifier-row"
+                        style="width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dotted var(--border-lowkey);">
+
+                        <div class="setting-row" style="margin-bottom: 12px;">
+                            <div class="setting-label"
+                                style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--text-muted); font-size: 0.85em">Rarity Scale</span>
+                                <span id="rarityLabel"
+                                    style="color: var(--indicator-active); font-weight: bold; font-size: 0.85em;">50%</span>
+                            </div>
+                            <input type="range" id="raritySlider" min="0" max="100" value="50" step="0.1"
+                                oninput="document.getElementById('rarityLabel').innerText = Math.round(this.value) + '%'; if(typeof updateGlobal === 'function') updateGlobal();"
+                                style="width: 100%" />
+                        </div>
+
+                        <div class="setting-row" style="margin-bottom: 0">
+                            <div class="setting-label"
+                                style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span style="color: var(--text-muted); font-size: 0.85em">Realistic Scale</span>
+                                <span id="realismLabel"
+                                    style="color: var(--indicator-active); font-weight: bold; font-size: 0.85em;">50%</span>
+                            </div>
+                            <input type="range" id="realismSlider" min="0" max="100" value="50" step="0.1"
+                                oninput="document.getElementById('realismLabel').innerText = Math.round(this.value) + '%'; if(typeof updateGlobal === 'function') updateGlobal();"
+                                style="width: 100%" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="gear-grid" id="mainGrid">
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">WEAPON</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">HELMET</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">SHIELD</span>
+                    </div>
+                </div>
+
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">GLOVES</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">CHEST</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">BOOTS</span>
+                    </div>
+                </div>
+
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">RING</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">AMULET</span>
+                    </div>
+                </div>
+                <div class="gear-card slot-empty">
+                    <div class="card-header"><span class="card-title"
+                            style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">BANNER</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="summaryCard">
+                <div class="section-content summary-wrapper"
+                    style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="width: 100%; max-width: 600px;">
+
+                        <div class="summary-header-container">
+                            <div class="roll-quality-group">
+                                <span class="roll-quality-label">Roll Quality</span>
+                                <div class="precision-pills">
+                                    <button class="pill-btn" id="pill-min"
+                                        onclick="window.setRollQuality('min')">Min</button>
+                                    <button class="pill-btn active-pill" id="pill-avg"
+                                        onclick="window.setRollQuality('avg')">Avg</button>
+                                    <button class="pill-btn" id="pill-max"
+                                        onclick="window.setRollQuality('max')">Max</button>
+                                    <button class="pill-btn" id="pill-rng"
+                                        onclick="window.setRollQuality('random')">RNG</button>
+                                </div>
+                            </div>
+
+                            <button id="quickRerollBtn" class="keep-rollin-btn kebab-hover" onclick="window.rollDice()"
+                                title="Reroll Gear">
+                                <svg class="keep-rollin-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                    stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <polyline points="23 20 23 14 17 14"></polyline>
+                                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15">
+                                    </path>
+                                </svg>
+                                Keep Rollin'
+                            </button>
+                        </div>
+
+                        <div class="summary-grid hide-math" id="summaryOutput" onclick="toggleMath(event)"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="right-top-wrapper">
+
+                <!-- ROADMAP PLACEHOLDER -->
+                <div class="section-card"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; border: 1px dashed var(--border-lowkey); background: rgba(0,0,0,0.2);">
+                    <div style="margin-bottom: 10px;">
+                        <img src="favicon.png" alt="SizzleStats Logo"
+                            style="width: 48px; height: 48px; opacity: 0.7;" />
+                    </div>
+                    <h3
+                        style="color: var(--indicator-active); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
+                        Advanced Simulations Coming Soon</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 80%;">
+                        The math for <strong>Gear Sets</strong>, <strong>Relics</strong>, <strong>Masteries</strong>, and
+                        <strong>Stat Bonuses</strong> are currently in production and will drop in the next
+                        major update.
+                    </p>
+                </div>
+
+                <!-- ACTIVE GLOBAL GEAR SETUP (Glyphs & Ascension Only) -->
+                <div class="dashboard-card section-card collapsed" id="setupCard"
+                    style="padding: 0; margin-bottom: 12px">
+                    <div class="section-header" onclick="toggleSection('setupCard')">
+                        <h2>Global Gear Setup</h2>
+                        <span class="toggle-arrow" style="color: var(--text-muted); font-size: 0.8em">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="glyph-row" style="border-top: none; padding-top: 0;">
+                            <label>Max Faction Wars Glyphs:
+                                <select id="glyphSelect" class="top-utility" onchange="updateGlobal()"
+                                    style="margin-top: 5px">
+                                    <option value="0">Off (No Glyphs)</option>
+                                    <option value="green5">Max 5★ Basic (Green)</option>
+                                    <option value="green6">Max 6★ Basic (Green)</option>
+                                    <option value="blue6">Max 6★ Rare (Blue)</option>
+                                    <option value="purple6">Max 6★ Epic (Purple)</option>
+                                    <option value="gold6">Max 6★ Legendary (Gold)</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="setting-row"
+                            style="margin-top: 15px; border-top: 1px solid var(--border-lowkey); padding-top: 10px;">
+                            <div class="setting-label">Gear Ascension Injection</div>
+                            <select id="ascensionMode" class="top-utility"
+                                style="margin-top: 5px; font-size: 0.8em; padding: 6px"
+                                onchange="handleAscensionModeChange()">
+                                <option value="off" selected>Off</option>
+                                <option value="ideal">Ideal (Matches Utility)</option>
+                                <option value="custom" style="display: none">Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRESERVED UNFINISHED FEATURES -->
+                <!--
+                <div class="dashboard-card section-card collapsed" id="setupCard_Archive"
+                    style="padding: 0; margin-bottom: 12px">
+                    <div class="section-header" onclick="toggleSection('setupCard_Archive')">
+                        <h2>Global Gear Setup</h2>
+                        <span class="toggle-arrow" style="color: var(--text-muted); font-size: 0.8em">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="toggle-group">
+                            <label class="gh-toggle"><input type="checkbox" id="ghToggle" checked
+                                    onchange="updateSummary()" /> Max Great Hall</label>
+                            <label class="gh-toggle"><input type="checkbox" id="fgToggle" checked
+                                    onchange="updateSummary()" /> Max Faction Guardians</label>
+                        </div>
+                        <div class="glyph-row">
+                            <label>Max Faction Wars Glyphs:
+                                <select id="glyphSelect_Archive" class="top-utility" onchange="updateGlobal()"
+                                    style="margin-top: 5px">
+                                    <option value="0">Off (No Glyphs)</option>
+                                    <option value="green5">Max 5★ Basic (Green)</option>
+                                    <option value="green6">Max 6★ Basic (Green)</option>
+                                    <option value="blue6">Max 6★ Rare (Blue)</option>
+                                    <option value="purple6">Max 6★ Epic (Purple)</option>
+                                    <option value="gold6">Max 6★ Legendary (Gold)</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="setting-row"
+                            style="margin-top: 15px; border-top: 1px solid var(--border-lowkey); padding-top: 10px;">
+                            <div class="setting-label">Gear Ascension Injection</div>
+                            <select id="ascensionMode_Archive" class="top-utility"
+                                style="margin-top: 5px; font-size: 0.8em; padding: 6px"
+                                onchange="handleAscensionModeChange()">
+                                <option value="off" selected>Off</option>
+                                <option value="ideal">Ideal (Matches Utility)</option>
+                                <option value="custom" style="display: none">Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card section-card collapsed" id="setsCard"
+                    style="padding: 0; margin-bottom: 12px">
+                    <div class="section-header" onclick="toggleSection('setsCard')">
+                        <h2>Active Sets <span id="setBudgetLabel"
+                                style="color: var(--text-muted); font-family: monospace; font-size: 1.1em; letter-spacing: 0; margin-left: 8px;">[0/9]</span>
+                        </h2>
+                        <span class="toggle-arrow" style="color: var(--text-muted); font-size: 0.8em">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="set-category">
+                            <div class="set-cat-header">Offense / Nuke</div>
+                            <div id="setList_off" class="set-list"></div>
+                            <select id="setSel_off" class="top-utility set-select" onchange="addSet(this.value, 'off')">
+                                <option value="">+ Add Set...</option>
+                            </select>
+                        </div>
+                        <div class="set-category">
+                            <div class="set-cat-header">Speed / Utility</div>
+                            <div id="setList_spd" class="set-list"></div>
+                            <select id="setSel_spd" class="top-utility set-select" onchange="addSet(this.value, 'spd')">
+                                <option value="">+ Add Set...</option>
+                            </select>
+                        </div>
+                        <div class="set-category" style="margin-bottom: 0">
+                            <div class="set-cat-header">Survival / Hybrid</div>
+                            <div id="setList_surv" class="set-list"></div>
+                            <select id="setSel_surv" class="top-utility set-select"
+                                onchange="addSet(this.value, 'surv')">
+                                <option value="">+ Add Set...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card section-card collapsed" id="masteryCard"
+                    style="padding: 0; margin-bottom: 12px">
+                    <div class="section-header" onclick="toggleSection('masteryCard')">
+                        <h2>Mastery Selection</h2>
+                        <span class="toggle-arrow" style="color: var(--text-muted); font-size: 0.8em">▼</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="mastery-container">
+                            <div class="tree-col offense-bg" id="tree_offense">
+                                <span class="tree-name">OFFENSE</span>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="offense" data-tier="1"
+                                        id="m_blade" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Blade Disc.</span><span class="m-stat">+75
+                                            ATK</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="offense" data-tier="1"
+                                        id="m_deadly" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Deadly Prec.</span><span
+                                            class="m-stat">+5% C. RATE</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="offense" data-tier="2" id="m_keen"
+                                        onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Keen Strike</span><span
+                                            class="m-stat">+10% C. DMG</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="offense" data-tier="6"
+                                        id="m_flawless" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Flawless</span><span class="m-stat">+20%
+                                            C. DMG</span></div>
+                                </label>
+                            </div>
+                            <div class="tree-col defense-bg" id="tree_defense">
+                                <span class="tree-name">DEFENSE</span>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="defense" data-tier="1"
+                                        id="m_tough" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Tough Skin</span><span class="m-stat">+75
+                                            DEF</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="defense" data-tier="1"
+                                        id="m_defiant" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Defiant</span><span class="m-stat">+10
+                                            RES</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="defense" data-tier="6" id="m_iron"
+                                        onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Iron Skin</span><span class="m-stat">+200
+                                            DEF</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="defense" data-tier="6"
+                                        id="m_unshakable" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Unshakable</span><span class="m-stat">+50
+                                            RES</span></div>
+                                </label>
+                            </div>
+                            <div class="tree-col support-bg" id="tree_support">
+                                <span class="tree-name">SUPPORT</span>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="support" data-tier="1"
+                                        id="m_steadfast" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Steadfast</span><span class="m-stat">+810
+                                            HP</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="support" data-tier="1"
+                                        id="m_pinpoint" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Pinpoint</span><span class="m-stat">+10
+                                            ACC</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="support" data-tier="6"
+                                        id="m_elixir" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Elixir</span><span class="m-stat">+3000
+                                            HP</span></div>
+                                </label>
+                                <label class="mastery-item">
+                                    <input type="checkbox" class="m-check" data-tree="support" data-tier="6"
+                                        id="m_eagle" onchange="mUpdate()" />
+                                    <div class="m-info"><span class="m-title">Eagle Eye</span><span class="m-stat">+50
+                                            ACC</span></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="sizzle-footer">
+        <div class="footer-content" style="position: relative;">
+            <span class="footer-text">SizzleStats v1.1.0</span>
+            <span class="footer-divider">|</span>
+
+            <div style="display: inline-flex; align-items: center; gap: 8px;">
+                <a href="mailto:sizzlestats@gmail.com?subject=SizzleStats Feedback" class="bug-report-link">Report a Bug
+                    or Request a Feature</a>
+
+                <button onclick="copySizzleEmail()" title="Copy Email Address"
+                    style="background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 2px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+
+                <span id="email-toast"
+                    style="font-size: 0.75rem; color: var(--indicator-active); opacity: 0; transition: opacity 0.3s ease; position: absolute; right: -50px;">Copied!</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="ledger-sheet" class="bottom-sheet">
+        <div class="sheet-overlay" onclick="window.closeLedgerSheet()"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+
+            <div class="sheet-header">
+                <h2 class="sheet-title">eHP</h2>
+            </div>
+
+            <div class="sheet-body">
+
+                <div class="ledger-block"
+                    style="background: var(--bg-canvas); border: 1px solid var(--border-lowkey); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-lowkey);">
+                        <span style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">1
+                            <strong>DEF%</strong> Roll</span>
+                        <span id="sheet-gain-def"
+                            style="color: #f87171; font-weight: 800; font-size: 1.1rem; font-family: monospace;">≈ +--
+                            eHP</span>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 16px;">
+                        <span style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">1
+                            <strong>HP%</strong> Roll</span>
+                        <span id="sheet-gain-hp"
+                            style="color: #22c55e; font-weight: 800; font-size: 1.1rem; font-family: monospace;">≈ +--
+                            eHP</span>
+                    </div>
+
+                    <div
+                        style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.4; margin: 0; text-align: center;">
+                        <strong id="sheet-best-stat" style="color: #fafafa;">--</strong> is currently <strong
+                            style="color: #fafafa;"><span id="sheet-multiplier">--</span>x more effective</strong>.
+                    </div>
+
+                </div>
+                <div
+                    style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; line-height: 1.2;">
+                    AVG Roll is Calculated using Epic, Legendary and Mythical 5 and 6 star gear
+                </div>
+                <button class="sheet-cta-btn" style="border-color: #22c55e; color: #22c55e;"
+                    onmouseover="this.style.background='rgba(34, 197, 94, 0.1)'"
+                    onmouseout="this.style.background='transparent'"
+                    onclick="window.closeLedgerSheet(); switchView('mirage'); window.scrollTo({ top: 0, behavior: 'smooth' });">[ SANDBOX ]</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ledger-sheet-dmg" class="bottom-sheet">
+        <div class="sheet-overlay" onclick="window.closeDmgLedgerSheet()"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+
+            <div class="sheet-header">
+                <h2 class="sheet-title">DMG Efficiency</h2>
+            </div>
+
+            <div class="sheet-body">
+
+                <div class="ledger-block"
+                    style="background: var(--bg-canvas); border: 1px solid var(--border-lowkey); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-lowkey);">
+                        <span style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">1 <strong
+                                id="dmg-ledger-stat-name">--</strong> Roll</span>
+                        <span id="sheet-gain-stat"
+                            style="font-weight: 800; font-size: 1.1rem; font-family: monospace;">≈ +--% Balance</span>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-lowkey);">
+                        <span style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">1
+                            <strong>C.DMG</strong> Roll</span>
+                        <span id="sheet-gain-cd" style="font-weight: 800; font-size: 1.1rem; font-family: monospace;">≈
+                            +--% Balance</span>
+                    </div>
+
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 16px;">
+                        <span style="color: var(--text-primary); font-weight: 700; font-size: 1.1rem;">1
+                            <strong>C.RATE</strong> Roll</span>
+                        <span id="sheet-gain-cr" style="font-weight: 800; font-size: 1.1rem; font-family: monospace;">≈
+                            +--% Balance</span>
+                    </div>
+
+                    <div
+                        style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.4; margin: 0; text-align: center;">
+                        <strong id="sheet-dmg-best-stat" style="color: #fafafa;">--</strong> is currently your most
+                        effective upgrade path.
+                    </div>
+
+                </div>
+
+                <div id="dmg-roll-disclaimer"
+                    style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; line-height: 1.2;">
+                    1 Roll = Average Roll of 5 and 6 Star Gear 
+                </div>
+
+                <button class="sheet-cta-btn" style="border-color: #ef4444; color: #ef4444;"
+                    onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'"
+                    onmouseout="this.style.background='transparent'"
+                    onclick="window.closeDmgLedgerSheet(); switchView('mirage'); window.scrollTo({ top: 0, behavior: 'smooth' });">[ SANDBOX ]</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scanner-engine.js?v=1.2"></script>
+    <script src="lens.js?v=1.2"></script>
+    <script src="mirage.js?v=1.0"></script>
+    <script>
+        function toggleAwakeningMenu() {
+            const menu = document.getElementById("awakening-dropdown");
+            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+        }
+
+        function setAwakening(val) {
+            document.getElementById("awkSelect").value = val;
+            if (typeof updateSummary === "function") updateSummary();
+            toggleAwakeningMenu();
+        }
+
+        document.addEventListener("click", function (event) {
+            const menu = document.getElementById("awakening-dropdown");
+            const isClickInside = menu.contains(event.target) || event.target.closest('[onclick="toggleAwakeningMenu()"]');
+            if (!isClickInside && menu.style.display === "block") {
+                menu.style.display = "none";
+            }
+        });
+
+        function switchView(view) {
+            const isScannerReady = window.SizzleState && window.SizzleState.currentScan;
+
+            if (view === "mirage" && !isScannerReady) {
+                alert("Please scan a champion before entering the Sandbox.");
+                return;
+            }
+
+            document.getElementById('splash-view').style.display = 'none';
+            document.getElementById('lens-view').style.display = 'none';
+            document.getElementById('mirage-view').style.display = 'none';
+
+            if (view === "splash") {
+                document.getElementById('splash-view').style.display = 'flex';
+                document.getElementById('mainNavigation').style.display = 'none';
+            } else if (view === "lens") {
+                document.getElementById('lens-view').style.display = 'grid';
+                document.getElementById('mainNavigation').style.display = 'flex';
+                document.getElementById('nav-state-lens').style.display = 'flex';
+                document.getElementById('nav-state-sandbox').style.display = 'none';
+            } else if (view === "mirage") {
+                document.getElementById('mirage-view').style.display = 'block';
+                document.getElementById('mainNavigation').style.display = 'flex';
+                document.getElementById('nav-state-lens').style.display = 'none';
+                document.getElementById('nav-state-sandbox').style.display = 'flex';
+
+                if (typeof window.Mirage !== 'undefined' && window.Mirage.updateSummary) {
+                    window.Mirage.updateSummary();
+                }
+            }
+
+
+            if (view === "lens") {
+                document.getElementById("nav-state-lens").style.display = "flex";
+                document.getElementById("nav-state-sandbox").style.display = "none";
+
+                document.getElementById("lens-view").style.display = "grid";
+                document.getElementById("mirage-view").style.display = "none";
+            } else {
+                document.getElementById("nav-state-lens").style.display = "none";
+                document.getElementById("nav-state-sandbox").style.display = "flex";
+
+                document.getElementById("lens-view").style.display = "none";
+                document.getElementById("mirage-view").style.display = "block";
+
+                if (window.SizzleState && window.SizzleState.currentScan) {
+                    const scanData = window.SizzleState.currentScan;
+                    let displayName = scanData.Identity.Champion || "Unknown Champion";
+                    const baseHp = scanData.Stats["HP"]?.Basic || 0;
+                    const empHp = scanData.Stats["HP"]?.Empowerment || 0;
+
+                    if (baseHp > 0 && empHp > 0) {
+                        const currentEmpowerment = Math.round(empHp / (baseHp * 0.1));
+                        if (currentEmpowerment > 0 && currentEmpowerment <= 4) {
+                            displayName += ` <span class="empowerment-tag">+${currentEmpowerment}</span>`;
+                        }
+                    }
+
+                    const nameEl = document.getElementById("mirage-champ-name");
+                    if (nameEl) {
+                        nameEl.innerHTML = displayName;
+                        nameEl.style.color = "var(--text-primary)";
+                    }
+
+                    const lvlEl = document.getElementById("mirage-champ-lvl");
+                    if (lvlEl) lvlEl.innerText = scanData.Identity.Level ? `Lvl ${scanData.Identity.Level}` : "";
+
+                    const starsEl = document.getElementById("mirage-champ-stars");
+                    if (starsEl && typeof generateChampionStars === "function") {
+                        starsEl.innerHTML = generateChampionStars(
+                            scanData.Identity.Rank,
+                            scanData.Identity.AscensionLevel,
+                            scanData.Identity.AwakeningLevel
+                        );
+                    }
+
+                    const mythBadgeEl = document.getElementById("mirage-mythical-badge");
+                    if (mythBadgeEl) {
+                        if (scanData.Identity.Rarity && scanData.Identity.Rarity.toLowerCase() === "mythical") {
+                            const isAlt = scanData.Identity.Form && scanData.Identity.Form.toLowerCase().includes("alternate");
+                            mythBadgeEl.innerText = isAlt ? "ALT" : "BASE";
+                            mythBadgeEl.style.display = "inline-block";
+                        } else {
+                            mythBadgeEl.style.display = "none";
+                        }
+                    }
+
+                    const facEl = document.getElementById("mirage-champ-faction");
+                    if (facEl) facEl.innerText = scanData.Identity.Faction || "-";
+
+                    const roleEl = document.getElementById("mirage-champ-role");
+                    if (roleEl) roleEl.innerText = scanData.Identity.Type || "-";
+
+                    const affEl = document.getElementById("mirage-champ-affinity");
+                    if (affEl) {
+                        const aff = scanData.Identity.Affinity || "-";
+                        affEl.innerText = aff;
+                        affEl.className = "trait-affinity";
+                        if (aff === "Magic") affEl.classList.add("affinity-magic");
+                        if (aff === "Force") affEl.classList.add("affinity-force");
+                        if (aff === "Spirit") affEl.classList.add("affinity-spirit");
+                        if (aff === "Void") affEl.classList.add("affinity-void");
+                    }
+
+                    const cardEl = document.getElementById("mirage-identity-card");
+                    if (cardEl && scanData.Identity.Rarity) {
+                        cardEl.classList.forEach((className) => {
+                            if (className.startsWith("glow-")) cardEl.classList.remove(className);
+                        });
+                        const rarityTier = scanData.Identity.Rarity.toLowerCase();
+                        cardEl.classList.add(`glow-${rarityTier}`);
+                    }
+
+                    if (typeof updateSummary === "function") {
+                        updateSummary();
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

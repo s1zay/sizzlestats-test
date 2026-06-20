@@ -1,0 +1,225 @@
+SizzleStats Fringe Scalers Review
+=================================
+
+Acrizia (Legendary)
+   -> Base: [atk & enemy max hp]
+
+Gnut (Legendary)
+   -> Base: [def, def & enemy max hp]
+
+Marius the Gallant (Legendary)
+   -> Base: [def, def & enemy max hp]
+
+Toshiro The Bloody (Mythical)
+   -> Base: [atk & hp] | Alt: [hp & atk]
+
+Wallmaster Othorion (Legendary)
+   -> Base: [atk, atk & enemy max hp]
+
+Embrys The Anomaly (Mythical)
+   -> Alt: [hp & acc]
+
+Arachoa Moonspinner (Mythical)
+   -> Alt: [atk, atk & enemy max hp]
+
+Titus Blackplume (Legendary)
+   -> Base: [def, def & hp]
+
+Storm Herald Hekaton (Legendary)
+   -> Base: [def, enemy max hp]
+
+Seer (Epic)
+   -> Base: [atk, enemy max hp]
+
+Valkyrie (Legendary)
+   -> Base: [def, atk & def]
+
+Graazur Irongut (Legendary)
+   -> Base: [def, enemy max hp]
+
+Gharol Bloodmaul (Mythical)
+   -> Base: [hp & atk] | Alt: [atk & hp]
+
+Karnage the Anarch (Mythical)
+   -> Base: [atk &acc] | Alt: [atk & acc]
+
+Gizmak The Terrible (Mythical)
+   -> Alt: [hp & def]
+
+Nais the Shadowthief (Mythical)
+   -> Base: [hp & atk]
+
+Odin Faefather (Legendary)
+   -> Base: [atk, enemy max hp]
+
+Cheshire Cat (Legendary)
+   -> Base: [atk & spd]
+
+Admiral Blacktusk (Legendary)
+   -> Base: [def & hp]
+
+Polara Fireheart (Mythical)
+   -> Base: [def & atk] | Alt: [def & atk]
+
+Bladechorister Caldor (Legendary)
+   -> Base: [atk, atk & enemy max hp]
+
+Joan The Luminant (Mythical)
+   -> Base: [atk & res] | Alt: [atk & res]
+
+Kurosa The Covetous (Mythical)
+   -> Alt: [atk & enemy max hp]
+
+Arne The White (Mythical)
+   -> Alt: [hp & atk]
+
+Blood Marchioness Mina (Mythical)
+   -> Alt: [atk & spd]
+
+Coldheart (Rare)
+   -> Base: [atk, enemy max hp & atk]
+
+Royal Guard (Epic)
+   -> Base: [atk, atk & enemy max hp]
+
+Septimus (Legendary)
+   -> Base: [atk, atk & enemy max hp]
+
+Husk (Epic)
+   -> Base: [atk, enemy max hp, hp]
+
+Ghostborn (Legendary)
+   -> Base: [atk, atk & spd]
+
+Roshcard the Tower (Legendary)
+   -> Base: [hp, atk]
+
+Rotos the Lost Groom (Legendary)
+   -> Base: [atk & hp]
+
+Razelvarg (Legendary)
+   -> Base: [atk & spd]
+
+He-Man (Legendary)
+   -> Base: [atk & hp]
+
+Oathbound (Epic)
+   -> Base: [def, def & atk]
+
+Renegade (Rare)
+   -> Base: [atk & spd, atk]
+
+Mortu-Macaab (Legendary)
+   -> Base: [atk, atk &hp]
+
+Armiger (Uncommon)
+   -> Base: [def, def & enemy max hp]
+
+Peydma (Epic)
+   -> Base: [def & atk, def]
+
+Pain Keeper (Rare)
+   -> Base: [def & atk, hp & atk]
+
+Mountain King (Legendary)
+   -> Base: [hp & atk]
+
+Spider (Epic)
+   -> Base: [atk, atk & hp]
+
+Crimson Helm (Epic)
+   -> Base: [atk & def, def]
+
+Torturehelm (Epic)
+   -> Base: [atk & def, hp]
+
+Ironclad (Rare)
+   -> Base: [hp & atk]
+
+Graybeard (Rare)
+   -> Base: [atk, def]
+
+Doomscreech (Rare)
+   -> Base: [atk & hp, hp]
+
+Fellhound (Rare)
+   -> Base: [def & atk]
+
+Nogdar The Headhunter (Legendary)
+   -> Base: [atk, atk & hp]
+
+Gamuran (Legendary)
+   -> Base: [atk, enemy max hp & hp]
+
+Rowan (Epic)
+   -> Base: [atk, atk & spd]
+
+Executioner (Rare)
+   -> Base: [atk, atk & def]
+
+Bogwalker (Rare)
+   -> Base: [def, atk & def]
+
+Azure (Epic)
+   -> Base: [atk, atk & hp]
+
+Veteran (Rare)
+   -> Base: [def, def & atk, def & hp]
+
+Seneschal (Epic)
+   -> Base: [def & atk]
+
+Sentinel (Rare)
+   -> Base: [atk, atk & def]
+
+Muckstalker (Rare)
+   -> Base: [atk & hp]
+
+Guardian (Rare)
+   -> Base: [atk, atk & hp]
+
+Rockbeast (Rare)
+   -> Base: [atk, atk & hp]
+
+Warden (Epic)
+   -> Base: [def, atk & def]
+
+Fortress Goon (Rare)
+   -> Base: [def & atk]
+
+Defiled Sinner (Epic)
+   -> Base: [atk, atk & enemy max hp]
+
+Grumbler (Rare)
+   -> Base: [hp & def]
+
+Death Hound (Common)
+   -> Base: [atk, def]
+
+Terrorbeast (Epic)
+   -> Base: [atk, hp]
+
+Chopper (Rare)
+   -> Base: [spd & atk, atk]
+
+Justiciar (Rare)
+   -> Base: [atk & def]
+
+Ifrit (Rare)
+   -> Base: [atk, atk & hp]
+
+Steel Bowyer (Rare)
+   -> Base: [atk, enemy max hp & atk]
+
+Line Infantry (Uncommon)
+   -> Base: [def & atk, def]
+
+Warchanter (Uncommon)
+   -> Base: [hp, atk]
+
+Lemure (Uncommon)
+   -> Base: [atk, atk & hp]
+
+Hellhound (Common)
+   -> Base: [atk & def]
+

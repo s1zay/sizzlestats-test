@@ -1,0 +1,372 @@
+[
+  {
+    "name": "Acrizia",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk & enemy max hp]"
+  },
+  {
+    "name": "Gnut",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, def & enemy max hp]"
+  },
+  {
+    "name": "Marius the Gallant",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, def & enemy max hp]"
+  },
+  {
+    "name": "Toshiro The Bloody",
+    "rarity": "Mythical",
+    "scaling": "Base: [atk & hp] | Alt: [hp & atk]"
+  },
+  {
+    "name": "Wallmaster Othorion",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Embrys The Anomaly",
+    "rarity": "Mythical",
+    "scaling": "Alt: [hp & acc]"
+  },
+  {
+    "name": "Arachoa Moonspinner",
+    "rarity": "Mythical",
+    "scaling": "Alt: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Titus Blackplume",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, def & hp]"
+  },
+  {
+    "name": "Storm Herald Hekaton",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, enemy max hp]"
+  },
+  {
+    "name": "Seer",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, enemy max hp]"
+  },
+  {
+    "name": "Valkyrie",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, atk & def]"
+  },
+  {
+    "name": "Graazur Irongut",
+    "rarity": "Legendary",
+    "scaling": "Base: [def, enemy max hp]"
+  },
+  {
+    "name": "Gharol Bloodmaul",
+    "rarity": "Mythical",
+    "scaling": "Base: [hp & atk] | Alt: [atk & hp]"
+  },
+  {
+    "name": "Karnage the Anarch",
+    "rarity": "Mythical",
+    "scaling": "Base: [atk &acc] | Alt: [atk & acc]"
+  },
+  {
+    "name": "Gizmak The Terrible",
+    "rarity": "Mythical",
+    "scaling": "Alt: [hp & def]"
+  },
+  {
+    "name": "Nais the Shadowthief",
+    "rarity": "Mythical",
+    "scaling": "Base: [hp & atk]"
+  },
+  {
+    "name": "Odin Faefather",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, enemy max hp]"
+  },
+  {
+    "name": "Cheshire Cat",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk & spd]"
+  },
+  {
+    "name": "Admiral Blacktusk",
+    "rarity": "Legendary",
+    "scaling": "Base: [def & hp]"
+  },
+  {
+    "name": "Polara Fireheart",
+    "rarity": "Mythical",
+    "scaling": "Base: [def & atk] | Alt: [def & atk]"
+  },
+  {
+    "name": "Bladechorister Caldor",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Joan The Luminant",
+    "rarity": "Mythical",
+    "scaling": "Base: [atk & res] | Alt: [atk & res]"
+  },
+  {
+    "name": "Kurosa The Covetous",
+    "rarity": "Mythical",
+    "scaling": "Alt: [atk & enemy max hp]"
+  },
+  {
+    "name": "Arne The White",
+    "rarity": "Mythical",
+    "scaling": "Alt: [hp & atk]"
+  },
+  {
+    "name": "Blood Marchioness Mina",
+    "rarity": "Mythical",
+    "scaling": "Alt: [atk & spd]"
+  },
+  {
+    "name": "Coldheart",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, enemy max hp & atk]"
+  },
+  {
+    "name": "Royal Guard",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Septimus",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Husk",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, enemy max hp, hp]"
+  },
+  {
+    "name": "Ghostborn",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk & spd]"
+  },
+  {
+    "name": "Roshcard the Tower",
+    "rarity": "Legendary",
+    "scaling": "Base: [hp, atk]"
+  },
+  {
+    "name": "Rotos the Lost Groom",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk & hp]"
+  },
+  {
+    "name": "Razelvarg",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk & spd]"
+  },
+  {
+    "name": "He-Man",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk & hp]"
+  },
+  {
+    "name": "Oathbound",
+    "rarity": "Epic",
+    "scaling": "Base: [def, def & atk]"
+  },
+  {
+    "name": "Renegade",
+    "rarity": "Rare",
+    "scaling": "Base: [atk & spd, atk]"
+  },
+  {
+    "name": "Mortu-Macaab",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk &hp]"
+  },
+  {
+    "name": "Armiger",
+    "rarity": "Uncommon",
+    "scaling": "Base: [def, def & enemy max hp]"
+  },
+  {
+    "name": "Peydma",
+    "rarity": "Epic",
+    "scaling": "Base: [def & atk, def]"
+  },
+  {
+    "name": "Pain Keeper",
+    "rarity": "Rare",
+    "scaling": "Base: [def & atk, hp & atk]"
+  },
+  {
+    "name": "Mountain King",
+    "rarity": "Legendary",
+    "scaling": "Base: [hp & atk]"
+  },
+  {
+    "name": "Spider",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Crimson Helm",
+    "rarity": "Epic",
+    "scaling": "Base: [atk & def, def]"
+  },
+  {
+    "name": "Torturehelm",
+    "rarity": "Epic",
+    "scaling": "Base: [atk & def, hp]"
+  },
+  {
+    "name": "Ironclad",
+    "rarity": "Rare",
+    "scaling": "Base: [hp & atk]"
+  },
+  {
+    "name": "Graybeard",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, def]"
+  },
+  {
+    "name": "Doomscreech",
+    "rarity": "Rare",
+    "scaling": "Base: [atk & hp, hp]"
+  },
+  {
+    "name": "Fellhound",
+    "rarity": "Rare",
+    "scaling": "Base: [def & atk]"
+  },
+  {
+    "name": "Nogdar The Headhunter",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Gamuran",
+    "rarity": "Legendary",
+    "scaling": "Base: [atk, enemy max hp & hp]"
+  },
+  {
+    "name": "Rowan",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, atk & spd]"
+  },
+  {
+    "name": "Executioner",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, atk & def]"
+  },
+  {
+    "name": "Bogwalker",
+    "rarity": "Rare",
+    "scaling": "Base: [def, atk & def]"
+  },
+  {
+    "name": "Azure",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Veteran",
+    "rarity": "Rare",
+    "scaling": "Base: [def, def & atk, def & hp]"
+  },
+  {
+    "name": "Seneschal",
+    "rarity": "Epic",
+    "scaling": "Base: [def & atk]"
+  },
+  {
+    "name": "Sentinel",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, atk & def]"
+  },
+  {
+    "name": "Muckstalker",
+    "rarity": "Rare",
+    "scaling": "Base: [atk & hp]"
+  },
+  {
+    "name": "Guardian",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Rockbeast",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Warden",
+    "rarity": "Epic",
+    "scaling": "Base: [def, atk & def]"
+  },
+  {
+    "name": "Fortress Goon",
+    "rarity": "Rare",
+    "scaling": "Base: [def & atk]"
+  },
+  {
+    "name": "Defiled Sinner",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, atk & enemy max hp]"
+  },
+  {
+    "name": "Grumbler",
+    "rarity": "Rare",
+    "scaling": "Base: [hp & def]"
+  },
+  {
+    "name": "Death Hound",
+    "rarity": "Common",
+    "scaling": "Base: [atk, def]"
+  },
+  {
+    "name": "Terrorbeast",
+    "rarity": "Epic",
+    "scaling": "Base: [atk, hp]"
+  },
+  {
+    "name": "Chopper",
+    "rarity": "Rare",
+    "scaling": "Base: [spd & atk, atk]"
+  },
+  {
+    "name": "Justiciar",
+    "rarity": "Rare",
+    "scaling": "Base: [atk & def]"
+  },
+  {
+    "name": "Ifrit",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Steel Bowyer",
+    "rarity": "Rare",
+    "scaling": "Base: [atk, enemy max hp & atk]"
+  },
+  {
+    "name": "Line Infantry",
+    "rarity": "Uncommon",
+    "scaling": "Base: [def & atk, def]"
+  },
+  {
+    "name": "Warchanter",
+    "rarity": "Uncommon",
+    "scaling": "Base: [hp, atk]"
+  },
+  {
+    "name": "Lemure",
+    "rarity": "Uncommon",
+    "scaling": "Base: [atk, atk & hp]"
+  },
+  {
+    "name": "Hellhound",
+    "rarity": "Common",
+    "scaling": "Base: [atk & def]"
+  }
+]
