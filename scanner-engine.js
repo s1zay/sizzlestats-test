@@ -23,7 +23,7 @@ let globalTessWorker = null;
 		statusEl.innerText = "SCANNER READY";
 		statusEl.style.color = "#a1a1aa"; // Back to muted
 	}
-	// console.log("[Sizzle Engine] Tesseract Worker is hot and standing by.");
+	console.log("[Sizzle Engine] Tesseract Worker is hot and standing by.");
 })();
 
 class SizzleScanner {
@@ -52,10 +52,10 @@ class SizzleScanner {
 	}
 
 	async scanImage(imgSource) {
-		// console.log("==========================================");
-		// console.log("[Sizzle Engine] INITIATING SCAN SEQUENCE");
-		// console.log("==========================================");
-		// console.time("TOTAL SCAN TIME");
+		console.log("==========================================");
+		console.log("[Sizzle Engine] INITIATING SCAN SEQUENCE");
+		console.log("==========================================");
+		console.time("TOTAL SCAN TIME");
 
 		this.rawImage = imgSource;
 		this.masterData = this.initDataBucket();
@@ -64,24 +64,24 @@ class SizzleScanner {
 		this.canvas.height = imgSource.height;
 		this.ctx.drawImage(imgSource, 0, 0);
 
-		// console.time("OpenCV: Find L-Bracket");
+		console.time("OpenCV: Find L-Bracket");
 		if (!this.findStatsBox()) {
-			// console.timeEnd("OpenCV: Find L-Bracket");
-			// console.error("[Sizzle Engine] CRITICAL: Could not lock onto the stat matrix UI.");
+			console.timeEnd("OpenCV: Find L-Bracket");
+			console.error("[Sizzle Engine] CRITICAL: Could not lock onto the stat matrix UI.");
 			throw new Error("UI Structure not found. Ensure the stats summary is visible.");
 		}
-		// console.timeEnd("OpenCV: Find L-Bracket");
+		console.timeEnd("OpenCV: Find L-Bracket");
 
-		// console.time("OpenCV: Count Stars");
+		console.time("OpenCV: Count Stars");
 		this.countStars();
-		// console.timeEnd("OpenCV: Count Stars");
+		console.timeEnd("OpenCV: Count Stars");
 
-		// console.time("OpenCV & OCR: Build & Scan Receipt");
+		console.time("OpenCV & OCR: Build & Scan Receipt");
 		await this.buildAndScanReceipt();
-		// console.timeEnd("OpenCV & OCR: Build & Scan Receipt");
+		console.timeEnd("OpenCV & OCR: Build & Scan Receipt");
 
-		// console.timeEnd("TOTAL SCAN TIME");
-		// console.log("[Sizzle Engine] SCAN SEQUENCE COMPLETE", this.masterData);
+		console.timeEnd("TOTAL SCAN TIME");
+		console.log("[Sizzle Engine] SCAN SEQUENCE COMPLETE", this.masterData);
 		return this.masterData;
 	}
 
@@ -122,9 +122,9 @@ class SizzleScanner {
 				width: (bottomF.x + bottomF.width) - leftW.x,
 				height: (bottomF.y + bottomF.height) - leftW.y
 			};
-			// console.log(`[Sizzle Engine] L-Bracket Locked! Anchor Coordinates: X:${leftW.x}, Y:${leftW.y}`);
+			console.log(`[Sizzle Engine] L-Bracket Locked! Anchor Coordinates: X:${leftW.x}, Y:${leftW.y}`);
 		} else {
-			// console.warn(`[Sizzle Engine] L-Bracket not found in image.`);
+			console.warn(`[Sizzle Engine] L-Bracket not found in image.`);
 		}
 
 		src.delete(); hsv.delete(); low.delete(); high.delete(); mask.delete(); kernel.delete(); contours.delete(); hierarchy.delete();
@@ -188,7 +188,7 @@ class SizzleScanner {
 		this.masterData.Identity.AscensionLevel = trueStars.filter(b => b.color !== 'yellow').length;
 		this.masterData.Identity.AwakeningLevel = trueStars.filter(b => b.color === 'red').length;
 
-		// console.log(`[Sizzle Engine] Star Count: ${this.masterData.Identity.Rank} Rank, ${this.masterData.Identity.AscensionLevel} Ascended, ${this.masterData.Identity.AwakeningLevel} Awakened`);
+		console.log(`[Sizzle Engine] Star Count: ${this.masterData.Identity.Rank} Rank, ${this.masterData.Identity.AscensionLevel} Ascended, ${this.masterData.Identity.AwakeningLevel} Awakened`);
 
 		src.delete(); cropped.delete(); hsv.delete(); m1.delete(); m2.delete();
 		Object.values(masks).forEach(m => m.delete());
@@ -314,7 +314,7 @@ class SizzleScanner {
 			roi.delete();
 		};
 
-		// console.time("   -> OpenCV: 102 Image Crops & Filters");
+		console.time("   -> OpenCV: 102 Image Crops & Filters");
 
 		// 1. ADD HEADER
 		const hLoc = sizzleGridLocations.rows.Header;
@@ -382,7 +382,7 @@ class SizzleScanner {
 		resized.delete();
 		filtered.delete();
 		rgbaPlanes.delete();
-		// console.timeEnd("   -> OpenCV: 102 Image Crops & Filters");
+		console.timeEnd("   -> OpenCV: 102 Image Crops & Filters");
 
 		// --- THE CANVAS CROP HACK ---
 		const finalWidth = maxX > 0 ? maxX + PADDING : MAX_CANVAS_WIDTH;
@@ -396,7 +396,7 @@ class SizzleScanner {
 
 		this.receiptCanvas = trimmedCanvas;
 
-		// console.log(`[Sizzle Engine] Sprite Sheet Built: ${finalWidth}x${finalHeight}. Splitting at Y=${dynamicSplitY}`);
+		console.log(`[Sizzle Engine] Sprite Sheet Built: ${finalWidth}x${finalHeight}. Splitting at Y=${dynamicSplitY}`);
 
 		if (!globalTessWorker) {
 			globalTessWorker = await Tesseract.createWorker('eng');
@@ -413,10 +413,10 @@ class SizzleScanner {
 		headerTrim.height = splitY;
 		headerTrim.getContext('2d').drawImage(trimmedCanvas, 0, 0, finalWidth, splitY, 0, 0, finalWidth, splitY);
 
-		// console.time("   -> Tesseract: Text Block (PSM 6)");
+		console.time("   -> Tesseract: Text Block (PSM 6)");
 		const headerResult = await globalTessWorker.recognize(headerTrim, { tessedit_pageseg_mode: '6' });
-		// console.timeEnd("   -> Tesseract: Text Block (PSM 6)");
-		// console.log(`[Sizzle Engine] Text Block parsed ${headerResult.data.words.length} words.`);
+		console.timeEnd("   -> Tesseract: Text Block (PSM 6)");
+		console.log(`[Sizzle Engine] Text Block parsed ${headerResult.data.words.length} words.`);
 
 		// STAGE 2: Extract Grid Matrix -> PSM 11
 		const gridTrim = document.createElement('canvas');
@@ -424,10 +424,10 @@ class SizzleScanner {
 		gridTrim.height = finalHeight - splitY;
 		gridTrim.getContext('2d').drawImage(trimmedCanvas, 0, splitY, finalWidth, gridTrim.height, 0, 0, finalWidth, gridTrim.height);
 
-		// console.time("   -> Tesseract: Number Grid (PSM 11)");
+		console.time("   -> Tesseract: Number Grid (PSM 11)");
 		const gridResult = await globalTessWorker.recognize(gridTrim, { tessedit_pageseg_mode: '11' });
-		// console.timeEnd("   -> Tesseract: Number Grid (PSM 11)");
-		// console.log(`[Sizzle Engine] Number Grid parsed ${gridResult.data.words.length} digits.`);
+		console.timeEnd("   -> Tesseract: Number Grid (PSM 11)");
+		console.log(`[Sizzle Engine] Number Grid parsed ${gridResult.data.words.length} digits.`);
 
 		// Merge results: Offset grid words by dynamic split
 		gridResult.data.words.forEach(w => {
@@ -442,15 +442,25 @@ class SizzleScanner {
 			const cx = (word.bbox.x0 + word.bbox.x1) / 2;
 			const cy = (word.bbox.y0 + word.bbox.y1) / 2;
 
+			// --- THE X-RAY LOG: WHAT DID IT FIND? ---
+			console.log(`🔍 [OCR X-Ray] Found: "${word.text}" at Center(X: ${Math.round(cx)}, Y: ${Math.round(cy)})`);
+
 			const mapItem = receiptMap.find(item =>
 				cx >= item.x0 && cx <= item.x1 &&
 				cy >= item.y0 && cy <= item.y1
 			);
 
-			if (!mapItem) return;
+			if (!mapItem) {
+				// --- THE X-RAY LOG: DID IT DROP IT? ---
+				console.warn(`🚨 [OCR X-Ray] DROPPED! "${word.text}" did not fit inside any map boundaries.`);
+				return;
+			}
 			successfullyRouted++;
 
 			const val = this.cleanOcrNumber(word.text);
+			
+			// --- THE X-RAY LOG: WHERE DID IT GO, AND DID THE CLEANER BREAK IT? ---
+			console.log(`✅ [OCR X-Ray] ROUTED "${word.text}" (Cleaned to: ${val}) -> ${mapItem.row} / ${mapItem.col}`);
 
 			this.masterData.RawWords.push({
 				text: word.text,
@@ -472,7 +482,6 @@ class SizzleScanner {
 				}
 			}
 		});
-		// console.log(`[Sizzle Engine] Routed ${successfullyRouted}/${combinedWords.length} words back to data buckets.`);
 
 		// 7. CLEANUP TEXT FIELDS
 		receiptMap.filter(i => i.type !== 'MATRIX').forEach(item => {
@@ -480,7 +489,7 @@ class SizzleScanner {
 			let rawText = item.text.trim();
 
 			if (item.type === 'HEADER') {
-				// console.log(`[Sizzle Engine] RAW HEADER OCR: "${rawText}"`);
+				console.log(`[Sizzle Engine] RAW HEADER OCR: "${rawText}"`);
 
 				// Strip ANY leading symbols, punctuation, or numbers before the name starts
 				rawText = rawText.replace(/^[^a-zA-Z]+/, "").trim();
@@ -495,18 +504,18 @@ class SizzleScanner {
 					let dirtyLevel = match[2].replace(/[Il|]/g, '1');
 					this.masterData.Identity.Level = this.cleanOcrNumber(dirtyLevel);
 
-					// console.log(`[Sizzle Engine] HEADER MATCH: Champ: ${this.masterData.Identity.Champion}, Level: ${this.masterData.Identity.Level}`);
+					console.log(`[Sizzle Engine] HEADER MATCH: Champ: ${this.masterData.Identity.Champion}, Level: ${this.masterData.Identity.Level}`);
 				} else {
-					// console.warn(`[Sizzle Engine] HEADER REGEX FAILED: "${rawText}" - Attempting fallback.`);
+					console.warn(`[Sizzle Engine] HEADER REGEX FAILED: "${rawText}" - Attempting fallback.`);
 					this.masterData.Identity.Champion = rawText.split('\n')[0].trim();
 				}
 			} else if (item.type === 'FORM') {
-				// console.log(`[Sizzle Engine] RAW FORM OCR: "${rawText}"`);
+				console.log(`[Sizzle Engine] RAW FORM OCR: "${rawText}"`);
 				// Failsafe in case Tesseract forgets the spacebar during binary inversion
 				let cleanForm = rawText.replace(/BaseForm/i, "Base Form").replace(/AlternateForm/i, "Alternate Form");
 				this.masterData.Identity.Form = cleanForm || this.masterData.Identity.Form;
 			} else if (item.type === 'CONTEXT') {
-				// console.log(`[Sizzle Engine] RAW AREA OCR: "${rawText}"`);
+				console.log(`[Sizzle Engine] RAW AREA OCR: "${rawText}"`);
 				this.masterData.Context = rawText;
 			}
 		});

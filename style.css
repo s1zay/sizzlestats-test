@@ -605,3 +605,80 @@ input.goal-input:-webkit-autofill:active {
     border: 1px dashed var(--indicator-active) !important;
     outline: none !important;
 }
+
+/* =========================================
+   21. STRIKE 3: MANUAL CHAMPION OVERRIDE UI
+   ========================================= */
+.manual-name-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 15px;
+    z-index: 9999;
+}
+
+.manual-champ-input {
+    width: 100%;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    border: 1px solid var(--accent-warning);
+    border-radius: 6px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    outline: none;
+    transition: box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.manual-champ-input::placeholder {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.manual-champ-input:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); /* Soft red glow */
+}
+
+.manual-champ-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-lowkey);
+    border-radius: 6px;
+    list-style: none;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    visibility: visible;
+}
+
+.manual-champ-list.hidden-dropdown {
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.manual-champ-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.1s ease;
+}
+
+.manual-champ-item:last-child {
+    border-bottom: none;
+}
+
+.manual-champ-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--indicator-active);
+}

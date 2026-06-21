@@ -1,5 +1,5 @@
 // ==========================================
-// STAT-LENS UI: lens.js (V3.6 - Damage Ledger + Dual Bottom Sheets + Split-Kits + Outliers + Dynamic Coach)
+// STAT-LENS UI: lens.js (V3.11 - The Bulletproof Dashboard Anchor)
 // ==========================================
 
 // 1. Establish the Global Vault
@@ -11,11 +11,8 @@ fetch(`champs.json?v=${new Date().getTime()}`, { cache: "no-store" })
     .then(response => response.json())
     .then(data => {
         championDatabase = data;
-        // console.log(`[Stat-Lens] Database Online: ${championDatabase.length} champions loaded.`);
     })
-    .catch(err => {
-        // console.error("[Stat-Lens] DB Failure:", err);
-    });
+    .catch(err => {});
 
 function getChampionDetails(scannedName) {
     if (!scannedName || championDatabase.length === 0) return null;
@@ -187,7 +184,6 @@ function paintLensUI(scanData) {
 
     // --- 4. REACTIVE ACCORDIONS ---
     const renderAccordions = (renderData) => {
-        // Define our Coach Name globally for the accordions
         const coachName = renderData.Identity.Nickname || "champion";
 
         if (typeof window.calculateChampionStyle === "function") {
@@ -202,7 +198,6 @@ function paintLensUI(scanData) {
             renderData.Identity.EfficiencyData = { isValid: false };
         }
 
-        // Style Match
         const styleNameEl = document.getElementById('val-style-name');
         const styleMatchEl = document.getElementById('val-style-match');
         const styleDetailsEl = document.getElementById('val-style-details');
@@ -243,15 +238,12 @@ function paintLensUI(scanData) {
             if (styleDetailsEl) styleDetailsEl.innerHTML = `<span class="alt-build-empty">No styles calculated.</span>`;
         }
 
-        // ==========================================
-        // DAMAGE EFFICIENCY CALCULATOR
-        // ==========================================
         const effAccordionTitle = document.getElementById('eff-accordion-title');
         const effData = renderData.Identity.EfficiencyData;
 
         if (effAccordionTitle) {
             if (effData && (effData.isValid || effData.isMulti)) {
-                effAccordionTitle.style.color = "#ef4444"; // Deep royal red for Damage
+                effAccordionTitle.style.color = "#ef4444"; 
 
                 const waitEl = document.getElementById('eff-waiting');
                 const coachUiEl = document.getElementById('eff-coach-ui');
@@ -261,7 +253,6 @@ function paintLensUI(scanData) {
                 const multiWarning = document.getElementById('eff-multi-warning');
                 const standardUi = document.getElementById('eff-standard-ui');
 
-                // Helper to populate the DOM elements for standard efficiency
                 const populateStandardEffUi = (data) => {
                     const inlineScoreEl = document.getElementById('eff-inline-score');
                     if (inlineScoreEl) inlineScoreEl.innerText = `${data.score}%`;
@@ -286,7 +277,6 @@ function paintLensUI(scanData) {
                         }
                     }
 
-                    // --- Format Stats for Display (Adding %) ---
                     let displayPrimaryStat = data.primaryStat;
                     if (['ATK', 'DEF', 'HP'].includes(displayPrimaryStat.toUpperCase())) {
                         displayPrimaryStat += '%';
@@ -297,7 +287,6 @@ function paintLensUI(scanData) {
                         displayBestStat += '%';
                     }
 
-                    // --- Dynamic Coach Sentence for Damage ---
                     const effCoachDesc = document.getElementById('eff-coach-desc');
                     if (effCoachDesc) {
                         effCoachDesc.innerHTML = `Damage efficiency evaluates the balance between ${coachName}’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>. To improve your ${coachName}’s damage, <strong id="eff-coach-target" class="stat-highlight-white">${displayBestStat}</strong> is the most efficient investment.`;
@@ -310,23 +299,18 @@ function paintLensUI(scanData) {
                     const gainCdEl = document.getElementById('sheet-gain-cd');
                     const gainCrEl = document.getElementById('sheet-gain-cr');
                     const bestStatEl = document.getElementById('sheet-dmg-best-stat');
-                    const showMeBtn = document.getElementById('btn-eff-show-me');
 
-                    // Manage DOM for re-entrancy
                     const statRow = gainStatEl ? gainStatEl.parentElement : null;
                     const cdRow = gainCdEl ? gainCdEl.parentElement : null;
                     const crRow = gainCrEl ? gainCrEl.parentElement : null;
                     const bestStatContainer = bestStatEl ? bestStatEl.parentElement : null;
                     const rollDisclaimerEl = document.getElementById('dmg-roll-disclaimer');
-                    const dmgSheetTitle = document.querySelector('#ledger-sheet-dmg .sheet-title');
 
-                    // Reset display states
                     if (statRow) statRow.style.display = '';
                     if (cdRow) cdRow.style.display = '';
                     if (crRow) crRow.style.display = '';
                     if (bestStatContainer) bestStatContainer.style.display = '';
 
-                    // Create dynamic message containers
                     let zeroMsgEl = document.getElementById('dmg-zero-message');
                     if (!zeroMsgEl && statRow) {
                         zeroMsgEl = document.createElement('div');
@@ -347,16 +331,13 @@ function paintLensUI(scanData) {
                         statRow.parentElement.insertBefore(strategyMsgEl, statRow);
                     }
 
-                    // --- OUTLIER BAR 2 LOGIC ---
                     const outlierUi = document.getElementById('eff-outlier-ui');
                     let emhpBanner = document.getElementById('eff-emhp-banner');
 
                     if (data.outlier) {
                         if (data.outlier.stat === "EMHP") {
-                            // 1. Hide Bar 2 entirely for EMHP
                             if (outlierUi) outlierUi.style.display = 'none';
 
-                            // 2. Inject purple text ABOVE the red bar
                             if (!emhpBanner) {
                                 emhpBanner = document.createElement('div');
                                 emhpBanner.id = 'eff-emhp-banner';
@@ -370,46 +351,19 @@ function paintLensUI(scanData) {
                             `;
                             emhpBanner.style.display = 'block';
 
-                            // 3. Adjust Button
-                            if (showMeBtn) showMeBtn.innerText = `Strategy • Enemy Max HP ▲`;
-                            if (dmgSheetTitle) dmgSheetTitle.innerText = `Enemy Max HP`;
-
                         } else {
-                            // Hide EMHP banner if it exists
                             if (emhpBanner) emhpBanner.style.display = 'none';
-
-                            // 1. Populate Bar 2
                             if (outlierUi) {
                                 outlierUi.style.display = 'block';
-
-                                const labelsEl = outlierUi.querySelector('.kraken-labels');
-                                const trackEl = outlierUi.querySelector('.kraken-track');
-                                const tierLabelEl = document.getElementById('outlier-tier-label');
                                 const scoreTextEl = outlierUi.querySelector('.coach-score-text');
-
-                                // Ensure standard outlier elements are visible
-                                if (labelsEl) labelsEl.style.display = '';
-                                if (trackEl) trackEl.style.display = '';
-                                if (tierLabelEl) tierLabelEl.style.display = '';
-
                                 if (scoreTextEl) {
                                     scoreTextEl.innerHTML = `Utility Scaling: <strong id="outlier-inline-score" class="stat-highlight purple-text">${data.outlier.total.toLocaleString()}</strong> <span id="outlier-stat-label">${data.outlier.stat}</span>`;
                                 }
-
                                 document.getElementById('outlier-max-label').innerText = data.outlier.max >= 1000000 ? (data.outlier.max / 1000000).toFixed(1) + 'M' : data.outlier.max;
                                 document.getElementById('outlier-marker').style.left = `${data.outlier.pct}%`;
-
-                                if (tierLabelEl) {
-                                    tierLabelEl.innerText = `${data.outlier.tierName} Tier`;
-                                    tierLabelEl.style.color = data.outlier.tierColor;
-                                }
                             }
-
-                            // 2. Adjust Button
-                            if (showMeBtn) showMeBtn.innerText = `Strategy • ${data.outlier.stat} ▲`;
                         }
 
-                        // 3. Populate Strategy Sheet
                         if (statRow) statRow.style.display = 'none';
                         if (cdRow) cdRow.style.display = 'none';
                         if (crRow) crRow.style.display = 'none';
@@ -419,26 +373,18 @@ function paintLensUI(scanData) {
 
                         if (strategyMsgEl) {
                             let strategyText = "";
-
-                            if (data.outlier.stat === "SPD") {
-                                strategyText = `This champion double-dips into Speed. Pushing SPD not only increases your raw damage output but gives you more opportunities to inflict damage. Prioritize pushing ${coachName}'s SPD as high as possible before worrying about perfecting damage efficiency.`;
-                            } else if (data.outlier.stat === "ACC" || data.outlier.stat === "RES") {
-                                strategyText = `This champion converts utility into damage. Hitting your ${data.outlier.stat} requirements for your target area is your absolute first priority. Once ${coachName}'s debuffs are landing (or you are resisting them), then focus on balancing your C.DMG.`;
-                            } else if (data.outlier.stat === "EMHP") {
-                                strategyText = `Enemy MAX HP skills deal most of their damage through C.RATE and C.DMG. Base stats (ATK/DEF/HP) still contribute, but provide smaller damage gains.`;
-                            }
+                            if (data.outlier.stat === "SPD") strategyText = `This champion double-dips into Speed. Pushing SPD not only increases your raw damage output but gives you more opportunities to inflict damage.`;
+                            else if (data.outlier.stat === "ACC" || data.outlier.stat === "RES") strategyText = `This champion converts utility into damage. Hitting your ${data.outlier.stat} requirements is your absolute first priority.`;
+                            else if (data.outlier.stat === "EMHP") strategyText = `Enemy MAX HP skills deal most of their damage through C.RATE and C.DMG. Base stats still contribute, but provide smaller damage gains.`;
                             strategyMsgEl.innerHTML = `<strong class="outlier-strategy-title">Strategy</strong>${strategyText}`;
                             strategyMsgEl.style.display = 'block';
                         }
                     } else {
-                        // --- STANDARD RENDER LOGIC ---
                         if (emhpBanner) emhpBanner.style.display = 'none';
                         if (outlierUi) outlierUi.style.display = 'none';
-                        if (showMeBtn) showMeBtn.innerText = 'Improve Damage Efficiency ▲';
                         if (strategyMsgEl) strategyMsgEl.style.display = 'none';
 
                         if (isZeroed) {
-                            // Max Efficiency Reached
                             if (statRow) statRow.style.display = 'none';
                             if (cdRow) cdRow.style.display = 'none';
                             if (crRow) crRow.style.display = 'none';
@@ -446,91 +392,55 @@ function paintLensUI(scanData) {
                             if (zeroMsgEl) zeroMsgEl.style.display = 'block';
                             if (rollDisclaimerEl) rollDisclaimerEl.style.display = 'none';
                         } else {
-                            // Standard Rolls Display
                             if (zeroMsgEl) zeroMsgEl.style.display = 'none';
                             if (rollDisclaimerEl) rollDisclaimerEl.style.display = 'block';
-
-                            if (gainStatEl) {
-                                gainStatEl.innerText = `≈ +${data.ledger.statGain}% Balance`;
-                                gainStatEl.style.color = bestStat === data.primaryStat ? "#22c55e" : "#f87171";
-                            }
-                            if (gainCdEl) {
-                                gainCdEl.innerText = `≈ +${data.ledger.cdGain}% Balance`;
-                                gainCdEl.style.color = bestStat === "C.DMG" ? "#22c55e" : "#f87171";
-                            }
-                            if (gainCrEl) {
-                                gainCrEl.innerText = `≈ +${data.ledger.crGain}% Balance`;
-                                gainCrEl.style.color = bestStat === "C.RATE" ? "#22c55e" : "#f87171";
-                            }
+                            if (gainStatEl) { gainStatEl.innerText = `≈ +${data.ledger.statGain}% Balance`; gainStatEl.style.color = bestStat === data.primaryStat ? "#22c55e" : "#f87171"; }
+                            if (gainCdEl) { gainCdEl.innerText = `≈ +${data.ledger.cdGain}% Balance`; gainCdEl.style.color = bestStat === "C.DMG" ? "#22c55e" : "#f87171"; }
+                            if (gainCrEl) { gainCrEl.innerText = `≈ +${data.ledger.crGain}% Balance`; gainCrEl.style.color = bestStat === "C.RATE" ? "#22c55e" : "#f87171"; }
                             if (bestStatEl) bestStatEl.innerText = displayBestStat;
                         }
                     }
                 };
 
                 if (effData.isMulti) {
-                    // Route 1: Multi-Scaler Pill Generation
                     if (multiWarning) multiWarning.style.display = 'block';
                     if (standardUi) standardUi.style.display = 'none';
-
-                    // --- Dynamic Multi Warning Text ---
-                    const multiWarningText = document.getElementById('eff-multi-warning-text');
-                    if (multiWarningText) {
-                        multiWarningText.innerText = `${coachName} uses multiple stats to scale damage.`;
-                    }
-
                     const pillsContainer = document.getElementById('eff-multi-pills');
                     if (pillsContainer) {
-                        pillsContainer.innerHTML = ''; // Clear previous pills
-
+                        pillsContainer.innerHTML = ''; 
                         let pureStats = [];
                         const rawScaling = renderData.Identity.ScalingStats || [];
-
-                        // Parse scaling string to pull only base stats
                         rawScaling.forEach(s => {
                             const splitItems = s.toLowerCase().split(/&|and|,|\//i).map(item => item.trim());
                             splitItems.forEach(item => {
-                                if (['atk', 'def', 'hp'].includes(item) && !pureStats.includes(item)) {
-                                    pureStats.push(item);
-                                }
+                                if (['atk', 'def', 'hp'].includes(item) && !pureStats.includes(item)) pureStats.push(item);
                             });
                         });
-
-                        // Create an interactive pill for each stat found
                         pureStats.forEach(stat => {
                             const pill = document.createElement('button');
                             pill.className = 'build-pill';
-
                             let statLabel = stat.toUpperCase();
-                            if (['ATK', 'DEF', 'HP'].includes(statLabel)) {
-                                statLabel += '%';
-                            }
-
+                            if (['ATK', 'DEF', 'HP'].includes(statLabel)) statLabel += '%';
                             pill.innerText = `${statLabel} Build`;
-
                             pill.onclick = () => {
-                                // Manage highlight state
                                 document.querySelectorAll('.build-pill').forEach(p => p.classList.remove('active-pill'));
                                 pill.classList.add('active-pill');
-
-                                // Re-run engine logic forcing the chosen stat
                                 const targetedEffData = window.calculateDamageEfficiency(renderData, stat.toUpperCase());
-
                                 if (targetedEffData && targetedEffData.isValid) {
                                     populateStandardEffUi(targetedEffData);
-                                    if (standardUi) standardUi.style.display = 'block'; // Slide UI in
+                                    if (standardUi) standardUi.style.display = 'block'; 
                                 }
                             };
                             pillsContainer.appendChild(pill);
                         });
                     }
                 } else {
-                    // Route 2: Standard Scaler (or Auto-Resolved Outlier)
                     if (multiWarning) multiWarning.style.display = 'none';
                     if (standardUi) standardUi.style.display = 'block';
                     populateStandardEffUi(effData);
                 }
             } else {
-                effAccordionTitle.style.color = "var(--text-primary)"; // Reset to white if scan fails
+                effAccordionTitle.style.color = "var(--text-primary)"; 
                 const waitEl = document.getElementById('eff-waiting');
                 if (waitEl) waitEl.innerText = effData?.message || "Waiting for scan data...";
             }
@@ -540,7 +450,6 @@ function paintLensUI(scanData) {
         // eHP / SURVIVABILITY CALCULATOR
         // ==========================================
         const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
-
         if (ehpAccordionTitle) {
             const totalHP = renderData.Stats["HP"]?.Total || 0;
             const totalDEF = renderData.Stats["DEF"]?.Total || 0;
@@ -548,24 +457,20 @@ function paintLensUI(scanData) {
             const baseDEF = renderData.Stats["DEF"]?.Basic || 1000;
 
             if (totalHP > 0 && totalDEF > 0) {
-                // Local calculation logic for decoupled UI
                 const calcEhpLocal = (h, d) => Math.round(h / (1 - (0.85 * (1 - Math.exp(-d / 1500)))));
                 const currentEhp = calcEhpLocal(totalHP, totalDEF);
-
-                ehpAccordionTitle.style.color = "#22c55e"; // Turn the title bright green
+                ehpAccordionTitle.style.color = "#22c55e"; 
 
                 const waitEl = document.getElementById('ehp-waiting');
                 const coachUiEl = document.getElementById('ehp-coach-ui');
                 if (waitEl) waitEl.style.display = 'none';
                 if (coachUiEl) coachUiEl.style.display = 'block';
 
-                // 1. Dynamic Inline Score
                 const ehpScoreTextEl = document.getElementById('ehp-score-text');
                 if (ehpScoreTextEl) {
                     ehpScoreTextEl.innerHTML = `Your ${coachName} has <strong id="ehp-inline-score" class="stat-highlight kraken-text">${currentEhp.toLocaleString()}</strong> Effective Hit Points (eHP)`;
                 }
 
-                // 2. Kraken Scale Marker & Dynamic Tier Label
                 const maxKrakenEhp = 1200000;
                 let krakenPct = (currentEhp / maxKrakenEhp) * 100;
                 krakenPct = Math.max(0, Math.min(100, krakenPct));
@@ -573,56 +478,29 @@ function paintLensUI(scanData) {
                 if (marker) marker.style.left = `${krakenPct}%`;
 
                 let tierName = "Low";
-                let tierColor = "#14532d"; // chunk-1 color
-
-                // Pull directly from your engine's thresholds
+                let tierColor = "#14532d";
                 const thresh = window.EHP_THRESHOLDS || { low: 100000, average: 250000, high: 450000, elite: 750000, kraken: 1200000 };
 
-                if (currentEhp >= thresh.kraken) {
-                    tierName = "Kraken";
-                    tierColor = "#22c55e"; // chunk-5 color
-                } else if (currentEhp >= thresh.elite) {
-                    tierName = "Elite";
-                    tierColor = "#16a34a"; // chunk-4 color
-                } else if (currentEhp >= thresh.high) {
-                    tierName = "High";
-                    tierColor = "#15803d"; // chunk-3 color
-                } else if (currentEhp >= thresh.average) {
-                    tierName = "Average";
-                    tierColor = "#166534"; // chunk-2 color
-                }
+                if (currentEhp >= thresh.kraken) { tierName = "Kraken"; tierColor = "#22c55e"; } 
+                else if (currentEhp >= thresh.elite) { tierName = "Elite"; tierColor = "#16a34a"; } 
+                else if (currentEhp >= thresh.high) { tierName = "High"; tierColor = "#15803d"; } 
+                else if (currentEhp >= thresh.average) { tierName = "Average"; tierColor = "#166534"; }
 
                 const tierLabel = document.getElementById('kraken-tier-label');
-                if (tierLabel) {
-                    tierLabel.innerText = `${tierName} Tier`;
-                    tierLabel.style.color = tierColor;
-                }
+                if (tierLabel) { tierLabel.innerText = `${tierName} Tier`; tierLabel.style.color = tierColor; }
 
-                // 3. 1-to-1 Roll Comparison (Simulating 1 avg roll of 6%)
                 const gainHp = calcEhpLocal(totalHP + (baseHP * 0.06), totalDEF) - currentEhp;
                 const gainDef = calcEhpLocal(totalHP, totalDEF + (baseDEF * 0.06)) - currentEhp;
-
                 const bestStat = gainHp > gainDef ? "HP%" : "DEF%";
                 const multiplier = (Math.max(gainHp, gainDef) / Math.max(1, Math.min(gainHp, gainDef))).toFixed(1);
 
-                // --- Dynamic Coach Sentence for eHP ---
                 const ehpCoachDesc = document.getElementById('ehp-coach-desc');
-                if (ehpCoachDesc) {
-                    ehpCoachDesc.innerHTML = `eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability score. To improve your ${coachName}’s eHP, <strong id="inline-coach-target" class="stat-highlight-white">${bestStat}</strong> is the most efficient investment.`;
-                }
+                if (ehpCoachDesc) ehpCoachDesc.innerHTML = `eHP combines your <strong>HP</strong> and <strong>DEF</strong>. To improve your ${coachName}’s eHP, <strong id="inline-coach-target" class="stat-highlight-white">${bestStat}</strong> is the most efficient investment.`;
 
-                // 4. Bottom Sheet Ledger Data Maps
                 const gainDefEl = document.getElementById('sheet-gain-def');
                 const gainHpEl = document.getElementById('sheet-gain-hp');
-
-                if (gainDefEl) {
-                    gainDefEl.innerText = `≈ +${gainDef.toLocaleString()} eHP`;
-                    gainDefEl.style.color = bestStat === "DEF%" ? "#22c55e" : "#f87171"; // Green if optimal, Red if suboptimal
-                }
-                if (gainHpEl) {
-                    gainHpEl.innerText = `≈ +${gainHp.toLocaleString()} eHP`;
-                    gainHpEl.style.color = bestStat === "HP%" ? "#22c55e" : "#f87171";
-                }
+                if (gainDefEl) { gainDefEl.innerText = `≈ +${gainDef.toLocaleString()} eHP`; gainDefEl.style.color = bestStat === "DEF%" ? "#22c55e" : "#f87171"; }
+                if (gainHpEl) { gainHpEl.innerText = `≈ +${gainHp.toLocaleString()} eHP`; gainHpEl.style.color = bestStat === "HP%" ? "#22c55e" : "#f87171"; }
 
                 const bestStatEl = document.getElementById('sheet-best-stat');
                 if (bestStatEl) bestStatEl.innerText = bestStat;
@@ -631,10 +509,9 @@ function paintLensUI(scanData) {
                 if (multiEl) multiEl.innerText = multiplier;
 
             } else {
-                ehpAccordionTitle.style.color = "var(--text-primary)"; // Reset to white if scan fails
+                ehpAccordionTitle.style.color = "var(--text-primary)"; 
             }
         }
-
     };
     renderAccordions(scanData);
 
@@ -644,40 +521,7 @@ function paintLensUI(scanData) {
 
     if (typeof window.matchArea === "function" && window.simDatabase) {
         const matchedArea = window.matchArea(scanData.Context);
-
-        if (areaNameEl) {
-            if (matchedArea) {
-                areaNameEl.innerHTML = `${matchedArea} <span class="area-selected-highlight">Selected</span>`;
-            } else {
-                areaNameEl.innerText = "No Area Selected";
-            }
-        }
-
-        if (areaDetailsEl) {
-            const targetArea = matchedArea || "No Selection -Chimera";
-            const statsObj = window.simDatabase.AreaStats[targetArea];
-
-            if (statsObj) {
-                let htmlString = `<div class="area-target-header">Target: ${targetArea}</div>`;
-
-                Object.keys(statsObj).forEach(diff => {
-                    const reqs = statsObj[diff];
-                    htmlString += `
-                        <div class="area-diff-card">
-                            <div class="area-diff-title">${diff}</div>
-                            <div class="area-req-row">
-                                <span class="req-label">Fastest Enemy: <span class="req-val-spd">${reqs.maxENEMY_SPD} SPD</span></span>
-                                <span class="req-label-acc">Required ACC: <span class="req-val-acc">${reqs.recACC}</span></span>
-                                <span class="req-label-res">Required RES: <span class="req-val-res">${reqs.recRES}</span></span>
-                            </div>
-                        </div>
-                    `;
-                });
-                areaDetailsEl.innerHTML = htmlString;
-            } else {
-                areaDetailsEl.innerHTML = `<span class="area-error-text">Error loading area stats.</span>`;
-            }
-        }
+        if (areaNameEl) areaNameEl.innerHTML = matchedArea ? `${matchedArea} <span class="area-selected-highlight">Selected</span>` : "No Area Selected";
     }
 }
 
@@ -686,7 +530,6 @@ function paintLensUI(scanData) {
 // ==========================================
 function processScanResults(engine) {
     const scanData = engine.masterData;
-    const statusEl = document.getElementById('status');
     const rowKeys = ["HP", "ATK", "DEF", "SPD", "CRate", "CDMG", "RES", "ACC", "IDEF"];
     const colKeys = ["Basic", "Artifacts", "Affinity", "CArena", "Masteries", "FGuardian", "Empowerment", "Blessing", "Relic", "AreaB", "Total"];
 
@@ -707,7 +550,7 @@ function processScanResults(engine) {
     const dbInfo = getChampionDetails(champName);
 
     if (!dbInfo) {
-        throw new Error(`CHAMPION_NOT_FOUND|The engine scanned "${champName}" but could not find a match in the champion database. Ensure the name is clearly visible and not cut off.`);
+        throw new Error(`CHAMPION_NOT_FOUND|The engine scanned "${champName}" but could not find a match in the champion database.`);
     }
 
     // --- MYTHICAL FORM CHECK ---
@@ -715,14 +558,13 @@ function processScanResults(engine) {
     const activeForm = (isAlt && dbInfo.altForm) ? dbInfo.altForm : (dbInfo.baseForm || dbInfo);
 
     scanData.Identity.Champion = dbInfo.name || dbInfo.Name || champName;
-    scanData.Identity.Nickname = dbInfo.nickname || dbInfo.name || dbInfo.Name || champName; // Extracts the shiny new nickname
+    scanData.Identity.Nickname = dbInfo.nickname || dbInfo.name || dbInfo.Name || champName; 
     scanData.Identity.Rarity = dbInfo.rarity || dbInfo.Rarity || "Unknown";
     scanData.Identity.Faction = dbInfo.faction || dbInfo.Faction || "Unknown";
     scanData.Identity.Affinity = dbInfo.affinity || dbInfo.Affinity || "Unknown";
     scanData.Identity.Type = activeForm.type || activeForm.Type || "Unknown";
     scanData.Identity.ScalingStats = activeForm.damageScaling || activeForm.ScalingStats || ["Unknown"];
 
-    // 2.5 The Handshake
     window.SizzleState.currentScan = JSON.parse(JSON.stringify(scanData));
 
     // 3. Human-in-the-Loop Audit Engine
@@ -731,34 +573,29 @@ function processScanResults(engine) {
         if (!auditContainer) {
             auditContainer = document.createElement('div');
             auditContainer.id = 'audit-container';
-            const uploadBox = document.querySelector('.upload-box');
-            if (uploadBox) uploadBox.parentNode.insertBefore(auditContainer, uploadBox.nextSibling);
+            const identityCard = document.getElementById('champ-identity-card');
+            if (identityCard && identityCard.parentNode) {
+                identityCard.parentNode.insertBefore(auditContainer, identityCard.nextSibling);
+            }
         }
 
         let errorRows = [];
         rowKeys.forEach(row => {
             let partsSum = 0;
             let totalVal = 0;
-
             colKeys.forEach(col => {
                 const val = (scanData.Stats[row] && scanData.Stats[row][col] !== undefined) ? scanData.Stats[row][col] : 0;
                 if (col === "Total") totalVal = val;
                 else partsSum += val;
             });
-
             if (Math.abs(partsSum - totalVal) > 2) {
                 errorRows.push(row);
             }
         });
 
         if (errorRows.length > 0) {
-            if (statusEl) {
-                statusEl.innerText = `Review Required: ${errorRows.length} rows need verification.`;
-                statusEl.style.color = "var(--accent-warning)";
-            }
-
             let auditHtml = `
-                <div class="action-bar open audit-warning-bar">
+                <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
                     <div class="action-content">
                         <span class="action-icon">⚠️</span>
                         <span class="action-highlight text-warning">Something isn't adding up.</span>
@@ -790,16 +627,10 @@ function processScanResults(engine) {
                     const detailContainer = document.getElementById('audit-detail-view');
                     const imgSrc = engine.exportRowCrop(targetRow);
 
-                    let detailHtml = `
-                        <div class="audit-verify-title">Verifying ${targetRow}</div>
-                    `;
-
-                    if (imgSrc) {
-                        detailHtml += `<img src="${imgSrc}" class="audit-crop-img">`;
-                    }
+                    let detailHtml = `<div class="audit-verify-title">Verifying ${targetRow}</div>`;
+                    if (imgSrc) detailHtml += `<img src="${imgSrc}" class="audit-crop-img">`;
 
                     detailHtml += `<div class="audit-grid">`;
-
                     colKeys.forEach(col => {
                         const currentVal = scanData.Stats[targetRow][col] || 0;
                         detailHtml += `
@@ -810,19 +641,14 @@ function processScanResults(engine) {
                         `;
                     });
 
-                    detailHtml += `</div>
-                        <button id="apply-${targetRow}" class="btn-clear-sim btn-apply-audit">Apply to ${targetRow}</button>
-                    `;
-
+                    detailHtml += `</div><button id="apply-${targetRow}" class="btn-clear-sim btn-apply-audit">Apply to ${targetRow}</button>`;
                     detailContainer.innerHTML = detailHtml;
                     detailContainer.style.display = 'block';
 
                     document.getElementById(`apply-${targetRow}`).addEventListener('click', () => {
                         colKeys.forEach(col => {
                             const inputEl = document.getElementById(`edit-${targetRow}-${col}`);
-                            if (inputEl) {
-                                scanData.Stats[targetRow][col] = Number(inputEl.value) || 0;
-                            }
+                            if (inputEl) scanData.Stats[targetRow][col] = Number(inputEl.value) || 0;
                         });
 
                         window.SizzleState.currentScan = JSON.parse(JSON.stringify(scanData));
@@ -834,10 +660,6 @@ function processScanResults(engine) {
 
         } else {
             auditContainer.innerHTML = '';
-            if (statusEl) {
-                statusEl.innerText = "SCAN COMPLETE";
-                statusEl.style.color = "#38bdf8";
-            }
         }
     };
 
@@ -859,62 +681,28 @@ imageLoaderEl.addEventListener('change', async function (e) {
     const lvlEl = document.getElementById('champ-lvl');
     if (lvlEl) lvlEl.innerText = '';
 
-    const areaEl = document.getElementById('val-area-name');
-    if (areaEl) areaEl.innerText = 'No Area Selected';
-
     const nameEl = document.getElementById('champ-name');
     if (nameEl) nameEl.innerText = 'Scanning...';
-
-    const statusEl = document.getElementById('status');
-    if (statusEl) {
-        statusEl.innerText = "Processing...";
-        statusEl.style.color = "#38bdf8";
-    }
 
     const img = new Image();
     img.src = URL.createObjectURL(file);
 
     img.onload = async () => {
-        // 1. CLEAR STALE STATE IMMEDIATELY
-        if (window.SizzleState) {
-            window.SizzleState.currentScan = null;
-        }
+        if (window.SizzleState) window.SizzleState.currentScan = null;
 
         const scanner = new window.SizzleScanner();
         try {
             await scanner.scanImage(img);
             processScanResults(scanner);
             URL.revokeObjectURL(img.src);
-
-            const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
-            if (liveDomains.includes(window.location.hostname)) {
-                fetch('https://snowy-unit-c9e5.anthonyyerhot.workers.dev/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            // console.error(`[Analytics] Server Error: ${data.error}`);
-                        } else {
-                            // console.log(`[Analytics] Scan recorded. Total live scans: ${data.total}`);
-                        }
-                    })
-                    .catch(err => {
-                        // console.log("[Analytics] Ping failed completely.");
-                    });
-            } else {
-                // console.log("[Analytics] Dev environment: Scan ignored.");
-            }
-
         } catch (err) {
-            // console.error("[Sizzle Engine] Scan aborted:", err);
+            console.error("[Sizzle Engine] Scan aborted:", err); 
 
-            // 2. WIPE THE OLD CHAMPION VISUALLY FROM THE ENTIRE SCREEN
-            const nameEl = document.getElementById('champ-name');
-            if (nameEl) nameEl.innerHTML = 'Scan Failed';
+            const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
+
+            // Wipe Dashboard Clean
+            const nameTargetEl = document.getElementById('champ-name');
+            if (nameTargetEl) nameTargetEl.innerHTML = 'Scan Failed';
 
             const starsEl = document.getElementById('champ-stars');
             if (starsEl) starsEl.innerHTML = '';
@@ -922,20 +710,17 @@ imageLoaderEl.addEventListener('change', async function (e) {
             const badgeEl = document.getElementById('lens-mythical-badge');
             if (badgeEl) badgeEl.style.display = 'none';
 
-            // Wipe Traits
             ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = '-';
             });
 
-            // Wipe Main Stats
             const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
             statIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.innerText = '-';
             });
 
-            // Wipe Accordions (The Zombie Data Fix)
             const styleNameEl = document.getElementById('val-style-name');
             if (styleNameEl) styleNameEl.innerText = "Build Style";
             const styleMatchEl = document.getElementById('val-style-match');
@@ -943,47 +728,102 @@ imageLoaderEl.addEventListener('change', async function (e) {
             const styleDetailsEl = document.getElementById('val-style-details');
             if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
 
-            const effAccordionTitle = document.getElementById('eff-accordion-title');
-            if (effAccordionTitle) effAccordionTitle.style.color = "var(--text-primary)";
-            const effWaiting = document.getElementById('eff-waiting');
-            if (effWaiting) { effWaiting.innerText = "Waiting for scan data..."; effWaiting.style.display = 'block'; }
-            const effCoach = document.getElementById('eff-coach-ui');
-            if (effCoach) effCoach.style.display = 'none';
-
-            const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
-            if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
-            const ehpWaiting = document.getElementById('ehp-waiting');
-            if (ehpWaiting) { ehpWaiting.innerText = "Waiting for scan data..."; ehpWaiting.style.display = 'block'; }
-            const ehpCoach = document.getElementById('ehp-coach-ui');
-            if (ehpCoach) ehpCoach.style.display = 'none';
-
-            const areaNameEl = document.getElementById('val-area-name');
-            if (areaNameEl) areaNameEl.innerText = "No Area Selected";
-            const areaDetailsEl = document.getElementById('val-area-details');
-            if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
-
-            // 3. YOUR EXISTING ERROR UI LOGIC
-            if (statusEl) {
-                let errorTitle = "Scan Failed";
-                let errorDesc = err.message || 'The stat matrix could not be detected. Please ensure you uploaded a clear, full-screen screenshot of a champion\'s stat page.';
-                let alertText = "INVALID IMAGE";
-
-                if (err.message.includes('CHAMPION_NOT_FOUND|')) {
-                    errorTitle = "Unknown Champion";
-                    errorDesc = err.message.split('|')[1];
-                    alertText = "UNKNOWN CHAMPION";
+            // THE BULLETPROOF UI INJECTION
+            let auditContainer = document.getElementById('audit-container');
+            if (!auditContainer) {
+                auditContainer = document.createElement('div');
+                auditContainer.id = 'audit-container';
+                const identityCard = document.getElementById('champ-identity-card');
+                if (identityCard && identityCard.parentNode) {
+                    identityCard.parentNode.insertBefore(auditContainer, identityCard.nextSibling);
                 }
+            }
 
-                statusEl.style.color = 'var(--accent-warning)';
-                statusEl.innerHTML = `
-                    ${alertText} 
-                    <div class="info-wrapper inline-info">
-                        <span class="info-icon warning-icon">ⓘ</span>
-                        <div class="tooltip-content warning-tooltip">
-                            <p><strong class="text-warning">${errorTitle}</strong></p>
-                            <p>${errorDesc}</p>
-                            <p class="beta-note">System halted to prevent misreads.</p>
+            if (isNameError) {
+                auditContainer.innerHTML = `
+                    <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
+                        <div class="action-content">
+                            <span class="action-icon">⚠️</span>
+                            <span class="action-highlight text-warning">Champion Name Unreadable</span>
                         </div>
+                    </div>
+                    <div class="action-drawer audit-warning-drawer" style="display: block;">
+                        <p class="audit-instructions">The stat grid is perfect, but the champion's name is obscured by background art. Type it below to force the scan through.</p>
+                        <div class="manual-name-wrapper" style="margin-top: 5px;">
+                            <input type="text" id="manual-champ-input" class="manual-champ-input" placeholder="Type champion name..." autocomplete="off">
+                            <ul id="manual-champ-list" class="manual-champ-list hidden-dropdown"></ul>
+                        </div>
+                    </div>
+                `;
+
+                const inputEl = document.getElementById('manual-champ-input');
+                const listEl = document.getElementById('manual-champ-list');
+
+                if (inputEl && listEl) {
+                    setTimeout(() => inputEl.focus(), 100);
+
+                    inputEl.addEventListener('input', (event) => {
+                        const rawVal = event.target.value;
+                        const searchVal = rawVal.toLowerCase().replace(/[^a-z]/g, '');
+                        
+                        listEl.innerHTML = '';
+                        
+                        if (searchVal.length < 2) {
+                            listEl.classList.add('hidden-dropdown');
+                            return;
+                        }
+
+                        const matches = championDatabase.filter(c => {
+                            const dbName = (c.name || c.Name || "").toLowerCase().replace(/[^a-z]/g, '');
+                            return dbName.includes(searchVal);
+                        }).slice(0, 6);
+
+                        if (matches.length > 0) {
+                            listEl.classList.remove('hidden-dropdown');
+                            matches.forEach(match => {
+                                const li = document.createElement('li');
+                                li.className = 'manual-champ-item';
+                                li.innerText = match.name || match.Name;
+                                
+                                li.addEventListener('click', () => {
+                                    inputEl.value = match.name || match.Name;
+                                    listEl.classList.add('hidden-dropdown');
+                                    
+                                    scanner.masterData.Identity.Champion = match.name || match.Name;
+                                    auditContainer.innerHTML = ''; 
+                                    
+                                    try {
+                                        processScanResults(scanner);
+                                    } catch (retryErr) {
+                                        console.error("[Sizzle Engine] Override failed:", retryErr);
+                                    }
+                                });
+                                listEl.appendChild(li);
+                            });
+                        } else {
+                            listEl.classList.add('hidden-dropdown');
+                        }
+                    });
+                    
+                    document.addEventListener('click', (clickEvent) => {
+                        if (!inputEl.contains(clickEvent.target) && !listEl.contains(clickEvent.target)) {
+                            listEl.classList.add('hidden-dropdown');
+                        }
+                    });
+                }
+            } else {
+                let errorTitle = "Scan Failed";
+                let errorDesc = err && err.message ? err.message : "The stat matrix could not be detected. Please ensure you uploaded a clear, full-screen screenshot of a champion's stat page.";
+                
+                auditContainer.innerHTML = `
+                    <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
+                        <div class="action-content">
+                            <span class="action-icon" style="color: var(--accent-warning);">❌</span>
+                            <span class="action-highlight text-warning">${errorTitle}</span>
+                        </div>
+                    </div>
+                    <div class="action-drawer audit-warning-drawer" style="display: block;">
+                        <p class="audit-instructions" style="color: var(--text-primary); margin-bottom: 0;">${errorDesc}</p>
                     </div>
                 `;
             }
@@ -991,29 +831,18 @@ imageLoaderEl.addEventListener('change', async function (e) {
     };
 });
 
-imageLoaderEl.addEventListener('click', function () {
-    const statusEl = document.getElementById('status');
-    if (statusEl && (statusEl.innerHTML.includes('INVALID IMAGE') || statusEl.innerHTML.includes('UNKNOWN CHAMPION'))) {
-        statusEl.innerText = "SCANNER READY";
-        statusEl.style.color = "var(--text-muted)";
-    }
-});
-
 // ==========================================
 // ACCORDION UI LISTENER & SMART SCROLLING
 // ==========================================
 document.querySelectorAll('.action-bar').forEach(bar => {
     bar.addEventListener('click', function () {
-        // 1. Toggle the open state
         this.classList.toggle('open');
-
-        // 2. If it was just opened, scroll it into view after the animation finishes
         if (this.classList.contains('open')) {
             setTimeout(() => {
-                const yOffset = -20; // 20px of breathing room from the top
+                const yOffset = -20; 
                 const y = this.getBoundingClientRect().top + window.scrollY + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
-            }, 300); // Adjust to match your CSS transition time
+            }, 300); 
         }
     });
 });
@@ -1026,9 +855,7 @@ function copySizzleEmail() {
         setTimeout(() => {
             toast.style.opacity = '0';
         }, 2000);
-    }).catch(err => {
-        // console.error('Failed to copy email: ', err);
-    });
+    }).catch(err => {});
 }
 
 // ==========================================
@@ -1036,7 +863,7 @@ function copySizzleEmail() {
 // ==========================================
 window.openLedgerSheet = function () {
     document.getElementById('ledger-sheet').classList.add('open');
-    document.body.classList.add('no-scroll'); // Lock background scroll
+    document.body.classList.add('no-scroll'); 
     history.pushState({ bottomSheet: 'open' }, '', '');
 };
 
@@ -1044,7 +871,7 @@ window.closeLedgerSheet = function (fromHistory = false) {
     const sheet = document.getElementById('ledger-sheet');
     if (sheet && sheet.classList.contains('open')) {
         sheet.classList.remove('open');
-        document.body.classList.remove('no-scroll'); // Unlock background scroll
+        document.body.classList.remove('no-scroll'); 
         if (!fromHistory && history.state && history.state.bottomSheet === 'open') {
             history.back();
         }
@@ -1053,7 +880,7 @@ window.closeLedgerSheet = function (fromHistory = false) {
 
 window.openDmgLedgerSheet = function () {
     document.getElementById('ledger-sheet-dmg').classList.add('open');
-    document.body.classList.add('no-scroll'); // Lock background scroll
+    document.body.classList.add('no-scroll'); 
     history.pushState({ bottomSheet: 'open-dmg' }, '', '');
 };
 
@@ -1061,14 +888,13 @@ window.closeDmgLedgerSheet = function (fromHistory = false) {
     const sheet = document.getElementById('ledger-sheet-dmg');
     if (sheet && sheet.classList.contains('open')) {
         sheet.classList.remove('open');
-        document.body.classList.remove('no-scroll'); // Unlock background scroll
+        document.body.classList.remove('no-scroll'); 
         if (!fromHistory && history.state && history.state.bottomSheet === 'open-dmg') {
             history.back();
         }
     }
 };
 
-// 1. Android Back Button Intercept
 window.addEventListener('popstate', (e) => {
     const sheetEhp = document.getElementById('ledger-sheet');
     if (sheetEhp && sheetEhp.classList.contains('open')) {
@@ -1081,7 +907,6 @@ window.addEventListener('popstate', (e) => {
     }
 });
 
-// 2. Swipe Down to Close Gesture (Supports Multiple Sheets)
 document.addEventListener('DOMContentLoaded', () => {
     const sheets = document.querySelectorAll('.sheet-content');
 
@@ -1094,13 +919,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: true });
 
         sheetContent.addEventListener('touchmove', (e) => {
-            // If the user has scrolled down inside the sheet, let them scroll normally
             if (sheetContent.scrollTop > 0) return;
 
             currentY = e.touches[0].clientY;
             const deltaY = currentY - startY;
 
-            // Only allow dragging downwards
             if (deltaY > 0) {
                 sheetContent.style.transform = `translateY(${deltaY}px)`;
                 sheetContent.style.transition = 'none';
@@ -1110,11 +933,9 @@ document.addEventListener('DOMContentLoaded', () => {
         sheetContent.addEventListener('touchend', (e) => {
             const deltaY = currentY - startY;
 
-            // Restore the 200ms CSS transition
             sheetContent.style.transition = 'transform 0.2s cubic-bezier(0.32, 0.72, 0, 1)';
             sheetContent.style.transform = '';
 
-            // If swiped down more than 75 pixels, execute the close
             if (deltaY > 75) {
                 const parent = sheetContent.closest('.bottom-sheet');
                 if (parent.id === 'ledger-sheet') window.closeLedgerSheet();
