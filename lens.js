@@ -597,8 +597,7 @@ function processScanResults(engine) {
             let auditHtml = `
                 <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
                     <div class="action-content">
-                        <span class="action-icon">⚠️</span>
-                        <span class="action-highlight text-warning">Something isn't adding up.</span>
+						<span class="action-highlight text-warning">Something isn't adding up.</span>
                     </div>
                 </div>
                 <div class="action-drawer audit-warning-drawer" style="display: block;">
@@ -641,9 +640,19 @@ function processScanResults(engine) {
                         `;
                     });
 
-                    detailHtml += `</div><button id="apply-${targetRow}" class="btn-clear-sim btn-apply-audit">Apply to ${targetRow}</button>`;
+                    detailHtml += `</div>
+                        <button id="apply-${targetRow}" class="btn-clear-sim btn-apply-audit">Apply to ${targetRow}</button>
+                    `;
+
                     detailContainer.innerHTML = detailHtml;
                     detailContainer.style.display = 'block';
+
+                    // --- SMART SCROLL: Push the expanded UI safely into view ---
+                    setTimeout(() => {
+                        const yOffset = -20; // 20px breathing room above the card
+                        const y = auditContainer.getBoundingClientRect().top + window.scrollY + yOffset;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                    }, 50); // 50ms delay ensures the DOM has painted the new height before scrolling
 
                     document.getElementById(`apply-${targetRow}`).addEventListener('click', () => {
                         colKeys.forEach(col => {
@@ -743,25 +752,31 @@ imageLoaderEl.addEventListener('change', async function (e) {
                 auditContainer.innerHTML = `
                     <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
                         <div class="action-content">
-                            <span class="action-icon">⚠️</span>
                             <span class="action-highlight text-warning">Champion Name Unreadable</span>
                         </div>
                     </div>
                     <div class="action-drawer audit-warning-drawer" style="display: block;">
-                        <p class="audit-instructions">The stat grid is perfect, but the champion's name is obscured by background art. Type it below to force the scan through.</p>
-                        <div class="manual-name-wrapper" style="margin-top: 5px;">
-                            <input type="text" id="manual-champ-input" class="manual-champ-input" placeholder="Type champion name..." autocomplete="off">
-                            <ul id="manual-champ-list" class="manual-champ-list hidden-dropdown"></ul>
+                        <p class="audit-instructions">Please enter the champion's name and level manually.</p>
+                        <div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 5px;">
+                            <div class="manual-name-wrapper" style="flex: 1; margin-top: 0;">
+                                <input type="text" id="manual-champ-input" class="manual-champ-input" placeholder="Champion name..." autocomplete="off">
+                                <ul id="manual-champ-list" class="manual-champ-list hidden-dropdown"></ul>
+                            </div>
+                            <input type="number" id="manual-level-input" class="manual-champ-input" placeholder="Lvl" value="60" min="1" max="60" style="width: 70px; text-align: center;">
+                            <button id="manual-submit-btn" class="btn-clear-sim btn-apply-audit" style="margin-top: 0; padding: 11px 16px; width: auto;">OK</button>
                         </div>
                     </div>
                 `;
 
                 const inputEl = document.getElementById('manual-champ-input');
                 const listEl = document.getElementById('manual-champ-list');
+                const levelEl = document.getElementById('manual-level-input');
+                const submitBtn = document.getElementById('manual-submit-btn');
 
-                if (inputEl && listEl) {
+                if (inputEl && listEl && submitBtn) {
                     setTimeout(() => inputEl.focus(), 100);
 
+                    // 1. Dropdown Logic (Fills input, DOES NOT scan)
                     inputEl.addEventListener('input', (event) => {
                         const rawVal = event.target.value;
                         const searchVal = rawVal.toLowerCase().replace(/[^a-z]/g, '');
@@ -786,17 +801,9 @@ imageLoaderEl.addEventListener('change', async function (e) {
                                 li.innerText = match.name || match.Name;
                                 
                                 li.addEventListener('click', () => {
+                                    // Just fill the box and close the dropdown
                                     inputEl.value = match.name || match.Name;
                                     listEl.classList.add('hidden-dropdown');
-                                    
-                                    scanner.masterData.Identity.Champion = match.name || match.Name;
-                                    auditContainer.innerHTML = ''; 
-                                    
-                                    try {
-                                        processScanResults(scanner);
-                                    } catch (retryErr) {
-                                        console.error("[Sizzle Engine] Override failed:", retryErr);
-                                    }
                                 });
                                 listEl.appendChild(li);
                             });
@@ -808,6 +815,27 @@ imageLoaderEl.addEventListener('change', async function (e) {
                     document.addEventListener('click', (clickEvent) => {
                         if (!inputEl.contains(clickEvent.target) && !listEl.contains(clickEvent.target)) {
                             listEl.classList.add('hidden-dropdown');
+                        }
+                    });
+
+                    // 2. Submit Button Logic (Fires the scan)
+                    submitBtn.addEventListener('click', () => {
+                        const finalName = inputEl.value.trim();
+                        if (!finalName) {
+                            inputEl.style.borderColor = "var(--accent-warning)";
+                            return;
+                        }
+
+                        // Inject Name and Level
+                        scanner.masterData.Identity.Champion = finalName;
+                        scanner.masterData.Identity.Level = parseInt(levelEl.value) || 60;
+                        
+                        auditContainer.innerHTML = ''; 
+                        
+                        try {
+                            processScanResults(scanner);
+                        } catch (retryErr) {
+                            console.error("[Sizzle Engine] Override failed:", retryErr);
                         }
                     });
                 }
