@@ -687,11 +687,56 @@ imageLoaderEl.addEventListener('change', async function (e) {
 
     window.SizzleState = {};
 
-    const lvlEl = document.getElementById('champ-lvl');
-    if (lvlEl) lvlEl.innerText = '';
-
+    // --- PRE-EMPTIVE UI WIPE (Clears Zombie Data Instantly) ---
     const nameEl = document.getElementById('champ-name');
     if (nameEl) nameEl.innerText = 'Scanning...';
+
+    const starsEl = document.getElementById('champ-stars');
+    if (starsEl) starsEl.innerHTML = '';
+
+    const badgeEl = document.getElementById('lens-mythical-badge');
+    if (badgeEl) badgeEl.style.display = 'none';
+
+    ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = '-';
+    });
+
+    const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
+    statIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = '-';
+    });
+
+    const styleNameEl = document.getElementById('val-style-name');
+    if (styleNameEl) styleNameEl.innerText = "Build Style";
+    const styleMatchEl = document.getElementById('val-style-match');
+    if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
+    const styleDetailsEl = document.getElementById('val-style-details');
+    if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Scanning...</span>`;
+
+    const effAccordionTitle = document.getElementById('eff-accordion-title');
+    if (effAccordionTitle) effAccordionTitle.style.color = "var(--text-primary)";
+    const effWaiting = document.getElementById('eff-waiting');
+    if (effWaiting) { effWaiting.innerText = "Scanning..."; effWaiting.style.display = 'block'; }
+    const effCoach = document.getElementById('eff-coach-ui');
+    if (effCoach) effCoach.style.display = 'none';
+
+    const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
+    if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
+    const ehpWaiting = document.getElementById('ehp-waiting');
+    if (ehpWaiting) { ehpWaiting.innerText = "Scanning..."; ehpWaiting.style.display = 'block'; }
+    const ehpCoach = document.getElementById('ehp-coach-ui');
+    if (ehpCoach) ehpCoach.style.display = 'none';
+
+    const areaNameEl = document.getElementById('val-area-name');
+    if (areaNameEl) areaNameEl.innerText = "No Area Selected";
+    const areaDetailsEl = document.getElementById('val-area-details');
+    if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Scanning...</span>`;
+
+    const auditContainer = document.getElementById('audit-container');
+    if (auditContainer) auditContainer.innerHTML = '';
+    // --------------------------------------------------------
 
     const img = new Image();
     img.src = URL.createObjectURL(file);

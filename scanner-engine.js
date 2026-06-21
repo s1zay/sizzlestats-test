@@ -144,12 +144,20 @@ class SizzleScanner {
 		cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
 
 		let masks = { purple: new cv.Mat(), red: new cv.Mat(), yellow: new cv.Mat() };
-		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [16, 60, 60, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [40, 255, 255, 0]), masks.yellow);
-		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [135, 50, 50, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [168, 255, 255, 0]), masks.purple);
+		
+		// YELLOW: 16 to 40 (Raised Sat/Val floors to 100 to ignore glowing edges)
+		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [16, 100, 100, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [40, 255, 255, 0]), masks.yellow);
+		
+		// PURPLE: 130 to 160 (Raid's "purple" is actually hot pink. Hard stop at 160)
+		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [130, 100, 100, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [160, 255, 255, 0]), masks.purple);
 
 		let m1 = new cv.Mat(), m2 = new cv.Mat();
-		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 70, 70, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [15, 255, 255, 0]), m1);
-		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [174, 70, 70, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 255, 255, 0]), m2);
+		
+		// RED MASK 1: 0 to 15 (True Red to Orange-Red core)
+		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 100, 100, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [15, 255, 255, 0]), m1);
+		
+		// RED MASK 2: 161 to 180 (Dark Red edge. Starts exactly where Purple ends)
+		cv.inRange(hsv, new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [161, 100, 100, 0]), new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [180, 255, 255, 0]), m2);
 
 		cv.bitwise_or(m1, m2, masks.red);
 
