@@ -302,7 +302,7 @@ class SizzleScanner {
 					}
 				}
 			}
-
+			
 			cv.imshow(tempCanvas, filtered);
 			rCtx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, currentX, currentY, tempCanvas.width, TARGET_HEIGHT);
 
@@ -527,6 +527,57 @@ class SizzleScanner {
 				this.masterData.Context = rawText;
 			}
 		});
+	}
+
+	// ==========================================
+	// STRIKE 2: AGGRESSIVE HEADER WASH
+	// ==========================================
+	async runStrikeTwoRescue() {
+		console.log("⚠️ [Sizzle Engine] STRIKE 2: Initiating Aggressive Header Wash...");
+		const anchor = this.masterData.GridAnchor;
+		if (!anchor) return null;
+
+		const hLoc = sizzleGridLocations.rows.Header;
+		const cropTop = Math.max(0, anchor.y + Math.floor(anchor.height * (hLoc.top / 100)));
+		const cropHeight = Math.floor(anchor.height * (Math.abs(hLoc.top) / 100));
+
+		let src = cv.imread(this.rawImage);
+		let roi = src.roi(new cv.Rect(anchor.x, cropTop, anchor.width, cropHeight));
+
+		// 1. Blow it up 2.5x to give Tesseract more pixels to work with on the distorted edges
+		let blownUp = new cv.Mat();
+		cv.resize(roi, blownUp, new cv.Size(0, 0), 2.5, 2.5, cv.INTER_CUBIC);
+
+		// 2. The Aggressive Wash: Grayscale + Harsh Threshold (Crush the background, isolate the white text)
+		cv.cvtColor(blownUp, blownUp, cv.COLOR_RGBA2GRAY);
+		// THRESH_BINARY_INV flips it so the text is black and the background is white (Tesseract prefers this)
+		cv.threshold(blownUp, blownUp, 140, 255, cv.THRESH_BINARY_INV); 
+
+		const tempCanvas = document.createElement('canvas');
+		cv.imshow(tempCanvas, blownUp);
+
+		// 3. Second Pass OCR
+		const result = await globalTessWorker.recognize(tempCanvas, { tessedit_pageseg_mode: '6' });
+		let rawText = result.data.text.trim();
+		
+		console.log(`[Sizzle Engine] STRIKE 2 OCR Result: "${rawText}"`);
+
+		// Strip leading garbage
+		rawText = rawText.replace(/^[^a-zA-Z]+/, "").trim();
+
+		// Run the exact same extraction logic as Strike 1
+		const match = rawText.match(/(.+?)\s*(?:Lvl|Lvi|Lv|Level)\.?\s*([0-9OlI|]+)/i);
+		if (match) {
+			this.masterData.Identity.Champion = match[1].replace(/^[^a-zA-Z]+/, '').trim();
+			let dirtyLevel = match[2].replace(/[Il|]/g, '1');
+			this.masterData.Identity.Level = this.cleanOcrNumber(dirtyLevel);
+		} else {
+			this.masterData.Identity.Champion = rawText.split('\n')[0].trim();
+		}
+
+		src.delete(); roi.delete(); blownUp.delete();
+		
+		return this.masterData.Identity.Champion;
 	}
 }
 

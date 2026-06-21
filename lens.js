@@ -754,6 +754,31 @@ imageLoaderEl.addEventListener('change', async function (e) {
 
             const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
 
+            // ==========================================
+            // STRIKE 2: INVISIBLE RETRY
+            // ==========================================
+            if (isNameError && typeof scanner.runStrikeTwoRescue === 'function') {
+                console.log("[Sizzle Engine] Deploying Strike 2...");
+                try {
+                    const strikeTwoName = await scanner.runStrikeTwoRescue();
+                    const strikeTwoCheck = getChampionDetails(strikeTwoName);
+                    
+                    if (strikeTwoCheck) {
+                        console.log(`[Sizzle Engine] Strike 2 SUCCESS! Recovered: ${strikeTwoName}`);
+                        scanner.masterData.Identity.Champion = strikeTwoCheck.name || strikeTwoCheck.Name;
+                        processScanResults(scanner);
+                        return; // Exit the catch block early—the day is saved!
+                    } else {
+                        console.warn("[Sizzle Engine] Strike 2 FAILED. Falling back to manual entry.");
+                    }
+                } catch (strikeTwoErr) {
+                    console.error("[Sizzle Engine] Strike 2 crashed:", strikeTwoErr);
+                }
+            }
+
+            // ==========================================
+            // STRIKE 3: MANUAL UI RECOVERY
+            // ==========================================
             // Wipe Dashboard Clean
             const nameTargetEl = document.getElementById('champ-name');
             if (nameTargetEl) nameTargetEl.innerHTML = 'Scan Failed';
