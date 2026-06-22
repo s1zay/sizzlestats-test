@@ -4,6 +4,19 @@
 <head>
     <meta charset="UTF-8" />
     <title>SizzleStats | Raid Shadow Legends Stat Scanner & Simulator</title>
+    <script>
+        const DEBUG_MODE = false; // Switch to true when you need to troubleshoot
+
+        if (!DEBUG_MODE) {
+            console.log = function() {};
+            console.warn = function() {};
+            console.error = function() {};
+            console.info = function() {};
+            console.debug = function() {};
+            console.time = function() {};
+            console.timeEnd = function() {};
+        }
+    </script>
     <meta name="title" content="SizzleStats | Raid Shadow Legends Stat Scanner & Simulator" />
     <meta name="description"
         content="A free, lightning-fast OCR scanner to analyze champion builds, grade efficiency, and simulate account bonuses directly in your browser." />
