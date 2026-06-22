@@ -682,3 +682,68 @@ input.goal-input:-webkit-autofill:active {
     background-color: rgba(255, 255, 255, 0.05);
     color: var(--indicator-active);
 }
+
+/* --- AUDIT CROP ZOOM UI --- */
+.audit-crop-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 5px;
+}
+
+.audit-crop-img {
+    width: 100%;
+    display: block;
+    border-radius: 4px;
+    cursor: zoom-in;
+}
+
+.audit-zoom-hint {
+    display: block;
+    text-align: center;
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+}
+
+/* --- THE MAGNIFIER LENS --- */
+.audit-preview-box {
+    display: none;
+    position: absolute;
+    top: -65px; /* Positions it exactly in your red circle */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 55px;
+    border: 1px solid var(--border-lowkey);
+    border-radius: 6px;
+    background-color: #1a1a1a;
+    background-repeat: no-repeat;
+    background-size: 400% auto; /* The actual zoom level (4x) */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+    z-index: 100;
+    pointer-events: none; /* Prevents the box from blocking your mouse */
+}
+
+/* DESKTOP: Show the magnifier when hovering the image */
+@media (hover: hover) and (pointer: fine) {
+    .audit-crop-wrapper:hover .audit-preview-box {
+        display: block;
+    }
+}
+
+/* MOBILE: Tap to widen and pan */
+@media (hover: none) and (pointer: coarse) {
+    .audit-crop-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth iOS swipe */
+    }
+    .audit-crop-img {
+        transition: width 0.25s ease;
+        max-width: none;
+    }
+    .audit-crop-img.mobile-zoomed {
+        width: 250%; /* Blows it up so user can swipe left/right */
+        cursor: zoom-out;
+    }
+}

@@ -12,7 +12,7 @@ fetch(`champs.json?v=${new Date().getTime()}`, { cache: "no-store" })
     .then(data => {
         championDatabase = data;
     })
-    .catch(err => {});
+    .catch(err => { });
 
 function getChampionDetails(scannedName) {
     if (!scannedName || championDatabase.length === 0) return null;
@@ -243,7 +243,7 @@ function paintLensUI(scanData) {
 
         if (effAccordionTitle) {
             if (effData && (effData.isValid || effData.isMulti)) {
-                effAccordionTitle.style.color = "#ef4444"; 
+                effAccordionTitle.style.color = "#ef4444";
 
                 const waitEl = document.getElementById('eff-waiting');
                 const coachUiEl = document.getElementById('eff-coach-ui');
@@ -289,7 +289,7 @@ function paintLensUI(scanData) {
 
                     const effCoachDesc = document.getElementById('eff-coach-desc');
                     if (effCoachDesc) {
-                        effCoachDesc.innerHTML = `Damage efficiency evaluates the balance between ${coachName}’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>. To improve your ${coachName}’s damage, <strong id="eff-coach-target" class="stat-highlight-white">${displayBestStat}</strong> is the most efficient investment.`;
+                        effCoachDesc.innerHTML = `Damage efficiency evaluates the balance between ${coachName}’s <strong>${data.primaryStat.toUpperCase()}</strong>, <strong>C.DMG</strong>, and <strong>C.RATE</strong>. To improve your ${coachName}’s damage, <strong id="eff-coach-target" class="stat-highlight-white">${displayBestStat}</strong> is the most efficient investment.`;
                     }
 
                     const ledgerStatName = document.getElementById('dmg-ledger-stat-name');
@@ -407,7 +407,7 @@ function paintLensUI(scanData) {
                     if (standardUi) standardUi.style.display = 'none';
                     const pillsContainer = document.getElementById('eff-multi-pills');
                     if (pillsContainer) {
-                        pillsContainer.innerHTML = ''; 
+                        pillsContainer.innerHTML = '';
                         let pureStats = [];
                         const rawScaling = renderData.Identity.ScalingStats || [];
                         rawScaling.forEach(s => {
@@ -428,7 +428,7 @@ function paintLensUI(scanData) {
                                 const targetedEffData = window.calculateDamageEfficiency(renderData, stat.toUpperCase());
                                 if (targetedEffData && targetedEffData.isValid) {
                                     populateStandardEffUi(targetedEffData);
-                                    if (standardUi) standardUi.style.display = 'block'; 
+                                    if (standardUi) standardUi.style.display = 'block';
                                 }
                             };
                             pillsContainer.appendChild(pill);
@@ -440,7 +440,7 @@ function paintLensUI(scanData) {
                     populateStandardEffUi(effData);
                 }
             } else {
-                effAccordionTitle.style.color = "var(--text-primary)"; 
+                effAccordionTitle.style.color = "var(--text-primary)";
                 const waitEl = document.getElementById('eff-waiting');
                 if (waitEl) waitEl.innerText = effData?.message || "Waiting for scan data...";
             }
@@ -459,7 +459,7 @@ function paintLensUI(scanData) {
             if (totalHP > 0 && totalDEF > 0) {
                 const calcEhpLocal = (h, d) => Math.round(h / (1 - (0.85 * (1 - Math.exp(-d / 1500)))));
                 const currentEhp = calcEhpLocal(totalHP, totalDEF);
-                ehpAccordionTitle.style.color = "#22c55e"; 
+                ehpAccordionTitle.style.color = "#22c55e";
 
                 const waitEl = document.getElementById('ehp-waiting');
                 const coachUiEl = document.getElementById('ehp-coach-ui');
@@ -481,9 +481,9 @@ function paintLensUI(scanData) {
                 let tierColor = "#14532d";
                 const thresh = window.EHP_THRESHOLDS || { low: 100000, average: 250000, high: 450000, elite: 750000, kraken: 1200000 };
 
-                if (currentEhp >= thresh.kraken) { tierName = "Kraken"; tierColor = "#22c55e"; } 
-                else if (currentEhp >= thresh.elite) { tierName = "Elite"; tierColor = "#16a34a"; } 
-                else if (currentEhp >= thresh.high) { tierName = "High"; tierColor = "#15803d"; } 
+                if (currentEhp >= thresh.kraken) { tierName = "Kraken"; tierColor = "#22c55e"; }
+                else if (currentEhp >= thresh.elite) { tierName = "Elite"; tierColor = "#16a34a"; }
+                else if (currentEhp >= thresh.high) { tierName = "High"; tierColor = "#15803d"; }
                 else if (currentEhp >= thresh.average) { tierName = "Average"; tierColor = "#166534"; }
 
                 const tierLabel = document.getElementById('kraken-tier-label');
@@ -509,7 +509,7 @@ function paintLensUI(scanData) {
                 if (multiEl) multiEl.innerText = multiplier;
 
             } else {
-                ehpAccordionTitle.style.color = "var(--text-primary)"; 
+                ehpAccordionTitle.style.color = "var(--text-primary)";
             }
         }
     };
@@ -558,7 +558,7 @@ function processScanResults(engine) {
     const activeForm = (isAlt && dbInfo.altForm) ? dbInfo.altForm : (dbInfo.baseForm || dbInfo);
 
     scanData.Identity.Champion = dbInfo.name || dbInfo.Name || champName;
-    scanData.Identity.Nickname = dbInfo.nickname || dbInfo.name || dbInfo.Name || champName; 
+    scanData.Identity.Nickname = dbInfo.nickname || dbInfo.name || dbInfo.Name || champName;
     scanData.Identity.Rarity = dbInfo.rarity || dbInfo.Rarity || "Unknown";
     scanData.Identity.Faction = dbInfo.faction || dbInfo.Faction || "Unknown";
     scanData.Identity.Affinity = dbInfo.affinity || dbInfo.Affinity || "Unknown";
@@ -627,8 +627,15 @@ function processScanResults(engine) {
                     const imgSrc = engine.exportRowCrop(targetRow);
 
                     let detailHtml = `<div class="audit-verify-title">Verifying ${targetRow}</div>`;
-                    if (imgSrc) detailHtml += `<img src="${imgSrc}" class="audit-crop-img">`;
-
+                    if (imgSrc) {
+                        detailHtml += `
+                            <div class="audit-crop-wrapper" style="position: relative;">
+                                <div id="audit-preview-${targetRow}" class="audit-preview-box" style="background-image: url('${imgSrc}');"></div>
+                                <img id="audit-img-${targetRow}" src="${imgSrc}" class="audit-crop-img" onclick="this.classList.toggle('mobile-zoomed')">
+                            </div>
+                            <span class="audit-zoom-hint">Desktop: Hover to magnify | Mobile: Tap & swipe</span>
+                        `;
+                    }
                     detailHtml += `<div class="audit-grid">`;
                     colKeys.forEach(col => {
                         const currentVal = scanData.Stats[targetRow][col] || 0;
@@ -646,6 +653,21 @@ function processScanResults(engine) {
 
                     detailContainer.innerHTML = detailHtml;
                     detailContainer.style.display = 'block';
+
+                    // --- DESKTOP MAGNIFIER LOGIC ---
+                    const cropImg = document.getElementById(`audit-img-${targetRow}`);
+                    const previewBox = document.getElementById(`audit-preview-${targetRow}`);
+
+                    if (cropImg && previewBox) {
+                        cropImg.addEventListener('mousemove', (e) => {
+                            const rect = cropImg.getBoundingClientRect();
+                            const x = e.clientX - rect.left; // Find mouse X relative to the image
+                            const xPercent = (x / rect.width) * 100; // Convert to percentage
+
+                            // Pan the background image of the preview box to match
+                            previewBox.style.backgroundPosition = `${xPercent}% center`;
+                        });
+                    }
 
                     // --- SMART SCROLL: Push the expanded UI safely into view ---
                     setTimeout(() => {
@@ -750,7 +772,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
             processScanResults(scanner);
             URL.revokeObjectURL(img.src);
         } catch (err) {
-            console.error("[Sizzle Engine] Scan aborted:", err); 
+            console.error("[Sizzle Engine] Scan aborted:", err);
 
             const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
 
@@ -762,7 +784,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
                 try {
                     const strikeTwoName = await scanner.runStrikeTwoRescue();
                     const strikeTwoCheck = getChampionDetails(strikeTwoName);
-                    
+
                     if (strikeTwoCheck) {
                         console.log(`[Sizzle Engine] Strike 2 SUCCESS! Recovered: ${strikeTwoName}`);
                         scanner.masterData.Identity.Champion = strikeTwoCheck.name || strikeTwoCheck.Name;
@@ -850,9 +872,9 @@ imageLoaderEl.addEventListener('change', async function (e) {
                     inputEl.addEventListener('input', (event) => {
                         const rawVal = event.target.value;
                         const searchVal = rawVal.toLowerCase().replace(/[^a-z]/g, '');
-                        
+
                         listEl.innerHTML = '';
-                        
+
                         if (searchVal.length < 2) {
                             listEl.classList.add('hidden-dropdown');
                             return;
@@ -869,7 +891,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
                                 const li = document.createElement('li');
                                 li.className = 'manual-champ-item';
                                 li.innerText = match.name || match.Name;
-                                
+
                                 li.addEventListener('click', () => {
                                     // Just fill the box and close the dropdown
                                     inputEl.value = match.name || match.Name;
@@ -881,7 +903,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
                             listEl.classList.add('hidden-dropdown');
                         }
                     });
-                    
+
                     document.addEventListener('click', (clickEvent) => {
                         if (!inputEl.contains(clickEvent.target) && !listEl.contains(clickEvent.target)) {
                             listEl.classList.add('hidden-dropdown');
@@ -899,9 +921,9 @@ imageLoaderEl.addEventListener('change', async function (e) {
                         // Inject Name and Level
                         scanner.masterData.Identity.Champion = finalName;
                         scanner.masterData.Identity.Level = parseInt(levelEl.value) || 60;
-                        
-                        auditContainer.innerHTML = ''; 
-                        
+
+                        auditContainer.innerHTML = '';
+
                         try {
                             processScanResults(scanner);
                         } catch (retryErr) {
@@ -912,7 +934,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
             } else {
                 let errorTitle = "Scan Failed";
                 let errorDesc = err && err.message ? err.message : "The stat matrix could not be detected. Please ensure you uploaded a clear, full-screen screenshot of a champion's stat page.";
-                
+
                 auditContainer.innerHTML = `
                     <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
                         <div class="action-content">
@@ -937,10 +959,10 @@ document.querySelectorAll('.action-bar').forEach(bar => {
         this.classList.toggle('open');
         if (this.classList.contains('open')) {
             setTimeout(() => {
-                const yOffset = -20; 
+                const yOffset = -20;
                 const y = this.getBoundingClientRect().top + window.scrollY + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
-            }, 300); 
+            }, 300);
         }
     });
 });
@@ -953,7 +975,7 @@ function copySizzleEmail() {
         setTimeout(() => {
             toast.style.opacity = '0';
         }, 2000);
-    }).catch(err => {});
+    }).catch(err => { });
 }
 
 // ==========================================
@@ -961,7 +983,7 @@ function copySizzleEmail() {
 // ==========================================
 window.openLedgerSheet = function () {
     document.getElementById('ledger-sheet').classList.add('open');
-    document.body.classList.add('no-scroll'); 
+    document.body.classList.add('no-scroll');
     history.pushState({ bottomSheet: 'open' }, '', '');
 };
 
@@ -969,7 +991,7 @@ window.closeLedgerSheet = function (fromHistory = false) {
     const sheet = document.getElementById('ledger-sheet');
     if (sheet && sheet.classList.contains('open')) {
         sheet.classList.remove('open');
-        document.body.classList.remove('no-scroll'); 
+        document.body.classList.remove('no-scroll');
         if (!fromHistory && history.state && history.state.bottomSheet === 'open') {
             history.back();
         }
@@ -978,7 +1000,7 @@ window.closeLedgerSheet = function (fromHistory = false) {
 
 window.openDmgLedgerSheet = function () {
     document.getElementById('ledger-sheet-dmg').classList.add('open');
-    document.body.classList.add('no-scroll'); 
+    document.body.classList.add('no-scroll');
     history.pushState({ bottomSheet: 'open-dmg' }, '', '');
 };
 
@@ -986,7 +1008,7 @@ window.closeDmgLedgerSheet = function (fromHistory = false) {
     const sheet = document.getElementById('ledger-sheet-dmg');
     if (sheet && sheet.classList.contains('open')) {
         sheet.classList.remove('open');
-        document.body.classList.remove('no-scroll'); 
+        document.body.classList.remove('no-scroll');
         if (!fromHistory && history.state && history.state.bottomSheet === 'open-dmg') {
             history.back();
         }
