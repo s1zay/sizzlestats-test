@@ -106,7 +106,7 @@ const Sandbox = {
     setModifier: function (level, type) {
         const parsedLevel = parseInt(level, 10) || 0;
         const selectId = type === 'awakening' ? 'awkSelect' : 'empSelect';
-        
+
         const selectEl = document.getElementById(selectId);
         if (selectEl) selectEl.value = parsedLevel;
 
@@ -123,7 +123,7 @@ const Sandbox = {
     _calculateDeltaCore: function (targetLevel, dbCategory, scannedLevelKey, stateKey) {
         window.SizzleState = window.SizzleState || {};
         window.SizzleState.mirage = window.SizzleState.mirage || {};
-        
+
         let deltas = { HP: 0, ATK: 0, DEF: 0, SPD: 0, CRate: 0, CDMG: 0, ACC: 0, RES: 0 };
         window.SizzleState.mirage[stateKey] = deltas;
 
@@ -218,11 +218,11 @@ const Sandbox = {
 
     renderSummaryGrid: function (summaryDiv, scanData) {
         const currentUtility = window.sandboxState?.activeUtility || 'Custom';
-        let blueprint = window.RollEngine?.db?.UtilityBlueprints?.[currentUtility] || 
-                        window.RollEngine?.db?.ArtifactSettings?.UtilityBlueprints?.[currentUtility];
+        let blueprint = window.RollEngine?.db?.UtilityBlueprints?.[currentUtility] ||
+            window.RollEngine?.db?.ArtifactSettings?.UtilityBlueprints?.[currentUtility];
 
         const jsonKeyMap = { 'HP': 'hp', 'ATK': 'atk', 'DEF': 'def', 'SPD': 'spd', 'CRate': 'cr', 'CDMG': 'cd', 'ACC': 'acc', 'RES': 'res' };
-        
+
         let gearTotals = { hp: 0, hpP: 0, atk: 0, atkP: 0, def: 0, defP: 0, spd: 0, cr: 0, cd: 0, acc: 0, res: 0 };
         if (typeof window.RollEngine?.evaluateStats === 'function') {
             gearTotals = window.RollEngine.evaluateStats() || gearTotals;
@@ -385,7 +385,7 @@ window.copyScannedToGoals = function (event) {
 window.clearGoals = function (event) {
     if (event) event.stopPropagation();
     let currentUtility = window.sandboxState?.activeUtility || 'Custom';
-    
+
     ['hp', 'atk', 'def', 'spd', 'cr', 'cd', 'acc', 'res'].forEach(jKey => {
         Sandbox.updateGoal(currentUtility, jKey, '');
     });
@@ -432,11 +432,37 @@ window.resetSandbox = function () {
     const empSelect = document.getElementById('empSelect');
     if (empSelect) empSelect.value = parseInt(scanData?.Identity?.EmpowermentLevel, 10) || 0;
 
+    // --- THE NEW DEFAULT GLYPH LOGIC ---
+    const glyphDropdown = document.getElementById('glyphSelect');
+    if (glyphDropdown) {
+        glyphDropdown.value = 'green5'; // Force it to Max 5★ Basic
+
+        // Force the math engine to register the change!
+        if (typeof window.updateGlobal === 'function') {
+            window.updateGlobal();
+        }
+    }
+
+    if (typeof window.applyGlyphs === 'function') {
+        window.applyGlyphs();
+    }
+    // Default the ascension toggle to ON during load/hard reset
+    const ascToggle = document.getElementById('ascensionToggle');
+    if (ascToggle) {
+        ascToggle.checked = true;
+    }
+
     Sandbox.updateSummary();
 };
 
 window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#awakening-dropdown span[onclick]').forEach(span => span.removeAttribute('onclick'));
+
+    // --- FORCE DEFAULT GLYPHS ON INITIAL PAGE LOAD ---
+    const glyphDropdown = document.getElementById('glyphSelect');
+    if (glyphDropdown) {
+        glyphDropdown.value = 'green5';
+    }
 });
 
 window.clampGoal = function (inputEl, statKey) {

@@ -669,27 +669,16 @@
                     </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <div style="color: var(--text-muted); font-size: 0.8em; margin-bottom: 4px;">Gear Ascension
-                                Injection</div>
-                            <select id="ascensionMode" class="top-utility"
-                                style="width: 100%; font-size: 0.85em; padding: 8px;"
-                                onchange="handleAscensionModeChange()">
-                                <option value="off" selected>Off</option>
-                                <option value="ideal">Ideal (Matches Utility)</option>
-                                <option value="custom" style="display: none">Custom</option>
-                            </select>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="color: var(--text-muted); font-size: 0.8em; margin-bottom: 4px;">Relic Injection
-                            </div>
-                            <select id="relicMode" class="top-utility"
-                                style="width: 100%; font-size: 0.85em; padding: 8px;" disabled
-                                title="Relic logic coming soon">
-                                <option value="off" selected>None</option>
-                                <option value="max">Max Relics</option>
-                            </select>
-                        </div>
+                        <label class="gh-toggle"
+                            style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85em; flex: 1; justify-content: center; background: rgba(0,0,0,0.2); padding: 8px 6px; border-radius: 6px; border: 1px solid var(--border-lowkey);">
+                            <input type="checkbox" id="ascensionToggle" checked
+                                onchange="handleAscensionModeChange()" /> Ascension
+                        </label>
+                        <label class="gh-toggle"
+                            style="cursor: not-allowed; display: flex; align-items: center; gap: 6px; font-size: 0.85em; flex: 1; justify-content: center; background: rgba(0,0,0,0.2); padding: 8px 6px; border-radius: 6px; border: 1px solid var(--border-lowkey); opacity: 0.4;"
+                            title="Relic logic coming soon">
+                            <input type="checkbox" id="relicToggle" disabled /> Max Relics
+                        </label>
                     </div>
 
                     <div class="section-card nested-accordion collapsed" id="setsCard">
