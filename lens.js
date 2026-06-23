@@ -521,9 +521,42 @@ function paintLensUI(scanData) {
 
     if (typeof window.matchArea === "function" && window.simDatabase) {
         const matchedArea = window.matchArea(scanData.Context);
-        if (areaNameEl) areaNameEl.innerHTML = matchedArea ? `${matchedArea} <span class="area-selected-highlight">Selected</span>` : "No Area Selected";
+
+        if (areaNameEl) {
+            if (matchedArea) {
+                areaNameEl.innerHTML = `${matchedArea} <span class="area-selected-highlight">Selected</span>`;
+            } else {
+                areaNameEl.innerText = "No Area Selected";
+            }
+        }
+
+        if (areaDetailsEl) {
+            const targetArea = matchedArea || "No Selection -Chimera";
+            const statsObj = window.simDatabase.AreaStats?.[targetArea];
+
+            if (statsObj) {
+                let htmlString = `<div class="area-target-header">Target: ${targetArea}</div>`;
+
+                Object.keys(statsObj).forEach(diff => {
+                    const reqs = statsObj[diff];
+                    htmlString += `
+                        <div class="area-diff-card">
+                            <div class="area-diff-title">${diff}</div>
+                            <div class="area-req-row">
+                                <span class="req-label">Fastest Enemy: <span class="req-val-spd">${reqs.maxENEMY_SPD} SPD</span></span>
+                                <span class="req-label-acc">Required ACC: <span class="req-val-acc">${reqs.recACC}</span></span>
+                                <span class="req-label-res">Required RES: <span class="req-val-res">${reqs.recRES}</span></span>
+                            </div>
+                        </div>
+                    `;
+                });
+                areaDetailsEl.innerHTML = htmlString;
+            } else {
+                areaDetailsEl.innerHTML = `<span class="area-error-text">Error loading area stats.</span>`;
+            }
+        }
     }
-}
+} // <-- THIS WAS THE MISSING BRACKET THAT BROKE THE FILE
 
 // ==========================================
 // CORE SCAN PROCESSOR (Math Audit & Routing)
@@ -597,7 +630,7 @@ function processScanResults(engine) {
             let auditHtml = `
                 <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
                     <div class="action-content">
-						<span class="action-highlight text-warning">Something isn't adding up.</span>
+                        <span class="action-highlight text-warning">Something isn't adding up.</span>
                     </div>
                 </div>
                 <div class="action-drawer audit-warning-drawer" style="display: block;">
