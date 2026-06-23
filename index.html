@@ -422,11 +422,6 @@
     </main>
 
     <main id="mirage-view" style="display: none; max-width: 1200px; margin: 0 auto; width: 100%;">
-        <!--<div
-            style="background: rgba(234, 179, 8, 0.1); border: 1px dashed var(--accent-warning); color: var(--accent-warning); padding: 12px; text-align: center; border-radius: 8px; margin-bottom: 16px; font-weight: bold; font-size: 0.9em;">
-            Sandbox is in active development. Features may be broken or inaccurate.
-        </div>-->
-
         <div class="dashboard-wrapper">
 
             <div class="top-controls-wrapper">
@@ -1088,6 +1083,11 @@
                         });
                         const rarityTier = scanData.Identity.Rarity.toLowerCase();
                         cardEl.classList.add(`glow-${rarityTier}`);
+                    }
+
+                    // --- NEW: POPULATE MASTERIES ---
+                    if (typeof window.populateSandboxMasteries === "function") {
+                        window.populateSandboxMasteries(scanData);
                     }
 
                     if (typeof updateSummary === "function") {
