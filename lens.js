@@ -556,7 +556,7 @@ function paintLensUI(scanData) {
             }
         }
     }
-} // <-- THIS WAS THE MISSING BRACKET THAT BROKE THE FILE
+} 
 
 // ==========================================
 // CORE SCAN PROCESSOR (Math Audit & Routing)
@@ -804,6 +804,32 @@ imageLoaderEl.addEventListener('change', async function (e) {
             await scanner.scanImage(img);
             processScanResults(scanner);
             URL.revokeObjectURL(img.src);
+
+            // ==========================================
+            // ANALYTICS TRACKER
+            // ==========================================
+            const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
+            if (liveDomains.includes(window.location.hostname)) {
+                fetch('https://snowy-unit-c9e5.anthonyyerhot.workers.dev/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(`[Analytics] Server Error: ${data.error}`);
+                    } else {
+                        console.log(`[Analytics] Scan recorded. Total live scans: ${data.total}`);
+                    }
+                })
+                .catch(err => console.log("[Analytics] Ping failed completely."));
+            } else {
+                console.log("[Analytics] Dev environment: Scan ignored.");
+            }
+            // ==========================================
+
         } catch (err) {
             console.error("[Sizzle Engine] Scan aborted:", err);
 
