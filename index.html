@@ -712,102 +712,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="section-card nested-accordion collapsed" id="masteryCard">
-                        <div class="section-header" onclick="toggleSection('masteryCard')">
-                            <h2
-                                style="font-size: 0.85em; margin: 0; color: var(--indicator-active); text-transform: uppercase; letter-spacing: 1px;">
-                                Mastery Selection
-                            </h2>
-                            <span class="toggle-arrow" style="color: var(--text-muted); font-size: 0.8em">▼</span>
-                        </div>
-                        <div class="section-content">
-                            <div class="mastery-container">
-                                <div class="tree-col offense-bg" id="tree_offense">
-                                    <span class="tree-name">OFFENSE</span>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="offense" data-tier="1"
-                                            id="m_blade" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Blade Disc.</span><span
-                                                class="m-stat">+75 ATK</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="offense" data-tier="1"
-                                            id="m_deadly" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Deadly Prec.</span><span
-                                                class="m-stat">+5% C. RATE</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="offense" data-tier="2"
-                                            id="m_keen" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Keen Strike</span><span
-                                                class="m-stat">+10% C. DMG</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="offense" data-tier="6"
-                                            id="m_flawless" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Flawless</span><span
-                                                class="m-stat">+20% C. DMG</span></div>
-                                    </label>
-                                </div>
-                                <div class="tree-col defense-bg" id="tree_defense">
-                                    <span class="tree-name">DEFENSE</span>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="defense" data-tier="1"
-                                            id="m_tough" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Tough Skin</span><span
-                                                class="m-stat">+75 DEF</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="defense" data-tier="1"
-                                            id="m_defiant" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Defiant</span><span class="m-stat">+10
-                                                RES</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="defense" data-tier="6"
-                                            id="m_iron" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Iron Skin</span><span
-                                                class="m-stat">+200 DEF</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="defense" data-tier="6"
-                                            id="m_unshakable" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Unshakable</span><span
-                                                class="m-stat">+50 RES</span></div>
-                                    </label>
-                                </div>
-                                <div class="tree-col support-bg" id="tree_support">
-                                    <span class="tree-name">SUPPORT</span>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="support" data-tier="1"
-                                            id="m_steadfast" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Steadfast</span><span
-                                                class="m-stat">+810 HP</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="support" data-tier="1"
-                                            id="m_pinpoint" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Pinpoint</span><span
-                                                class="m-stat">+10 ACC</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="support" data-tier="6"
-                                            id="m_elixir" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Elixir</span><span
-                                                class="m-stat">+3000 HP</span></div>
-                                    </label>
-                                    <label class="mastery-item">
-                                        <input type="checkbox" class="m-check" data-tree="support" data-tier="6"
-                                            id="m_eagle" onchange="mUpdate()" />
-                                        <div class="m-info"><span class="m-title">Eagle Eye</span><span
-                                                class="m-stat">+50 ACC</span></div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -1083,11 +987,6 @@
                         });
                         const rarityTier = scanData.Identity.Rarity.toLowerCase();
                         cardEl.classList.add(`glow-${rarityTier}`);
-                    }
-
-                    // --- NEW: POPULATE MASTERIES ---
-                    if (typeof window.populateSandboxMasteries === "function") {
-                        window.populateSandboxMasteries(scanData);
                     }
 
                     if (typeof updateSummary === "function") {

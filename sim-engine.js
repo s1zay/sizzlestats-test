@@ -592,12 +592,6 @@ window.resetSandbox = function () {
         };
     }
 
-    // --- SWEEP AND CLEAR MASTERY CHECKBOXES ---
-    document.querySelectorAll('.m-check').forEach(cb => {
-        cb.checked = false;
-        cb.disabled = false;
-    });
-
     if (typeof window.RollEngine?.purge === 'function') window.RollEngine.purge();
 
     const awkSelect = document.getElementById('awkSelect');
@@ -646,54 +640,4 @@ window.clampGoal = function (inputEl, statKey) {
         if (parseInt(cleanValue, 10) > maxLimit) cleanValue = maxLimit.toString();
     }
     inputEl.value = cleanValue;
-};
-
-// ==========================================
-// NEW: POPULATE SANDBOX MASTERIES
-// ==========================================
-window.populateSandboxMasteries = function (scanData) {
-    if (!scanData || !scanData.Stats) return;
-
-    // Helper to check the box (and disable it so it's read-only for today)
-    const checkMastery = (id) => {
-        const checkbox = document.getElementById(id);
-        if (checkbox) {
-            checkbox.checked = true;
-            checkbox.disabled = true; // Locks it down for today's goal!
-        }
-    };
-
-    // --- 1. OFFENSE TREE ---
-    const crMastery = scanData.Stats["CRate"]?.Masteries || 0;
-    const cdMastery = scanData.Stats["CDMG"]?.Masteries || 0;
-    const atkMastery = scanData.Stats["ATK"]?.Masteries || 0;
-
-    if (atkMastery >= 75) checkMastery('m_blade');
-    if (crMastery >= 5) checkMastery('m_deadly');
-
-    // C.DMG logic (handles if they have Tier 2, Tier 6, or both)
-    if (cdMastery === 10 || cdMastery === 30) checkMastery('m_keen');
-    if (cdMastery === 20 || cdMastery === 30) checkMastery('m_flawless');
-
-    // --- 2. DEFENSE TREE ---
-    const defMastery = scanData.Stats["DEF"]?.Masteries || 0;
-    const resMastery = scanData.Stats["RES"]?.Masteries || 0;
-
-    if (defMastery === 75 || defMastery === 275) checkMastery('m_tough');
-    if (defMastery === 200 || defMastery === 275) checkMastery('m_iron');
-
-    // RES logic
-    if (resMastery === 10 || resMastery === 60) checkMastery('m_defiant');
-    if (resMastery === 50 || resMastery === 60) checkMastery('m_unshakable');
-
-    // --- 3. SUPPORT TREE ---
-    const accMastery = scanData.Stats["ACC"]?.Masteries || 0;
-    const hpMastery = scanData.Stats["HP"]?.Masteries || 0;
-
-    if (hpMastery === 810 || hpMastery === 3810) checkMastery('m_steadfast');
-    if (hpMastery === 3000 || hpMastery === 3810) checkMastery('m_elixir');
-
-    // ACC logic
-    if (accMastery === 10 || accMastery === 60) checkMastery('m_pinpoint');
-    if (accMastery === 50 || accMastery === 60) checkMastery('m_eagle');
 };
