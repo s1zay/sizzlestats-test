@@ -73,11 +73,6 @@ body.no-scroll { overflow: hidden; }
 .collapsed .section-content { display: none; }
 .collapsed .section-header { border-bottom: none; }
 .section-card:not(#summaryCard) .section-content { position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--bg-card); border: 1px solid var(--border-lowkey); border-top: none; border-radius: 0 0 12px 12px; z-index: 99; box-shadow: 0 10px 40px rgba(0,0,0,0.9); }
-
-.unified-panel { display: flex; flex-direction: column; gap: 16px; padding: 16px; }
-.nested-accordion { background: rgba(0, 0, 0, 0.2) !important; margin-bottom: 0 !important; border-radius: 8px !important; }
-.nested-accordion .section-header { border-bottom: none; background: transparent; padding: 12px 15px; }
-
 .top-controls-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; width: 100%; }
 .champ-setup-block { flex: 1; display: flex; flex-direction: column; gap: 10px; width: 100%; }
 .awk-util-row { display: flex; flex-direction: column; gap: 10px; width: 100%; }
@@ -126,9 +121,8 @@ input[type="range"] { width: 100%; accent-color: var(--indicator-active); cursor
 .affinity-force { color: var(--affinity-force); font-weight: 600; }
 .affinity-spirit { color: var(--affinity-spirit); font-weight: 600; }
 .affinity-void { color: var(--affinity-void); font-weight: 600; }
-
-.toggle-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
-.gh-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 6px; border-radius: 6px; font-size: 0.85em; cursor: pointer; flex: 1; border: 1px solid var(--border-lowkey); min-width: 45%; margin: 0; }
+.toggle-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+.gh-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--bg-canvas); padding: 10px; border-radius: 6px; font-size: 0.85em; cursor: pointer; flex: 1; border: 1px solid var(--border-lowkey); min-width: 45%; }
 .gh-toggle input { accent-color: var(--indicator-active); width: 16px; height: 16px; cursor: pointer; }
 
 /* 3-DOT MENU & SETS */
@@ -151,7 +145,7 @@ input[type="range"] { width: 100%; accent-color: var(--indicator-active); cursor
 .btn-set:disabled { opacity: 0.2; cursor: not-allowed; }
 .btn-del { background: var(--accent-warning); }
 .set-select { padding: 8px; }
-.glyph-row { display: flex; flex-direction: column; }
+.glyph-row { display: flex; flex-direction: column; padding-top: 5px; border-top: 1px solid var(--border-lowkey); }
 
 /* =========================================
    7. MIRAGE GEAR CARDS (CORE STRUCTURE)
@@ -605,6 +599,7 @@ input.goal-input:-webkit-autofill,
 input.goal-input:-webkit-autofill:hover, 
 input.goal-input:-webkit-autofill:focus, 
 input.goal-input:-webkit-autofill:active {
+    /* Delay the browser's forced background color for 5000 seconds */
     transition: background-color 5000s ease-in-out 0s !important;
     -webkit-text-fill-color: var(--text-primary) !important;
     border: 1px dashed var(--indicator-active) !important;
@@ -642,7 +637,7 @@ input.goal-input:-webkit-autofill:active {
 }
 
 .manual-champ-input:focus {
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); /* Soft red glow */
 }
 
 .manual-champ-list {
@@ -715,7 +710,7 @@ input.goal-input:-webkit-autofill:active {
 .audit-preview-box {
     display: none;
     position: absolute;
-    top: -65px;
+    top: -65px; /* Positions it exactly in your red circle */
     left: 50%;
     transform: translateX(-50%);
     width: 250px;
@@ -724,10 +719,10 @@ input.goal-input:-webkit-autofill:active {
     border-radius: 6px;
     background-color: #1a1a1a;
     background-repeat: no-repeat;
-    background-size: 400% auto;
+    background-size: 400% auto; /* The actual zoom level (4x) */
     box-shadow: 0 10px 25px rgba(0,0,0,0.9);
     z-index: 100;
-    pointer-events: none;
+    pointer-events: none; /* Prevents the box from blocking your mouse */
 }
 
 /* DESKTOP: Show the magnifier when hovering the image */
@@ -741,14 +736,14 @@ input.goal-input:-webkit-autofill:active {
 @media (hover: none) and (pointer: coarse) {
     .audit-crop-wrapper {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        -webkit-overflow-scrolling: touch; /* Smooth iOS swipe */
     }
     .audit-crop-img {
         transition: width 0.25s ease;
         max-width: none;
     }
     .audit-crop-img.mobile-zoomed {
-        width: 250%;
+        width: 250%; /* Blows it up so user can swipe left/right */
         cursor: zoom-out;
     }
 }

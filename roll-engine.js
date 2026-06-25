@@ -526,9 +526,9 @@ window.changeAscension = function (piece, newAsc) {
     }
     window.sandboxState[piece].ascension.stat = newAsc;
 
-    let ascToggle = document.getElementById('ascensionToggle');
-    if (ascToggle && ascToggle.checked) {
-        ascToggle.checked = false;
+    let ascModeDropdown = document.getElementById('ascensionMode');
+    if (ascModeDropdown && ascModeDropdown.value !== 'custom') {
+        ascModeDropdown.value = 'custom';
     }
 
     window.RenderEngine.renderPiece(piece);
@@ -608,6 +608,12 @@ window.updatePieceGlyphs = function (piece) {
 
     let glyphDropdown = document.getElementById('glyphSelect');
 
+    if (glyphDropdown && (glyphDropdown.value === "0" || glyphDropdown.value === "")) {
+        if (glyphDropdown.options.length > 1) {
+            glyphDropdown.value = glyphDropdown.options[1].value;
+        }
+    }
+
     let glyphTier = glyphDropdown?.value || "0";
     let pieceRank = parseInt(pState.rank, 10) || 6;
     let dict = window.RollEngine.db?.ArtifactSettings?.GlyphDictionary;
@@ -674,9 +680,7 @@ window.applyGlyphs = function () {
 };
 
 window.handleAscensionModeChange = function () {
-    const isChecked = document.getElementById('ascensionToggle')?.checked;
-    const mode = isChecked ? 'ideal' : 'off';
-    
+    const mode = document.getElementById('ascensionMode')?.value || 'off';
     const pieces = Object.keys(window.sandboxState).filter(k => k !== 'activeUtility' && k !== 'pieceLimits');
 
     let currentBlueprintKey = window.sandboxState.activeUtility || 'Custom';
@@ -789,6 +793,7 @@ window.rollDice = function () {
             isAiActive = true;
         }
     } catch (err) {
+        // console.warn("[AI Blacksmith Error] Math tripped. Falling back to generic lottery.", err);
         isAiActive = false;
     }
 
@@ -884,9 +889,9 @@ window.rollDice = function () {
             }
         }
 
-        let ascToggle = document.getElementById('ascensionToggle');
-        if (ascToggle && !ascToggle.checked) {
-            ascToggle.checked = true;
+        let ascModeDropdown = document.getElementById('ascensionMode');
+        if (ascModeDropdown && ascModeDropdown.value === 'off') {
+            ascModeDropdown.value = 'ideal';
         }
 
         Object.keys(pState.substats).forEach(sub => {
@@ -1122,17 +1127,6 @@ window.rollDice = function () {
 };
 
 window.resetSubstats = function () {
-    const glyphDropdown = document.getElementById('glyphSelect');
-    if (glyphDropdown) {
-        glyphDropdown.value = 'green5';
-        if (typeof window.updateGlobal === 'function') window.updateGlobal();
-    }
-
-    const ascToggle = document.getElementById('ascensionToggle');
-    if (ascToggle) {
-        ascToggle.checked = true;
-    }
-    
     let pieces = Object.keys(window.sandboxState).filter(k => k !== 'activeUtility' && k !== 'pieceLimits');
     pieces.forEach(pId => {
         let pState = window.sandboxState[pId];
@@ -1146,6 +1140,7 @@ window.resetSubstats = function () {
         });
     });
 
+    let glyphDropdown = document.getElementById('glyphSelect');
     if (glyphDropdown && glyphDropdown.value === 'custom') {
         glyphDropdown.value = glyphDropdown.options.length > 1 ? glyphDropdown.options[1].value : "0";
     }

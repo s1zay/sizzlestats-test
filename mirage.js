@@ -1,9 +1,8 @@
 // ==========================================
-// SANDBOX ENGINE: sandbox.js (Formerly mirage.js)
-// Phase 1 & 2 - Canvas, Math, and DOM Logic
+// MIRAGE ENGINE: mirage.js (Phase 1 & 2 - Canvas & Logic)
 // ==========================================
 
-const Sandbox = {
+const Mirage = {
     config: [
         { id: 'WEA', n: 'WEAPON' },
         { id: 'HEL', n: 'HELMET' },
@@ -16,41 +15,76 @@ const Sandbox = {
         { id: 'BAN', n: 'BANNER' }
     ],
 
-    // ==========================================
-    // 1. DOM PAINTERS
-    // ==========================================
     paintGhostGrid: function () {
         const grid = document.getElementById('mainGrid');
         if (!grid) return;
 
-        grid.innerHTML = this.config.map(p => `
+        let html = '';
+        this.config.forEach(p => {
+            html += `
             <div class="gear-card slot-empty" id="card_${p.id}">
                 <div class="card-header" style="justify-content: flex-end; border: none; padding-bottom: 0;">
                     <span id="title_${p.id}" class="card-title" style="color: var(--text-muted); opacity: 0.25; font-size: 0.9em; letter-spacing: 1px;">${p.n}</span>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        });
+
+        grid.innerHTML = html;
     },
 
-    updateModifierUI: function (level, type) {
+    setAwakening: function (level) {
+        const parsedLevel = isNaN(parseInt(level, 10)) ? 0 : parseInt(level, 10);
+
+        const awkSelect = document.getElementById('awkSelect');
+        if (awkSelect) awkSelect.value = parsedLevel;
+
         const dropdown = document.getElementById('awakening-dropdown');
-        const scanData = window.SizzleState?.currentScan;
+        if (dropdown) dropdown.style.display = 'none';
+
+        this.calculateDelta(parsedLevel);
+        this.updateUI(parsedLevel, 'awakening');
+        this.updateSummary();
+    },
+
+    setEmpowerment: function (level) {
+        const parsedLevel = isNaN(parseInt(level, 10)) ? 0 : parseInt(level, 10);
+
+        const empSelect = document.getElementById('empSelect');
+        if (empSelect) empSelect.value = parsedLevel;
+
+        const dropdown = document.getElementById('awakening-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+
+        this.calculateEmpowerment(parsedLevel);
+        this.updateUI(parsedLevel, 'empowerment');
+        this.updateSummary();
+    },
+
+    updateUI: function (level, type) {
+        const parsedLevel = parseInt(level, 10) || 0;
+        const dropdown = document.getElementById('awakening-dropdown');
 
         if (type === 'awakening') {
+            const scanData = window.SizzleState?.currentScan;
             const rank = parseInt(scanData?.Identity?.Rank, 10) || 6;
             const ascensionLevel = parseInt(scanData?.Identity?.AscensionLevel || scanData?.Identity?.Ascended, 10) || 0;
 
             if (dropdown) {
                 const awkBtns = dropdown.querySelectorAll('.champ-menu-col:nth-child(1) .champ-menu-btn');
                 awkBtns.forEach(btn => btn.classList.remove('active-awk'));
-                if (awkBtns[level]) awkBtns[level].classList.add('active-awk');
+                if (awkBtns[parsedLevel]) awkBtns[parsedLevel].classList.add('active-awk');
             }
 
             const starsContainer = document.getElementById('mirage-champ-stars');
             if (starsContainer) {
                 let starsHTML = '';
                 for (let i = 1; i <= rank; i++) {
-                    let color = i <= level ? '#ef4444' : (i <= ascensionLevel ? '#a855f7' : '#facc15');
+                    let color = '#facc15';
+                    if (i <= parsedLevel) {
+                        color = '#ef4444';
+                    } else if (i <= ascensionLevel) {
+                        color = '#a855f7';
+                    }
                     starsHTML += `
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="${color}" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 2px;">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -59,88 +93,51 @@ const Sandbox = {
                 }
                 starsContainer.innerHTML = starsHTML;
             }
-        } else if (type === 'empowerment') {
+        }
+
+        if (type === 'empowerment') {
             if (dropdown) {
                 const empBtns = dropdown.querySelectorAll('.col-empowerment .champ-menu-btn');
                 empBtns.forEach(btn => btn.classList.remove('active-emp'));
-                if (empBtns[level]) empBtns[level].classList.add('active-emp');
+                if (empBtns[parsedLevel]) empBtns[parsedLevel].classList.add('active-emp');
             }
 
             const nameEl = document.getElementById('mirage-champ-name');
             if (nameEl) {
                 let tag = nameEl.querySelector('.empowerment-tag');
-                if (!tag && level > 0) {
+                if (!tag && parsedLevel > 0) {
                     tag = document.createElement('span');
                     tag.className = 'empowerment-tag';
                     nameEl.appendChild(tag);
                 }
-                if (tag) tag.innerText = level > 0 ? ` +${level}` : '';
+                if (tag) {
+                    tag.innerText = parsedLevel > 0 ? ` +${parsedLevel}` : '';
+                }
             }
         }
     },
 
-    syncUIStates: function (scanData, currentAwk, currentEmp) {
-        const rarity = scanData.Identity?.Rarity || "Legendary";
-        const canEmpower = window.simDatabase?.Empowerment?.[rarity];
-        const ascensionLevel = parseInt(scanData.Identity?.AscensionLevel || scanData.Identity?.Ascended, 10) || 0;
-
-        const empColumn = document.querySelector('.col-empowerment');
-        if (empColumn) {
-            empColumn.style.opacity = canEmpower ? '1' : '0.3';
-            empColumn.style.pointerEvents = canEmpower ? 'auto' : 'none';
-            empColumn.style.filter = canEmpower ? 'none' : 'grayscale(100%)';
-        }
-
-        const awkColumn = document.querySelector('.champ-menu-col:nth-child(1)');
-        if (awkColumn) {
-            const canAwaken = ascensionLevel >= 6;
-            awkColumn.style.opacity = canAwaken ? '1' : '0.3';
-            awkColumn.style.pointerEvents = canAwaken ? 'auto' : 'none';
-            awkColumn.style.filter = canAwaken ? 'none' : 'grayscale(100%)';
-        }
-    },
-
-    // ==========================================
-    // 2. MATH & DATA ENGINES
-    // ==========================================
-    setModifier: function (level, type) {
-        const parsedLevel = parseInt(level, 10) || 0;
-        const selectId = type === 'awakening' ? 'awkSelect' : 'empSelect';
-
-        const selectEl = document.getElementById(selectId);
-        if (selectEl) selectEl.value = parsedLevel;
-
-        const dropdown = document.getElementById('awakening-dropdown');
-        if (dropdown) dropdown.style.display = 'none';
-
-        if (type === 'awakening') this.calculateAwakeningDelta(parsedLevel);
-        else this.calculateEmpowermentDelta(parsedLevel);
-
-        this.updateModifierUI(parsedLevel, type);
-        this.updateSummary();
-    },
-
-    _calculateDeltaCore: function (targetLevel, dbCategory, scannedLevelKey, stateKey) {
+    calculateDelta: function (targetLevel) {
         window.SizzleState = window.SizzleState || {};
         window.SizzleState.mirage = window.SizzleState.mirage || {};
 
         let deltas = { HP: 0, ATK: 0, DEF: 0, SPD: 0, CRate: 0, CDMG: 0, ACC: 0, RES: 0 };
-        window.SizzleState.mirage[stateKey] = deltas;
+        window.SizzleState.mirage.awakeningBonuses = deltas;
 
         const scanData = window.SizzleState.currentScan;
-        if (!scanData || !window.simDatabase?.[dbCategory]) return;
+        if (!scanData || !window.simDatabase) return;
 
         const rarity = scanData.Identity?.Rarity || "Legendary";
-        const db = window.simDatabase[dbCategory][rarity];
-        if (!db) return;
+        const scannedLevel = parseInt(scanData.Identity?.AwakeningLevel, 10) || 0;
+        const blessingDB = window.simDatabase.Blessings?.[rarity];
 
-        const scannedLevel = parseInt(scanData.Identity?.[scannedLevelKey], 10) || 0;
+        if (!blessingDB) return;
+
         const keyMap = { "C_DMG": "CDMG", "C_RATE": "CRate" };
-        const maxLevel = dbCategory === 'Blessings' ? 6 : 4;
 
-        for (let i = 1; i <= maxLevel; i++) {
-            if (!db[i]) continue;
-            Object.entries(db[i]).forEach(([dbKey, val]) => {
+        for (let i = 1; i <= 6; i++) {
+            if (!blessingDB[i]) continue;
+            Object.entries(blessingDB[i]).forEach(([dbKey, val]) => {
                 const mirageKey = keyMap[dbKey] || dbKey;
                 if (deltas[mirageKey] !== undefined) {
                     if (i <= targetLevel) deltas[mirageKey] += val;
@@ -148,21 +145,45 @@ const Sandbox = {
                 }
             });
         }
+        window.SizzleState.mirage.awakeningBonuses = deltas;
     },
 
-    calculateAwakeningDelta: function (targetLevel) {
-        this._calculateDeltaCore(targetLevel, 'Blessings', 'AwakeningLevel', 'awakeningBonuses');
-    },
+    calculateEmpowerment: function (targetLevel) {
+        window.SizzleState = window.SizzleState || {};
+        window.SizzleState.mirage = window.SizzleState.mirage || {};
 
-    calculateEmpowermentDelta: function (targetLevel) {
-        this._calculateDeltaCore(targetLevel, 'Empowerment', 'EmpowermentLevel', 'empowermentBonuses');
+        let empDeltas = { HP: 0, ATK: 0, DEF: 0, SPD: 0, CRate: 0, CDMG: 0, ACC: 0, RES: 0 };
+        window.SizzleState.mirage.empowermentBonuses = empDeltas;
+
+        const scanData = window.SizzleState.currentScan;
+        if (!scanData || !window.simDatabase || !window.simDatabase.Empowerment) return;
+
+        const rarity = scanData.Identity?.Rarity || "Legendary";
+        const empDB = window.simDatabase.Empowerment[rarity];
+
+        if (!empDB) return;
+
+        const scannedEmpLevel = parseInt(scanData.Identity?.EmpowermentLevel, 10) || 0;
+        const keyMap = { "C_DMG": "CDMG", "C_RATE": "CRate" };
+
+        for (let i = 1; i <= 4; i++) {
+            if (!empDB[i]) continue;
+            Object.entries(empDB[i]).forEach(([dbKey, val]) => {
+                const mirageKey = keyMap[dbKey] || dbKey;
+                if (empDeltas[mirageKey] !== undefined) {
+                    if (i <= targetLevel) empDeltas[mirageKey] += val;
+                    if (i <= scannedEmpLevel) empDeltas[mirageKey] -= val;
+                }
+            });
+        }
+        window.SizzleState.mirage.empowermentBonuses = empDeltas;
     },
 
     updateGoal: function (utilityName, statKey, value) {
-        if (!window.RollEngine?.db) return;
+        if (!window.RollEngine || !window.RollEngine.db) return;
 
         let blueprintDB = window.RollEngine.db.UtilityBlueprints || window.RollEngine.db.ArtifactSettings?.UtilityBlueprints;
-        if (!blueprintDB?.[utilityName]) return;
+        if (!blueprintDB || !blueprintDB[utilityName]) return;
 
         blueprintDB[utilityName].preset_goals = blueprintDB[utilityName].preset_goals || {};
 
@@ -174,61 +195,116 @@ const Sandbox = {
         }
     },
 
-    // ==========================================
-    // 3. MASTER RENDER CONTROLLER
-    // ==========================================
     updateSummary: function () {
         const summaryDiv = document.getElementById('summaryOutput');
         if (!summaryDiv) return;
 
+        // Dynamically force 5 columns to accommodate the new "Scanned" column without CSS changes
+        summaryDiv.style.gridTemplateColumns = "minmax(45px, 1fr) minmax(45px, 1fr) minmax(55px, 1fr) minmax(65px, 1fr) minmax(50px, 1fr)";
+        summaryDiv.style.gap = "6px";
+
         const scanData = window.SizzleState?.currentScan;
-        if (!scanData?.Stats) {
+        if (!scanData || !scanData.Stats) {
             summaryDiv.innerHTML = '<div class="sum-empty-state">Awaiting scan data...</div>';
             return;
         }
 
         window.SizzleState.mirage = window.SizzleState.mirage || {};
-        const currentChampId = scanData.Identity?.Champion || "Unknown";
 
         const awkSelect = document.getElementById('awkSelect');
         const empSelect = document.getElementById('empSelect');
 
-        // Handle fresh champ scan reset
+        const rarity = scanData.Identity?.Rarity || "Legendary";
+        const canEmpower = window.simDatabase && window.simDatabase.Empowerment && window.simDatabase.Empowerment[rarity];
+
+        const currentChampId = scanData.Identity?.Champion || "Unknown";
         if (window.SizzleState.mirage.lastChamp !== currentChampId) {
             if (awkSelect) awkSelect.value = parseInt(scanData.Identity?.AwakeningLevel, 10) || 0;
             if (empSelect) empSelect.value = parseInt(scanData.Identity?.EmpowermentLevel, 10) || 0;
             window.SizzleState.mirage.lastChamp = currentChampId;
         }
 
+        const scannedAwk = parseInt(scanData.Identity?.AwakeningLevel, 10) || 0;
+        const scannedEmp = parseInt(scanData.Identity?.EmpowermentLevel, 10) || 0;
+
+        const empColumn = document.querySelector('.col-empowerment');
+        if (empColumn) {
+            if (!canEmpower) {
+                empColumn.style.opacity = '0.3';
+                empColumn.style.pointerEvents = 'none';
+                empColumn.style.filter = 'grayscale(100%)';
+                if (empSelect) empSelect.value = scannedEmp;
+            } else {
+                empColumn.style.opacity = '1';
+                empColumn.style.pointerEvents = 'auto';
+                empColumn.style.filter = 'none';
+            }
+        }
+
+        const awkColumn = document.querySelector('.champ-menu-col:nth-child(1)');
+        const ascensionLevel = parseInt(scanData.Identity?.AscensionLevel || scanData.Identity?.Ascended, 10) || 0;
+
+        if (awkColumn) {
+            if (ascensionLevel < 6) {
+                awkColumn.style.opacity = '0.3';
+                awkColumn.style.pointerEvents = 'none';
+                awkColumn.style.filter = 'grayscale(100%)';
+                if (awkSelect) awkSelect.value = scannedAwk;
+            } else {
+                awkColumn.style.opacity = '1';
+                awkColumn.style.pointerEvents = 'auto';
+                awkColumn.style.filter = 'none';
+            }
+        }
+
         const currentAwk = parseInt(awkSelect?.value, 10) || 0;
         const currentEmp = parseInt(empSelect?.value, 10) || 0;
 
-        this.syncUIStates(scanData, currentAwk, currentEmp);
-        this.calculateAwakeningDelta(currentAwk);
-        this.calculateEmpowermentDelta(currentEmp);
-        this.updateModifierUI(currentAwk, 'awakening');
-        this.updateModifierUI(currentEmp, 'empowerment');
+        this.calculateDelta(currentAwk);
+        this.calculateEmpowerment(currentEmp);
+        this.updateUI(currentAwk, 'awakening');
+        this.updateUI(currentEmp, 'empowerment');
 
-        // Force 5-column layout dynamically
-        summaryDiv.style.gridTemplateColumns = "minmax(45px, 1fr) minmax(45px, 1fr) minmax(55px, 1fr) minmax(65px, 1fr) minmax(50px, 1fr)";
-        summaryDiv.style.gap = "6px";
+        let blueprint = null;
+        let currentUtility = window.sandboxState?.activeUtility || 'Custom';
+        try {
+            if (window.sandboxState && window.RollEngine && window.RollEngine.db) {
+                let blueprintDB = window.RollEngine.db.UtilityBlueprints ||
+                    (window.RollEngine.db.ArtifactSettings && window.RollEngine.db.ArtifactSettings.UtilityBlueprints);
+                if (blueprintDB) {
+                    blueprint = blueprintDB[currentUtility];
+                }
+            }
+        } catch (err) { }
 
-        this.renderSummaryGrid(summaryDiv, scanData);
-    },
-
-    renderSummaryGrid: function (summaryDiv, scanData) {
-        const currentUtility = window.sandboxState?.activeUtility || 'Custom';
-        let blueprint = window.RollEngine?.db?.UtilityBlueprints?.[currentUtility] ||
-            window.RollEngine?.db?.ArtifactSettings?.UtilityBlueprints?.[currentUtility];
-
-        const jsonKeyMap = { 'HP': 'hp', 'ATK': 'atk', 'DEF': 'def', 'SPD': 'spd', 'CRate': 'cr', 'CDMG': 'cd', 'ACC': 'acc', 'RES': 'res' };
+        const jsonKeyMap = {
+            'HP': 'hp', 'ATK': 'atk', 'DEF': 'def', 'SPD': 'spd',
+            'CRate': 'cr', 'CDMG': 'cd', 'ACC': 'acc', 'RES': 'res'
+        };
 
         let gearTotals = { hp: 0, hpP: 0, atk: 0, atkP: 0, def: 0, defP: 0, spd: 0, cr: 0, cd: 0, acc: 0, res: 0 };
-        if (typeof window.RollEngine?.evaluateStats === 'function') {
-            gearTotals = window.RollEngine.evaluateStats() || gearTotals;
-        }
+        try {
+            if (window.RollEngine && typeof window.RollEngine.evaluateStats === 'function') {
+                let rolledStats = window.RollEngine.evaluateStats();
+                if (rolledStats) gearTotals = rolledStats;
+            }
+        } catch (err) { }
+
+        const stats = scanData.Stats;
+        const coreStats = [
+            { key: 'HP', label: 'HP', isPct: false },
+            { key: 'ATK', label: 'ATK', isPct: false },
+            { key: 'DEF', label: 'DEF', isPct: false },
+            { key: 'SPD', label: 'SPD', isPct: false },
+            { key: 'CRate', label: 'C. RATE', isPct: true },
+            { key: 'CDMG', label: 'C. DMG', isPct: true },
+            { key: 'ACC', label: 'ACC', isPct: false },
+            { key: 'RES', label: 'RES', isPct: false }
+        ];
 
         let simulatedTotals = {};
+
+        // CENTER ALIGN THE SCANNED COLUMN HEADER
         let html = `
             <div class="col-header" style="text-align: center;">Scanned</div>
             <div class="col-header col-hdr-delta">+/-</div>
@@ -237,68 +313,143 @@ const Sandbox = {
             <div class="col-header sum-goal">Goal</div>
         `;
 
-        const coreStats = [
-            { key: 'HP', label: 'HP', isPct: false }, { key: 'ATK', label: 'ATK', isPct: false },
-            { key: 'DEF', label: 'DEF', isPct: false }, { key: 'SPD', label: 'SPD', isPct: false },
-            { key: 'CRate', label: 'C. RATE', isPct: true }, { key: 'CDMG', label: 'C. DMG', isPct: true },
-            { key: 'ACC', label: 'ACC', isPct: false }, { key: 'RES', label: 'RES', isPct: false }
-        ];
-
         coreStats.forEach(stat => {
             const jKey = jsonKeyMap[stat.key];
-            const parsedTotal = parseInt(String(scanData.Stats[stat.key]?.Total || 0).replace(/,/g, ''), 10) || 0;
-            const parsedArtifacts = parseInt(String(scanData.Stats[stat.key]?.Artifacts || 0).replace(/,/g, ''), 10) || 0;
+            const rawTotal = stats[stat.key]?.Total || 0;
+            const rawArtifacts = stats[stat.key]?.Artifacts || 0;
+
+            const parsedTotal = typeof rawTotal === 'string' ? parseInt(rawTotal.replace(/,/g, ''), 10) : (parseInt(rawTotal, 10) || 0);
+            const parsedArtifacts = typeof rawArtifacts === 'string' ? parseInt(rawArtifacts.replace(/,/g, ''), 10) : (parseInt(rawArtifacts, 10) || 0);
+
             let baseline = parsedTotal - parsedArtifacts;
+            if (isNaN(baseline)) baseline = 0;
 
             const activeAwkDelta = window.SizzleState.mirage.awakeningBonuses?.[stat.key] || 0;
             let activeEmpDelta = window.SizzleState.mirage.empowermentBonuses?.[stat.key] || 0;
 
-            if (!stat.isPct && activeEmpDelta !== 0) {
-                const parsedBasic = parseInt(String(scanData.Stats[stat.key]?.Basic || 0).replace(/,/g, ''), 10) || 0;
+            if (['HP', 'ATK', 'DEF'].includes(stat.key) && activeEmpDelta !== 0) {
+                const rawBasic = stats[stat.key]?.Basic || 0;
+                const parsedBasic = typeof rawBasic === 'string' ? parseInt(rawBasic.replace(/,/g, ''), 10) : (parseInt(rawBasic, 10) || 0);
                 activeEmpDelta = Math.round(parsedBasic * (activeEmpDelta / 100));
             }
 
             const empoweredBaseline = baseline + activeEmpDelta;
+
             let gearFlat = gearTotals[jKey] || 0;
             let gearPct = gearTotals[jKey + 'P'] || 0;
 
-            let gearPctValue = stat.isPct ? 0 : Math.round(empoweredBaseline * (gearPct / 100));
-            if (stat.isPct) gearFlat += gearPct;
+            let gearPctValue = 0;
+            if (!stat.isPct && gearPct > 0) {
+                gearPctValue = Math.round(empoweredBaseline * (gearPct / 100));
+            } else if (stat.isPct) {
+                gearFlat += gearPct;
+            }
 
             const currentMirageTotal = empoweredBaseline + activeAwkDelta + gearFlat + gearPctValue;
             simulatedTotals[jKey] = currentMirageTotal;
 
             const rawDelta = currentMirageTotal - parsedTotal;
             const pctStr = stat.isPct ? '%' : '';
-            const deltaText = rawDelta === 0 ? '-' : (rawDelta > 0 ? `+${rawDelta.toLocaleString()}${pctStr}` : `${rawDelta.toLocaleString()}${pctStr}`);
-            const deltaClass = rawDelta === 0 ? 'delta-neutral' : (rawDelta > 0 ? 'delta-positive' : 'delta-negative');
-            const targetNumber = blueprint?.preset_goals?.[jKey] ?? '';
 
+            let deltaText = '-';
+            let deltaClass = 'delta-neutral';
+
+            if (rawDelta > 0) {
+                deltaText = `+${rawDelta.toLocaleString()}${pctStr}`;
+                deltaClass = 'delta-positive';
+            } else if (rawDelta < 0) {
+                deltaText = `${rawDelta.toLocaleString()}${pctStr}`;
+                deltaClass = 'delta-negative';
+            }
+
+            let targetNumber = '';
+            if (blueprint && blueprint.preset_goals && blueprint.preset_goals[jKey] !== undefined) {
+                targetNumber = blueprint.preset_goals[jKey];
+            }
+
+            // CENTER ALIGN THE SCANNED COLUMN NUMBERS
             html += `
                 <div class="sum-ranges" style="text-align: center;">${parsedTotal.toLocaleString()}${pctStr}</div>
                 <div class="sum-delta ${deltaClass}">${deltaText}</div>
                 <div class="sum-label">${stat.label}</div>
                 <div class="sum-final">${currentMirageTotal.toLocaleString()}${pctStr}</div>
                 <div class="sum-goal">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="goal-input"
-                           placeholder="-" id="goal_${stat.key}" value="${targetNumber}"
-                           oninput="window.clampGoal(this, '${stat.key}'); Sandbox.updateGoal('${currentUtility}', '${jKey}', this.value)"
+                    <input type="text" 
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           class="goal-input"
+                           placeholder="-" 
+                           id="goal_${stat.key}" 
+                           value="${targetNumber}"
+                           oninput="window.clampGoal(this, '${stat.key}'); Mirage.updateGoal('${currentUtility}', '${jKey}', this.value)"
                            onclick="event.stopPropagation()">
                 </div>
             `;
         });
 
-        const ehpVal = window.getEhpData ? (window.getEhpData(simulatedTotals['hp'] || 0, simulatedTotals['def'] || 0)?.score?.toLocaleString() || '--') : '--';
+        let ehpVal = '--';
+        let finalHP = simulatedTotals['hp'] || 0;
+        let finalDEF = simulatedTotals['def'] || 0;
+
         if (window.getEhpData) {
-            const ehpInfo = window.getEhpData(simulatedTotals['hp'] || 0, simulatedTotals['def'] || 0);
+            let ehpInfo = window.getEhpData(finalHP, finalDEF);
             if (ehpInfo) {
-                const drawer = document.getElementById('val-ehp-compare');
-                const scoreBar = document.getElementById('val-ehp-score');
-                if (drawer) drawer.innerHTML = ehpInfo.comparisonText;
-                if (scoreBar) scoreBar.innerText = ehpVal;
+                ehpVal = ehpInfo.score.toLocaleString();
+
+                const ehpDrawer = document.getElementById('val-ehp-compare');
+                if (ehpDrawer) ehpDrawer.innerHTML = ehpInfo.comparisonText;
+
+                const ehpScoreBar = document.getElementById('val-ehp-score');
+                if (ehpScoreBar) ehpScoreBar.innerText = ehpVal;
             }
         }
 
+        let balanceText = "Balance: N/A";
+
+        if (scanData && scanData.Identity && scanData.Identity.ScalingStats) {
+            let rawScaling = scanData.Identity.ScalingStats;
+            let scalingArray = Array.isArray(rawScaling) ? rawScaling : [rawScaling];
+
+            let flatScaling = [...new Set(scalingArray.map(s => String(s).toLowerCase()).flatMap(s => s.split(/&|and|,|\//i).map(i => i.trim())))];
+            const pureStats = ["atk", "def", "hp"];
+
+            if (flatScaling.length > 1 || !pureStats.includes(flatScaling[0])) {
+                balanceText = `<span style="color: var(--text-muted);">Split-Scaling:</span> <span style="color: #a855f7;">${scalingArray.join(" | ").toUpperCase()}</span>`;
+            } else {
+                const primaryStat = flatScaling[0].toUpperCase();
+                const jKey = primaryStat.toLowerCase();
+
+                if (scanData.Stats[primaryStat] && scanData.Stats[primaryStat].Basic > 0) {
+                    const baseStat = scanData.Stats[primaryStat].Basic;
+                    const totalStat = simulatedTotals[jKey] || 0;
+                    const critDamage = simulatedTotals['cd'] || 0;
+
+                    const statMultiplier = totalStat / baseStat;
+                    const cdMultiplier = 1 + (critDamage / 100);
+
+                    const idealCD = (statMultiplier - 1) * 100;
+                    const idealStat = cdMultiplier * baseStat;
+
+                    const efficiencyScore = (Math.min(statMultiplier, cdMultiplier) / Math.max(statMultiplier, cdMultiplier)) * 100;
+
+                    const deltaStat = Math.abs(Math.round(idealStat - totalStat));
+                    const deltaCD = Math.abs(Math.round(idealCD - critDamage));
+
+                    let colorClass = efficiencyScore >= 95 ? '#4ade80' : '#eab308';
+                    let scoreBadge = `<span style="color:${colorClass};">[${Math.round(efficiencyScore)}%]</span>`;
+
+                    if (Math.round(efficiencyScore) >= 100) {
+                        balanceText = `Balance ${scoreBadge} <span style="color: #4ade80;">Perfectly Aligned</span>`;
+                    } else if (statMultiplier > cdMultiplier) {
+                        balanceText = `Balance ${scoreBadge} <span style="color: #4ade80;">+${deltaCD}% C.DMG</span> <span style="color: var(--text-muted);">or</span> <span style="color: #f87171;">-${deltaStat} ${primaryStat}</span>`;
+                    } else {
+                        balanceText = `Balance ${scoreBadge} <span style="color: #4ade80;">+${deltaStat} ${primaryStat}</span> <span style="color: var(--text-muted);">or</span> <span style="color: #f87171;">-${deltaCD}% C.DMG</span>`;
+                    }
+                }
+            }
+        }
+
+        // PERFECTLY ALIGNED COPY BUTTON & CLEAR BUTTON
         html += `
             <div style="display: flex; justify-content: center; align-items: center;">
                 <button class="keep-rollin-btn" style="padding: 3px 8px; font-size: 0.6em; border-style: dashed; letter-spacing: 0; white-space: nowrap;" onclick="window.copyScannedToGoals(event)" title="Copy scanned stats into goal fields">COPY TO GOALS</button>
@@ -309,50 +460,13 @@ const Sandbox = {
             <div class="sum-goal" style="display: flex; justify-content: center; align-items: center;">
                 <button class="keep-rollin-btn" style="padding: 3px 8px; font-size: 0.6em; border-style: dashed; letter-spacing: 0; white-space: nowrap;" onclick="window.clearGoals(event)" title="Clear all goal fields">CLEAR</button>
             </div>
+            
             <div style="grid-column: 1/-1; text-align: center; margin-top: 15px; padding-top: 10px; font-family: monospace; font-size: 0.9em; font-weight: bold; border-top: 1px solid var(--border-lowkey); color: var(--text-primary);">
-                ${this.generateBalanceText(scanData, simulatedTotals)}
+                ${balanceText}
             </div>
         `;
+
         summaryDiv.innerHTML = html;
-    },
-
-    generateBalanceText: function (scanData, simulatedTotals) {
-        if (!scanData?.Identity?.ScalingStats) return "Balance: N/A";
-
-        let scalingArray = Array.isArray(scanData.Identity.ScalingStats) ? scanData.Identity.ScalingStats : [scanData.Identity.ScalingStats];
-        let flatScaling = [...new Set(scalingArray.map(s => String(s).toLowerCase()).flatMap(s => s.split(/&|and|,|\//i).map(i => i.trim())))];
-        const pureStats = ["atk", "def", "hp"];
-
-        if (flatScaling.length > 1 || !pureStats.includes(flatScaling[0])) {
-            return `<span style="color: var(--text-muted);">Split-Scaling:</span> <span style="color: #a855f7;">${scalingArray.join(" | ").toUpperCase()}</span>`;
-        }
-
-        const primaryStat = flatScaling[0].toUpperCase();
-        const jKey = primaryStat.toLowerCase();
-        const baseStat = scanData.Stats[primaryStat]?.Basic;
-
-        if (!baseStat) return "Balance: N/A";
-
-        const totalStat = simulatedTotals[jKey] || 0;
-        const critDamage = simulatedTotals['cd'] || 0;
-        const statMultiplier = totalStat / baseStat;
-        const cdMultiplier = 1 + (critDamage / 100);
-
-        const idealCD = (statMultiplier - 1) * 100;
-        const idealStat = cdMultiplier * baseStat;
-        const efficiencyScore = (Math.min(statMultiplier, cdMultiplier) / Math.max(statMultiplier, cdMultiplier)) * 100;
-
-        const deltaStat = Math.abs(Math.round(idealStat - totalStat));
-        const deltaCD = Math.abs(Math.round(idealCD - critDamage));
-        const scoreBadge = `<span style="color:${efficiencyScore >= 95 ? '#4ade80' : '#eab308'};">[${Math.round(efficiencyScore)}%]</span>`;
-
-        if (Math.round(efficiencyScore) >= 100) {
-            return `Balance ${scoreBadge} <span style="color: #4ade80;">Perfectly Aligned</span>`;
-        } else if (statMultiplier > cdMultiplier) {
-            return `Balance ${scoreBadge} <span style="color: #4ade80;">+${deltaCD}% C.DMG</span> <span style="color: var(--text-muted);">or</span> <span style="color: #f87171;">-${deltaStat} ${primaryStat}</span>`;
-        } else {
-            return `Balance ${scoreBadge} <span style="color: #4ade80;">+${deltaStat} ${primaryStat}</span> <span style="color: var(--text-muted);">or</span> <span style="color: #f87171;">-${deltaCD}% C.DMG</span>`;
-        }
     }
 };
 
@@ -360,48 +474,66 @@ const Sandbox = {
 // GLOBAL EVENT BINDINGS
 // ==========================================
 
+// Copy the Scanned values straight into the Goal inputs AND snap to Custom!
 window.copyScannedToGoals = function (event) {
     if (event) event.stopPropagation();
+
     const scanData = window.SizzleState?.currentScan;
-    if (!scanData?.Stats) return;
+    if (!scanData || !scanData.Stats) return;
 
     window.sandboxState = window.sandboxState || {};
     window.sandboxState.activeUtility = 'Custom';
 
     const utilityDropdown = document.getElementById('utilitySelect');
-    if (utilityDropdown) utilityDropdown.value = 'Custom';
+    if (utilityDropdown) {
+        utilityDropdown.value = 'Custom';
+    }
 
-    const jsonKeyMap = { 'HP': 'hp', 'ATK': 'atk', 'DEF': 'def', 'SPD': 'spd', 'CRate': 'cr', 'CDMG': 'cd', 'ACC': 'acc', 'RES': 'res' };
+    let currentUtility = 'Custom';
+
+    const jsonKeyMap = {
+        'HP': 'hp', 'ATK': 'atk', 'DEF': 'def', 'SPD': 'spd',
+        'CRate': 'cr', 'CDMG': 'cd', 'ACC': 'acc', 'RES': 'res'
+    };
 
     Object.keys(jsonKeyMap).forEach(statKey => {
         const jKey = jsonKeyMap[statKey];
-        const parsedTotal = parseInt(String(scanData.Stats[statKey]?.Total || 0).replace(/,/g, ''), 10) || 0;
-        Sandbox.updateGoal('Custom', jKey, parsedTotal);
+        const rawTotal = scanData.Stats[statKey]?.Total || 0;
+        const parsedTotal = typeof rawTotal === 'string' ? parseInt(rawTotal.replace(/,/g, ''), 10) : (parseInt(rawTotal, 10) || 0);
+
+        Mirage.updateGoal(currentUtility, jKey, parsedTotal);
     });
 
-    Sandbox.updateSummary();
+    Mirage.updateSummary(); // Re-render the grid instantly
 };
 
+// NEW: Clear all goal inputs for the current profile
 window.clearGoals = function (event) {
     if (event) event.stopPropagation();
-    let currentUtility = window.sandboxState?.activeUtility || 'Custom';
 
-    ['hp', 'atk', 'def', 'spd', 'cr', 'cd', 'acc', 'res'].forEach(jKey => {
-        Sandbox.updateGoal(currentUtility, jKey, '');
+    let currentUtility = window.sandboxState?.activeUtility || 'Custom';
+    const allStatKeys = ['hp', 'atk', 'def', 'spd', 'cr', 'cd', 'acc', 'res'];
+
+    allStatKeys.forEach(jKey => {
+        // Passing an empty string evaluates to NaN and triggers the deletion in updateGoal
+        Mirage.updateGoal(currentUtility, jKey, '');
     });
 
-    Sandbox.updateSummary();
+    Mirage.updateSummary(); // Re-render instantly
 };
 
 window.toggleMath = function (event) {
     if (event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'button') {
-        document.getElementById('summaryOutput')?.classList.toggle('hide-math');
+        const grid = document.getElementById('summaryOutput');
+        if (grid) {
+            grid.classList.toggle('hide-math');
+        }
     }
 };
 
-window.setAwakening = function (level) { Sandbox.setModifier(level, 'awakening'); };
-window.setEmpowerment = function (level) { Sandbox.setModifier(level, 'empowerment'); };
-window.updateSummary = function () { Sandbox.updateSummary(); };
+window.setAwakening = function (level) { Mirage.setAwakening(level); };
+window.setEmpowerment = function (level) { Mirage.setEmpowerment(level); };
+window.updateSummary = function () { Mirage.updateSummary(); };
 
 window.setRollQuality = function (quality) {
     document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active-pill'));
@@ -410,7 +542,9 @@ window.setRollQuality = function (quality) {
     window.SizzleState = window.SizzleState || {};
     window.SizzleState.rollQuality = quality;
 
-    if (typeof window.applyGlyphs === 'function') window.applyGlyphs();
+    if (typeof window.applyGlyphs === 'function') {
+        window.applyGlyphs();
+    }
 };
 
 window.resetSandbox = function () {
@@ -424,52 +558,39 @@ window.resetSandbox = function () {
         };
     }
 
-    if (typeof window.RollEngine?.purge === 'function') window.RollEngine.purge();
+    if (window.RollEngine && typeof window.RollEngine.purge === 'function') {
+        window.RollEngine.purge();
+    }
+
+    const scannedAwk = parseInt(scanData?.Identity?.AwakeningLevel, 10) || 0;
+    const scannedEmp = parseInt(scanData?.Identity?.EmpowermentLevel, 10) || 0;
 
     const awkSelect = document.getElementById('awkSelect');
-    if (awkSelect) awkSelect.value = parseInt(scanData?.Identity?.AwakeningLevel, 10) || 0;
+    if (awkSelect) awkSelect.value = scannedAwk;
 
     const empSelect = document.getElementById('empSelect');
-    if (empSelect) empSelect.value = parseInt(scanData?.Identity?.EmpowermentLevel, 10) || 0;
+    if (empSelect) empSelect.value = scannedEmp;
 
-    // --- THE NEW DEFAULT GLYPH LOGIC ---
-    const glyphDropdown = document.getElementById('glyphSelect');
-    if (glyphDropdown) {
-        glyphDropdown.value = 'green5'; // Force it to Max 5★ Basic
-
-        // Force the math engine to register the change!
-        if (typeof window.updateGlobal === 'function') {
-            window.updateGlobal();
-        }
-    }
-
-    if (typeof window.applyGlyphs === 'function') {
-        window.applyGlyphs();
-    }
-    // Default the ascension toggle to ON during load/hard reset
-    const ascToggle = document.getElementById('ascensionToggle');
-    if (ascToggle) {
-        ascToggle.checked = true;
-    }
-
-    Sandbox.updateSummary();
+    Mirage.updateSummary();
 };
 
 window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('#awakening-dropdown span[onclick]').forEach(span => span.removeAttribute('onclick'));
-
-    // --- FORCE DEFAULT GLYPHS ON INITIAL PAGE LOAD ---
-    const glyphDropdown = document.getElementById('glyphSelect');
-    if (glyphDropdown) {
-        glyphDropdown.value = 'green5';
-    }
+    const dropSpans = document.querySelectorAll('#awakening-dropdown span[onclick]');
+    dropSpans.forEach(span => { span.removeAttribute('onclick'); });
 });
 
 window.clampGoal = function (inputEl, statKey) {
+    // 1. Strip out any letters, decimals, or negative signs
     let cleanValue = inputEl.value.replace(/[^0-9]/g, '');
+
+    // 2. Prevent users from typing a number so massive it breaks the math engine
     if (cleanValue !== '') {
         let maxLimit = (statKey === 'HP') ? 250000 : 15000;
-        if (parseInt(cleanValue, 10) > maxLimit) cleanValue = maxLimit.toString();
+        if (parseInt(cleanValue, 10) > maxLimit) {
+            cleanValue = maxLimit.toString();
+        }
     }
+
+    // 3. Set the clean, safe number back into the text box so the updateGoal function can save it
     inputEl.value = cleanValue;
 };
