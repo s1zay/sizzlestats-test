@@ -32,16 +32,16 @@ function getGoldenRatio(base, total, cdmg) {
 
 function calculateEfficiencyScore(base, total, cdmg, crate) {
     const ratio = getGoldenRatio(base, total, cdmg);
-    
+
     // Volume Knob: Cap at 100%, floor at 0%
-    const cappedCRate = Math.max(0, Math.min(100, crate)); 
-    
+    const cappedCRate = Math.max(0, Math.min(100, crate));
+
     return ratio * (cappedCRate / 100);
 }
 
 // 3. THE DATA EXPORT
 window.calculateDamageEfficiency = function (masterData, forcedStat = null) {
-    
+
     // 1. EXTRACT SCALING DATA
     let rawScaling = masterData.Identity.ScalingStats || ["unknown"];
     let scalingArray = Array.isArray(rawScaling) ? rawScaling : [rawScaling];
@@ -89,7 +89,7 @@ window.calculateDamageEfficiency = function (masterData, forcedStat = null) {
         if (presentPure.length === 0) {
             return { isValid: false, isMulti: false, message: "No standard scaling stat found." };
         }
-        
+
         primaryStat = presentPure[0].toUpperCase();
     }
 
@@ -123,31 +123,31 @@ window.calculateDamageEfficiency = function (masterData, forcedStat = null) {
     if (presentOutliers.length > 0) {
         const outName = presentOutliers[0].toUpperCase();
         let outTotal = masterData.Stats[outName]?.Total || 0;
-        
-        // Dynamic Min/Max & 20% Even Slices
+
+        // Dynamic Min/Max & 20% Even Slices (Recalibrated for Endgame Reality)
         const OUTLIER_THRESHOLDS = {
-            SPD: { min: 75, fair: 178, good: 281, elite: 384, godlike: 487, max: 590 },
-            ACC: { min: 0, fair: 260, good: 520, elite: 780, godlike: 1040, max: 1300 },
-            RES: { min: 30, fair: 304, good: 578, elite: 852, godlike: 1126, max: 1400 },
+            SPD: { min: 50, fair: 150, good: 250, elite: 350, godlike: 450, max: 550 },
+            ACC: { min: 0, fair: 180, good: 360, elite: 540, godlike: 720, max: 900 },
+            RES: { min: 0, fair: 200, good: 400, elite: 600, godlike: 800, max: 1000 },
             EMHP: { min: 0, fair: 240000, good: 480000, elite: 720000, godlike: 960000, max: 1200000 }
         };
 
         const thresh = OUTLIER_THRESHOLDS[outName] || { min: 0, fair: 200, good: 400, elite: 600, godlike: 800, max: 1000 };
-        
+
         // Naming matching your new 5-tier schema
         let tierName = "Low";
         let tierColor = "#a855f7"; // Brightest purple for Low
-        
-        if (outTotal >= thresh.godlike) { 
+
+        if (outTotal >= thresh.godlike) {
             tierName = "Godlike"; tierColor = "#3b0764"; // Deepest dark purple for Godlike
-        } else if (outTotal >= thresh.elite) { 
-            tierName = "Elite"; tierColor = "#581c87"; 
-        } else if (outTotal >= thresh.good) { 
-            tierName = "Good"; tierColor = "#7e22ce"; 
-        } else if (outTotal >= thresh.fair) { 
-            tierName = "Fair"; tierColor = "#9333ea"; 
+        } else if (outTotal >= thresh.elite) {
+            tierName = "Elite"; tierColor = "#581c87";
+        } else if (outTotal >= thresh.good) {
+            tierName = "Good"; tierColor = "#7e22ce";
+        } else if (outTotal >= thresh.fair) {
+            tierName = "Fair"; tierColor = "#9333ea";
         }
-        
+
         // True Percentage relative to the floor (Min) and ceiling (Max)
         let safeTotal = Math.max(thresh.min, Math.min(thresh.max, outTotal));
         let truePct = ((safeTotal - thresh.min) / (thresh.max - thresh.min)) * 100;

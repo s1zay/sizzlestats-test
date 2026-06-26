@@ -8,13 +8,13 @@
         const DEBUG_MODE = false; // Switch to true when you need to troubleshoot
 
         if (!DEBUG_MODE) {
-            console.log = function() {};
-            console.warn = function() {};
-            console.error = function() {};
-            console.info = function() {};
-            console.debug = function() {};
-            console.time = function() {};
-            console.timeEnd = function() {};
+            console.log = function () { };
+            console.warn = function () { };
+            console.error = function () { };
+            console.info = function () { };
+            console.debug = function () { };
+            console.time = function () { };
+            console.timeEnd = function () { };
         }
     </script>
     <meta name="title" content="SizzleStats | Raid Shadow Legends Stat Scanner & Simulator" />
@@ -209,10 +209,13 @@
                     </span>
                 </div>
 
-                <div style="margin-top: 16px; border-top: 1px solid var(--border-lowkey); padding-top: 24px; text-align: center;">
-                    <p style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.95rem;">Just cleaning out your inventory?</p>
+                <div
+                    style="margin-top: 16px; border-top: 1px solid var(--border-lowkey); padding-top: 24px; text-align: center;">
+                    <p style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.95rem;">Just cleaning out your
+                        inventory?</p>
                     <button onclick="switchView('coach')"
-                        style="width: 100%; padding: 12px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-lowkey); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s ease;" class="kebab-hover">
+                        style="width: 100%; padding: 12px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-lowkey); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s ease;"
+                        class="kebab-hover">
                         Launch Cleanse Coach
                     </button>
                 </div>
@@ -396,40 +399,38 @@
                                     <div id="outlier-marker" class="kraken-marker"></div>
                                 </div>
 
-                                <div id="outlier-tier-label" class="kraken-tier-name">--</div>
+                                <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
+                                    Damage efficiency evaluates the balance between [NN]’s damage scaling stat,
+                                    <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
+                                    To improve your [NN]’s damage, <strong id="eff-coach-target"
+                                        class="stat-highlight-white"></strong> is the most efficient investment.
+                                </p>
+
+                                <button id="btn-eff-show-me" class="coach-show-me-btn"
+                                    onclick="window.openDmgLedgerSheet()">Improve Damage Efficiency ▲</button>
                             </div>
-
-                            <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
-                                Damage efficiency evaluates the balance between [NN]’s damage scaling stat,
-                                <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
-                                To improve your [NN]’s damage, <strong id="eff-coach-target"
-                                    class="stat-highlight-white"></strong> is the most efficient investment.
-                            </p>
-
-                            <button id="btn-eff-show-me" class="coach-show-me-btn"
-                                onclick="window.openDmgLedgerSheet()">Improve Damage Efficiency ▲</button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="action-bar" id="bar-area">
-                <div class="action-content">
-                    <span id="val-area-name">No Area Selected</span>
+                <div class="action-bar" id="bar-area">
+                    <div class="action-content">
+                        <span id="val-area-name">No Area Selected</span>
+                    </div>
+                    <span class="action-icon"></span>
                 </div>
-                <span class="action-icon"></span>
-            </div>
-            <div class="action-drawer" id="drawer-area">
-                <div id="val-area-details" style="display: flex; flex-direction: column">
-                    <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
+                <div class="action-drawer" id="drawer-area">
+                    <div id="val-area-details" style="display: flex; flex-direction: column">
+                        <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
+                    </div>
                 </div>
-            </div>
 
         </section>
 
     </main>
 
-    <main class="app-container" id="coach-view" style="display: none; align-items: center; justify-content: center; min-height: 75vh;">
+    <main class="app-container" id="coach-view"
+        style="display: none; align-items: center; justify-content: center; min-height: 75vh;">
         <div style="text-align: center;">
             <h2 style="color: var(--text-primary);">Cleanse Coach Workspace</h2>
             <p style="color: var(--text-muted);">UI dropping in soon...</p>
@@ -555,7 +556,7 @@
 
                 <div id="dmg-roll-disclaimer"
                     style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-bottom: 8px; line-height: 1.2;">
-                    1 Roll = Average Roll of 5 and 6 Star Gear 
+                    1 Roll = Average Roll of 5 and 6 Star Gear
                 </div>
             </div>
         </div>
@@ -569,19 +570,19 @@
             document.getElementById('splash-view').style.display = 'none';
             document.getElementById('lens-view').style.display = 'none';
             document.getElementById('coach-view').style.display = 'none';
-            
+
             document.getElementById('nav-state-lens').style.display = 'none';
             document.getElementById('nav-state-coach').style.display = 'none';
 
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'flex';
                 document.getElementById('mainNavigation').style.display = 'none';
-            } 
+            }
             else if (view === "lens") {
                 document.getElementById('lens-view').style.display = 'grid';
                 document.getElementById('mainNavigation').style.display = 'flex';
                 document.getElementById('nav-state-lens').style.display = 'flex';
-            } 
+            }
             else if (view === "coach") {
                 document.getElementById('coach-view').style.display = 'flex';
                 document.getElementById('mainNavigation').style.display = 'flex';
