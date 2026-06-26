@@ -104,20 +104,18 @@
         </div>
     </header>
 
+    <!-- SPLASH VIEW -->
     <main class="app-container" id="splash-view"
         style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 20px;">
 
-        <div
-            style="display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 40px; width: 100%;">
+        <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 40px; width: 100%;">
 
             <div style="flex: 1 1 300px; max-width: 550px;">
                 <h1 style="color: var(--text-primary); margin-bottom: 24px; font-size: 2.2rem; line-height: 1.2;">Gauge
                     Your Champion's Stats in Seconds.</h1>
 
                 <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start;">
-                    <div
-                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
-                        1</div>
+                    <div style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
                     <div>
                         <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Open Total Stats</h3>
                         <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Take a full, uncropped
@@ -128,9 +126,7 @@
                 </div>
 
                 <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start;">
-                    <div
-                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
-                        2</div>
+                    <div style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
                     <div>
                         <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Upload & Preview</h3>
                         <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Drag the image into the box
@@ -139,22 +135,18 @@
                 </div>
 
                 <div style="display: flex; gap: 16px; align-items: flex-start;">
-                    <div
-                        style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
-                        3</div>
+                    <div style="background: var(--indicator-active); color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
                     <div>
                         <h3 style="margin: 0 0 8px 0; color: var(--text-primary);">Analyze</h3>
                         <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem;">Hit scan to instantly gauge
                             your build and simulate potential stat rolls.</p>
-
                     </div>
                 </div>
             </div>
 
             <div style="flex: 1 1 300px; max-width: 450px; display: flex; flex-direction: column; gap: 20px;">
 
-                <div
-                    style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: -10px; font-weight: 500;">
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: -10px; font-weight: 500;">
                     Drop your champion’s total stats screenshot below.
                 </div>
 
@@ -185,8 +177,7 @@
                         <button onclick="resetUpload()" class="kebab-hover"
                             style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 4px 8px; border-radius: 4px;">Replace</button>
                     </div>
-                    <div
-                        style="width: 100%; height: 220px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+                    <div style="width: 100%; height: 220px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
                         <img id="image-preview-element" src="" alt="Preview"
                             style="max-width: 100%; max-height: 100%; object-fit: contain;" />
                     </div>
@@ -209,10 +200,8 @@
                     </span>
                 </div>
 
-                <div
-                    style="margin-top: 16px; border-top: 1px solid var(--border-lowkey); padding-top: 24px; text-align: center;">
-                    <p style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.95rem;">Just cleaning out your
-                        inventory?</p>
+                <div style="margin-top: 16px; border-top: 1px solid var(--border-lowkey); padding-top: 24px; text-align: center;">
+                    <p style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.95rem;">Just cleaning out your inventory?</p>
                     <button onclick="switchView('coach')"
                         style="width: 100%; padding: 12px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-lowkey); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s ease;"
                         class="kebab-hover">
@@ -224,6 +213,7 @@
         </div>
     </main>
 
+    <!-- LENS VIEW -->
     <main class="app-container" id="lens-view" style="display: none">
         <section class="viewport-column">
 
@@ -244,24 +234,15 @@
             </div>
 
             <div id="stat-matrix" class="stat-grid">
-                <div class="stat-box"><span class="stat-label">HP</span><span id="val-hp" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">SPD</span><span id="val-spd" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">RES</span><span id="val-res" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">ATK</span><span id="val-atk" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">C. RATE</span><span id="val-cr" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">ACC</span><span id="val-acc" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">DEF</span><span id="val-def" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">C. DMG</span><span id="val-cd" class="stat-val">-</span>
-                </div>
-                <div class="stat-box"><span class="stat-label">IGNORE DEF</span><span id="val-ign"
-                        class="stat-val">0%</span></div>
+                <div class="stat-box"><span class="stat-label">HP</span><span id="val-hp" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">SPD</span><span id="val-spd" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">RES</span><span id="val-res" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">ATK</span><span id="val-atk" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">C. RATE</span><span id="val-cr" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">ACC</span><span id="val-acc" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">DEF</span><span id="val-def" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">C. DMG</span><span id="val-cd" class="stat-val">-</span></div>
+                <div class="stat-box"><span class="stat-label">IGNORE DEF</span><span id="val-ign" class="stat-val">0%</span></div>
             </div>
 
             <div class="warning-text">
@@ -320,17 +301,13 @@
                         <div id="kraken-tier-label" class="kraken-tier-name">--</div>
 
                         <p id="ehp-coach-desc" class="coach-description" style="margin-top: 16px;">
-                            eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability
-                            score.
-                            To improve your [NN]’s eHP, <strong id="inline-coach-target"
-                                class="stat-highlight-white"></strong> is the most efficient investment.
+                            eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability score.
+                            To improve your [NN]’s eHP, <strong id="inline-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
                         </p>
 
                         <button id="btn-ehp-show-me" class="coach-show-me-btn"
-                            onclick="document.getElementById('ledger-sheet').classList.add('open')">Improve eHP
-                            ▲</button>
+                            onclick="document.getElementById('ledger-sheet').classList.add('open')">Improve eHP ▲</button>
                     </div>
-
                 </div>
             </div>
 
@@ -348,21 +325,17 @@
                     <div id="eff-coach-ui" class="coach-ui-container" style="display: none;">
 
                         <div id="eff-multi-warning" style="display: none; text-align: center; padding: 10px 5px;">
-                            <div id="eff-multi-warning-text"
-                                style="margin-bottom: 15px; font-size: 0.95rem; color: var(--text-primary);">
+                            <div id="eff-multi-warning-text" style="margin-bottom: 15px; font-size: 0.95rem; color: var(--text-primary);">
                                 [NN] uses multiple stats to scale damage.
                             </div>
-                            <div id="eff-multi-pills"
-                                style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <div id="eff-multi-pills" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                             </div>
                         </div>
 
                         <div id="eff-standard-ui">
-
                             <div id="eff-primary-bar">
                                 <p class="coach-score-text">
-                                    Your damage efficiency is <strong id="eff-inline-score"
-                                        class="stat-highlight dmg-text"></strong>
+                                    Your damage efficiency is <strong id="eff-inline-score" class="stat-highlight dmg-text"></strong>
                                 </p>
 
                                 <div class="kraken-labels labels-top">
@@ -379,9 +352,7 @@
                                 <div class="outlier-divider"></div>
 
                                 <p class="coach-score-text">
-                                    Utility Scaling: <strong id="outlier-inline-score"
-                                        class="stat-highlight purple-text"></strong> <span
-                                        id="outlier-stat-label"></span>
+                                    Utility Scaling: <strong id="outlier-inline-score" class="stat-highlight purple-text"></strong> <span id="outlier-stat-label"></span>
                                 </p>
 
                                 <div class="kraken-labels labels-top">
@@ -400,10 +371,8 @@
                                 </div>
 
                                 <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
-                                    Damage efficiency evaluates the balance between [NN]’s damage scaling stat,
-                                    <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
-                                    To improve your [NN]’s damage, <strong id="eff-coach-target"
-                                        class="stat-highlight-white"></strong> is the most efficient investment.
+                                    Damage efficiency evaluates the balance between [NN]’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
+                                    To improve your [NN]’s damage, <strong id="eff-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
                                 </p>
 
                                 <button id="btn-eff-show-me" class="coach-show-me-btn"
@@ -412,31 +381,149 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="action-bar" id="bar-area">
-                    <div class="action-content">
-                        <span id="val-area-name">No Area Selected</span>
-                    </div>
-                    <span class="action-icon"></span>
+            <div class="action-bar" id="bar-area">
+                <div class="action-content">
+                    <span id="val-area-name">No Area Selected</span>
                 </div>
-                <div class="action-drawer" id="drawer-area">
-                    <div id="val-area-details" style="display: flex; flex-direction: column">
-                        <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
-                    </div>
+                <span class="action-icon"></span>
+            </div>
+            <div class="action-drawer" id="drawer-area">
+                <div id="val-area-details" style="display: flex; flex-direction: column">
+                    <span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>
                 </div>
+            </div>
 
         </section>
-
     </main>
 
-    <main class="app-container" id="coach-view"
-        style="display: none; align-items: center; justify-content: center; min-height: 75vh;">
-        <div style="text-align: center;">
-            <h2 style="color: var(--text-primary);">Cleanse Coach Workspace</h2>
-            <p style="color: var(--text-muted);">UI dropping in soon...</p>
+    <!-- COACH VIEW -->
+    <main class="app-container" id="coach-view" style="display: none; flex-direction: column; max-width: 800px; margin: 0 auto; gap: 20px;">
+        
+        <!-- Cleanse Coach Specific State Overrides -->
+        <style>
+            /* Ties your cc.js .active toggle to the Sizzle Gold */
+            .gear-btn.active {
+                background: var(--indicator-active) !important;
+                color: #000 !important;
+                border-color: var(--indicator-active) !important;
+            }
+            .stat-btn.active {
+                border-color: var(--indicator-active) !important;
+                color: var(--text-primary) !important;
+                background: rgba(234, 179, 8, 0.1) !important;
+            }
+            .stat-btn.active .cc-checkbox {
+                background: var(--indicator-active) !important;
+                border-color: var(--indicator-active) !important;
+            }
+            .cc-checkbox {
+                width: 16px; height: 16px; border: 1px solid var(--border-lowkey); border-radius: 3px; background: var(--bg-canvas); transition: all 0.1s;
+            }
+        </style>
+
+        <div style="text-align: center; margin-bottom: -10px;">
+            <h2 style="color: var(--text-primary); font-size: 2rem; margin-bottom: 5px;">Cleanse Coach</h2>
+            <p style="color: var(--accent-warning); font-weight: bold; font-size: 0.9rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px;">This page is under construction. Some features may be broken or wrong.</p>
+            <p style="color: var(--text-muted); margin: 0;">Interactive batch filtering and gear purging.</p>
         </div>
+
+        <!-- 1. Select Gear Piece -->
+        <div class="dashboard-card" style="margin-bottom: 0;">
+            <div class="section-header" style="border-bottom: none; padding-bottom: 10px;">
+                <h2 style="color: var(--text-primary); font-size: 1.1rem;">1. Select Gear Piece</h2>
+            </div>
+            <div class="section-content" style="padding-top: 0;">
+                <div class="gear-grid" id="gearGrid" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0;">
+                    <button class="rng-btn gear-btn" data-piece="weapon_weights">Weapon</button>
+                    <button class="rng-btn gear-btn" data-piece="helmet_weights">Helmet</button>
+                    <button class="rng-btn gear-btn" data-piece="shield_weights">Shield</button>
+                    <button class="rng-btn gear-btn" data-piece="gloves_weights">Gloves</button>
+                    <button class="rng-btn gear-btn" data-piece="chest_weights">Chest</button>
+                    <button class="rng-btn gear-btn" data-piece="boots_weights">Boots</button>
+                    <button class="rng-btn gear-btn" data-piece="ring_weights">Ring</button>
+                    <button class="rng-btn gear-btn" data-piece="amulet_weights">Amulet</button>
+                    <button class="rng-btn gear-btn" data-piece="banner_weights">Banner</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Select Primary Stat -->
+        <div class="dashboard-card" style="margin-bottom: 0;">
+            <div class="section-header" style="border-bottom: none; padding-bottom: 10px;">
+                <h2 style="color: var(--text-primary); font-size: 1.1rem;">2. Select Primary Stat</h2>
+            </div>
+            <div class="section-content" style="padding-top: 0;">
+                <div class="toggle-group" id="statGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0;">
+                    <button class="gh-toggle stat-btn" data-stat="FLAT_HP" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">HP</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="SPD" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">SPD</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="HP_PCT" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">HP%</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="CRATE" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">C. RATE%</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="FLAT_ATK" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">ATK</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="CDMG" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">C. DMG%</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="ATK_PCT" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">ATK%</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="RES" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">RES</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="FLAT_DEF" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">DEF</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="ACC" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">ACC</span><div class="cc-checkbox"></div>
+                    </button>
+                    <button class="gh-toggle stat-btn" data-stat="DEF_PCT" style="justify-content: space-between;">
+                        <span style="font-weight: bold;">DEF%</span><div class="cc-checkbox"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Engine Settings -->
+        <div class="dashboard-card" style="margin-bottom: 0;">
+            <div class="section-content" style="display: flex; flex-direction: column; gap: 20px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <label for="strictnessSlider" style="color: var(--text-muted); font-weight: bold; text-transform: uppercase; font-size: 0.80em; letter-spacing: 1px;">Strictness Threshold</label>
+                        <span style="color: var(--accent-warning); font-weight: bold; font-size: 0.9em;">Sell bottom <span id="sliderValue">20</span>%</span>
+                    </div>
+                    <input type="range" id="strictnessSlider" min="5" max="95" value="20" step="5" style="width: 100%; accent-color: var(--accent-warning);">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-lowkey); padding-top: 20px;">
+                    <label for="maxClicks" style="color: var(--text-muted); font-weight: bold; text-transform: uppercase; font-size: 0.80em; letter-spacing: 1px;">Max Buttons per Pass (3-6)</label>
+                    <input type="number" id="maxClicks" value="4" min="3" max="6" class="custom-glyph-input" style="width: 60px; font-size: 1.1em; color: var(--text-primary); border-color: var(--border-lowkey); background: var(--bg-canvas);">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Output Terminal -->
+        <div class="dashboard-card" id="output" style="border: 1px dashed var(--indicator-active); min-height: 150px; background: rgba(234, 179, 8, 0.02);">
+            <div style="color: var(--text-muted); text-align: center; padding: 30px 10px; font-family: monospace;">
+                Select a gear piece and primary stat to begin...
+            </div>
+        </div>
+
+        <input type="hidden" id="selectedPiece" value="">
+        <input type="hidden" id="selectedStat" value="">
+        <script src="cc.js"></script>
     </main>
 
+    <!-- FOOTER -->
     <footer class="sizzle-footer">
         <div class="footer-content" style="position: relative;">
             <span class="footer-text">SizzleStats v2.0.0</span>
@@ -461,6 +548,7 @@
         </div>
     </footer>
 
+    <!-- BOTTOM SHEETS -->
     <div id="ledger-sheet" class="bottom-sheet">
         <div class="sheet-overlay" onclick="window.closeLedgerSheet()"></div>
         <div class="sheet-content">
@@ -562,6 +650,7 @@
         </div>
     </div>
 
+    <!-- APP SCRIPTS -->
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
     <script>

@@ -80,7 +80,7 @@ function startScanProcess() {
     // Show the dynamic navigation and set it to Lens state
     document.getElementById('mainNavigation').style.display = 'flex';
     document.getElementById('nav-state-lens').style.display = 'flex';
-    document.getElementById('nav-state-sandbox').style.display = 'none';
+   
 
     // Optional visual flair
     const statusEl = document.getElementById('status');
@@ -100,32 +100,46 @@ function resetToSplash() {
     // 2. Reset the Splash screen UI
     resetUpload();
 
-    // 3. Reset the Lens Status Indicator
+    // 3. Reset the Lens Status Indicator (Safe check)
     const statusEl = document.getElementById('status');
     if (statusEl) {
         statusEl.innerText = "SCANNER READY";
-        statusEl.style.color = ""; // removes any active colors
+        statusEl.style.color = ""; 
     }
 
-    // 4. Reset the Identity Card text to default
+    // 4. Reset the Identity Card text (Safe checks)
     const nameEl = document.getElementById('champ-name');
     if (nameEl) {
         nameEl.innerText = "Awaiting Upload...";
         nameEl.style.color = "var(--text-muted)";
     }
 
-    // Clear out the level and stars so they don't ghost on the next scan
-    document.getElementById('champ-lvl').innerText = "";
-    document.getElementById('champ-stars').innerHTML = "";
+    const lvlEl = document.getElementById('champ-lvl');
+    if (lvlEl) lvlEl.innerText = "";
 
-    // Clear out the traits so they don't ghost
-    document.getElementById('champ-affinity').innerText = "-";
-    document.getElementById('champ-faction').innerText = "-";
-    document.getElementById('champ-role').innerText = "-";
+    const starsEl = document.getElementById('champ-stars');
+    if (starsEl) starsEl.innerHTML = "";
 
-    // 5. Swap the views and hide dynamic navigation
-    document.getElementById('lens-view').style.display = 'none';
-    document.getElementById('mirage-view').style.display = 'none'; // Ensure Sandbox closes
-    document.getElementById('mainNavigation').style.display = 'none'; // Hide the arrows
-    document.getElementById('splash-view').style.display = 'flex';
+    const affEl = document.getElementById('champ-affinity');
+    if (affEl) affEl.innerText = "-";
+
+    const facEl = document.getElementById('champ-faction');
+    if (facEl) facEl.innerText = "-";
+
+    const roleEl = document.getElementById('champ-role');
+    if (roleEl) roleEl.innerText = "-";
+
+    // 5. Swap the views and hide dynamic navigation (Safe checks)
+    const lensView = document.getElementById('lens-view');
+    if (lensView) lensView.style.display = 'none';
+
+    // This was the crashing line - now it won't crash even if mirage-view is gone
+    const mirageView = document.getElementById('mirage-view');
+    if (mirageView) mirageView.style.display = 'none'; 
+
+    const nav = document.getElementById('mainNavigation');
+    if (nav) nav.style.display = 'none';
+
+    const splashView = document.getElementById('splash-view');
+    if (splashView) splashView.style.display = 'flex';
 }
