@@ -10,7 +10,7 @@ async function initEngine() {
   } catch (error) {
     console.error("Failed to load master.json.", error);
     document.getElementById("output").innerText = "Error loading data. Check console.";
-    return; // Stop the engine if JSON fails
+    return; 
   }
 
   const gearBtns = document.querySelectorAll('.gear-btn');
@@ -24,27 +24,28 @@ async function initEngine() {
     }
   };
 
-  // Gear Button Logic (The UI Protector + Auto-Select)
+  // Gear Button Logic
   gearBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      gearBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    btn.addEventListener('click', (e) => {
+      // Prevent child elements from stealing the click
+      const targetBtn = e.currentTarget; 
       
-      const pieceKey = btn.dataset.piece.replace('_weights', '');
+      gearBtns.forEach(b => b.classList.remove('active'));
+      targetBtn.classList.add('active');
+      
+      const pieceKey = targetBtn.dataset.piece.replace('_weights', '');
       pieceInput.value = pieceKey;
 
-      // Visually disable invalid primary stats for this piece
+      // Visually REMOVE invalid primary stats for this piece
       const validPrimaries = gearData.GameRules.Primaries[pieceKey] || [];
       
       statBtns.forEach(sBtn => {
         if (validPrimaries.includes(sBtn.dataset.stat)) {
-          sBtn.style.opacity = '1';
-          sBtn.style.pointerEvents = 'auto';
+          sBtn.style.display = 'flex'; // Show valid stats
         } else {
-          sBtn.style.opacity = '0.2';
-          sBtn.style.pointerEvents = 'none';
+          sBtn.style.display = 'none'; // Completely hide invalid stats
           
-          // If the user had an invalid stat selected from a previous click, clear it
+          // Clear active state if it was hidden
           if (sBtn.classList.contains('active')) {
             sBtn.classList.remove('active');
             statInput.value = "";
@@ -52,7 +53,7 @@ async function initEngine() {
         }
       });
 
-      // --- NEW: Auto-select if there is only one valid primary stat (Top Row) ---
+      // Auto-select if there is only one valid primary stat (e.g. Weapon, Helmet, Shield)
       if (validPrimaries.length === 1) {
         const autoStat = validPrimaries[0];
         statBtns.forEach(sBtn => {
@@ -70,10 +71,14 @@ async function initEngine() {
 
   // Stat Button Logic
   statBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      // Ensure we always target the main button, even if a user clicks the inner span/checkbox
+      const targetBtn = e.currentTarget;
+      
       statBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      statInput.value = btn.dataset.stat;
+      targetBtn.classList.add('active');
+      statInput.value = targetBtn.dataset.stat;
+      
       checkAndRun();
     });
   });
@@ -195,32 +200,41 @@ function runDebug() {
   const maxClicks = parseInt(document.getElementById("maxClicks").value, 10) || 4;
 
   if (!pieceKey || !primaryStat) {
-    outputDiv.innerHTML = "Select a gear piece and primary stat to begin...";
+    outputDiv.innerHTML = "<div style='color: var(--text-muted); text-align: center; padding: 30px 10px; font-family: monospace;'>Select a gear piece and primary stat to begin...</div>";
     return;
   }
 
-  // --- The General Advice Compiler ---
   const baseSubstats = gearData.GameRules.ValidSubstats[pieceKey];
   if (!baseSubstats) {
-    outputDiv.innerHTML = "Error: Invalid gear piece selected.";
+    outputDiv.innerHTML = "<span style='color: var(--accent-warning);'>Error: Invalid gear piece selected.</span>";
     return;
   }
 
-  // 1. Remove the Primary Stat from the possible Substat Pool
   const validSubstats = baseSubstats.filter(stat => stat !== primaryStat);
-
-  // 2. Load the Weight Profile based ONLY on the Primary Stat
   const primaryProfile = gearData.PrimaryWeights[primaryStat];
 
   if (!primaryProfile) {
-    outputDiv.innerHTML = `<span style="color: #ff4444;">Error: Weight data missing for primary stat <strong>${primaryStat}</strong>.</span>`;
+    outputDiv.innerHTML = `<span style="color: var(--accent-warning);">Error: Weight data missing for primary stat <strong>${primaryStat}</strong>.</span>`;
     return;
   }
 
-  // 3. Build the specific weights object for this exact piece
+  // Define clean display labels for stats
+  const statLabels = {
+    "FLAT_HP": "HP",
+    "HP_PCT": "HP%",
+    "FLAT_ATK": "ATK",
+    "ATK_PCT": "ATK%",
+    "FLAT_DEF": "DEF",
+    "DEF_PCT": "DEF%",
+    "CRATE": "C. RATE%",
+    "CDMG": "C. DMG%",
+    "SPD": "SPD",
+    "RES": "RES",
+    "ACC": "ACC"
+  };
+
   const weightsObj = {};
   validSubstats.forEach(stat => {
-    // If a stat exists in the valid pool but not in our profile, default to 0
     weightsObj[stat] = primaryProfile[stat] || 0;
   });
 
@@ -239,64 +253,70 @@ function runDebug() {
 
   const finalPlan = generateBatchedRecommendations(keepPool, trashPool, validSubstats, maxClicks);
 
-  let html = `<h3>Analyzed: ${pieceKey.toUpperCase()} (${primaryStat})</h3>`;
-  html += `<p>Total Combinations: <strong>${totalCombos}</strong> | Keeping: <strong>${keepCount}</strong> | Selling: <strong style="color: #ff4444;">${sellCount}</strong></p>`;
+  const displayPrimaryStat = statLabels[primaryStat] || primaryStat;
+
+  let html = `<h3 style="color: var(--indicator-active); text-transform: uppercase; margin-bottom: 5px;">Analyzed: ${pieceKey} (${displayPrimaryStat})</h3>`;
+  html += `<p style="color: var(--text-muted); font-size: 0.9em;">Total Combinations: <strong>${totalCombos}</strong> | Keeping: <strong>${keepCount}</strong> | Selling: <strong style="color: var(--accent-warning);">${sellCount}</strong></p>`;
 
   html += `
-  <div style="margin-bottom: 20px; padding: 15px; background: #222; border: 2px solid #00ff00;">
-    <h3 style="margin-top: 0; color: #00ff00;">Recommended Filter Passes</h3>
-    <p><em>Execute these passes one at a time. After each pass, Select All, Sell, and hit the Clear button.</em></p>
+  <div style="margin-top: 15px; padding: 15px; background: var(--bg-canvas); border: 1px dashed var(--indicator-active); border-radius: 6px;">
+    <h3 style="margin-top: 0; color: var(--text-primary);">Recommended Filter Passes</h3>
+    <p style="color: var(--text-muted); font-size: 0.85em; margin-bottom: 15px;"><em>Execute these passes one at a time. After each pass, Select All, Sell, and hit the Clear button.</em></p>
   `;
 
   finalPlan.rounds.forEach((round, index) => {
     html += `
-    <div class="pass-container">
-      <h4 style="margin-top: 0; color: #00aaff;">Filter Pass ${index + 1} <span style="color: #aaa; font-size: 0.8em; float: right;">(-${round.removed} items)</span></h4>
-      <ul style="list-style-type: none; padding-left: 0;">`;
+    <div style="background: var(--bg-card); border: 1px solid var(--border-lowkey); padding: 10px; margin-bottom: 10px; border-radius: 6px;">
+      <h4 style="margin-top: 0; color: var(--indicator-active); margin-bottom: 10px;">Filter Pass ${index + 1} <span style="color: var(--text-muted); font-size: 0.8em; float: right;">(-${round.removed} items)</span></h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
 
     round.filters.forEach(f => {
       const isHide = f.action === "Hide";
       const icon = isHide ? '✖' : '✔';
-      const iconColor = isHide ? '#ff4444' : '#00ff00';
+      const iconColor = isHide ? 'var(--accent-warning)' : '#22c55e';
+      const bgColor = isHide ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
+      const displayName = statLabels[f.stat] || f.stat;
 
       html += `
-        <li style="display: inline-block; margin-right: 15px; padding: 5px 10px; background: #000; border: 1px solid #333; border-radius: 4px;">
-          <strong>${f.stat}</strong> <span style="color: ${iconColor}; font-weight: bold; margin-left: 5px;">${icon}</span>
-        </li>`;
+        <div style="padding: 4px 10px; background: ${bgColor}; border: 1px solid ${iconColor}; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: var(--text-primary);">
+          ${displayName} <span style="color: ${iconColor}; margin-left: 4px;">${icon}</span>
+        </div>`;
     });
 
-    html += `</ul></div>`;
+    html += `</div></div>`;
   });
 
   if (finalPlan.trashLeft > 0) {
-    html += `<p style="color: #ffaa00;"><em>Note: ${finalPlan.trashLeft} pieces of trash remain, but further filters were unsafe. Sell leftovers manually.</em></p>`;
+    html += `<p style="color: #facc15; font-size: 0.85em;"><em>Note: ${finalPlan.trashLeft} pieces of trash remain, but further filters were unsafe. Sell leftovers manually.</em></p>`;
   } else {
-    html += `<p style="color: #00ff00;"><em>Success! 100% of the targeted trash was isolated cleanly.</em></p>`;
+    html += `<p style="color: #22c55e; font-size: 0.85em; font-weight: bold;"><em>Success! 100% of the targeted trash was isolated cleanly.</em></p>`;
   }
   html += `</div>`;
 
   html += `
-  <details>
-    <summary>View Entire Ranked List</summary>
-    <div style="padding: 10px; background: #1a1a1a; max-height: 400px; overflow-y: auto;">
-      <table style="width: 100%; text-align: left; border-collapse: collapse;">
+  <details style="margin-top: 15px;">
+    <summary style="color: var(--text-muted); font-size: 0.9em;">View Entire Ranked List</summary>
+    <div style="padding: 10px; background: var(--bg-canvas); max-height: 300px; overflow-y: auto; border-top: 1px solid var(--border-lowkey);">
+      <table style="width: 100%; text-align: left; border-collapse: collapse; font-size: 0.85em;">
         <thead>
           <tr>
-            <th style="border-bottom: 2px solid #00ff00; padding: 8px;">Rank</th>
-            <th style="border-bottom: 2px solid #00ff00; padding: 8px;">Score</th>
-            <th style="border-bottom: 2px solid #00ff00; padding: 8px;">Substats</th>
+            <th style="border-bottom: 1px solid var(--border-lowkey); padding: 8px; color: var(--text-muted);">Rank</th>
+            <th style="border-bottom: 1px solid var(--border-lowkey); padding: 8px; color: var(--text-muted);">Score</th>
+            <th style="border-bottom: 1px solid var(--border-lowkey); padding: 8px; color: var(--text-muted);">Substats</th>
           </tr>
         </thead>
         <tbody>`;
 
   ranked.forEach((item, index) => {
     const isTrash = index >= keepCount;
-    const rowColor = isTrash ? 'color: #ffaa00;' : 'color: #aaa;';
+    const rowColor = isTrash ? 'color: var(--accent-warning);' : 'color: var(--text-primary);';
+    const displayCombo = item.combo.map(s => statLabels[s] || s).join(", ");
+
     html += `
       <tr style="${rowColor}">
-        <td style="padding: 6px; border-bottom: 1px solid #333;">#${index + 1}</td>
-        <td style="padding: 6px; border-bottom: 1px solid #333;"><strong>${item.score}</strong></td>
-        <td style="padding: 6px; border-bottom: 1px solid #333;">[${item.combo.join(", ")}] ${isTrash ? ' (SELL)' : ''}</td>
+        <td style="padding: 6px; border-bottom: 1px dashed var(--border-lowkey);">#${index + 1}</td>
+        <td style="padding: 6px; border-bottom: 1px dashed var(--border-lowkey);"><strong>${item.score}</strong></td>
+        <td style="padding: 6px; border-bottom: 1px dashed var(--border-lowkey);">[${displayCombo}] ${isTrash ? ' (SELL)' : ''}</td>
       </tr>`;
   });
 

@@ -52,7 +52,7 @@
 </head>
 
 <body>
-    <header class="top-navigation">
+    <header class="top-navigation" style="margin-bottom: 15px;">
         <div class="brand-container">
             <div class="brand-stamp">sizzlestats<span class="domain">.com</span></div>
             <div class="brand-subtitle">Unofficial Raid: Shadow Legends Utility</div>
@@ -60,8 +60,21 @@
 
         <div style="display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
 
-            <div class="dynamic-nav" id="mainNavigation" style="display: none;">
-                <div id="nav-state-lens" style="display: flex; gap: 10px;">
+            <div class="dynamic-nav" id="mainNavigation" style="display: flex;">
+                
+                <!-- NEW: Splash View State -->
+                <div id="nav-state-splash" style="display: flex; gap: 10px;">
+                    <button class="nav-btn nav-forward" onclick="switchView('coach')">
+                        Gear Cleanser
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"></path>
+                            <path d="M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="nav-state-lens" style="display: none; gap: 10px;">
                     <button class="nav-btn" onclick="resetToSplash()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -72,7 +85,7 @@
                     </button>
 
                     <button class="nav-btn nav-forward" onclick="switchView('coach')">
-                        Cleanse Coach
+                        Gear Cleanser
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M5 12h14"></path>
@@ -108,7 +121,7 @@
     <main class="app-container" id="splash-view"
         style="display: flex; align-items: center; justify-content: center; min-height: 75vh; padding: 20px;">
 
-        <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 40px; width: 100%;">
+        <div style="display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 20px; width: 100%;">
 
             <div style="flex: 1 1 300px; max-width: 550px;">
                 <h1 style="color: var(--text-primary); margin-bottom: 24px; font-size: 2.2rem; line-height: 1.2;">Gauge
@@ -198,15 +211,6 @@
                         <strong>Privacy First:</strong> All scanning is 100% local. Images are never sent to any
                         servers.
                     </span>
-                </div>
-
-                <div style="margin-top: 16px; border-top: 1px solid var(--border-lowkey); padding-top: 24px; text-align: center;">
-                    <p style="margin: 0 0 12px 0; color: var(--text-muted); font-size: 0.95rem;">Just cleaning out your inventory?</p>
-                    <button onclick="switchView('coach')"
-                        style="width: 100%; padding: 12px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-lowkey); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s ease;"
-                        class="kebab-hover">
-                        Launch Cleanse Coach
-                    </button>
                 </div>
 
             </div>
@@ -398,11 +402,16 @@
         </section>
     </main>
 
-    <!-- COACH VIEW -->
+    <!-- CLEANSER VIEW -->
     <main class="app-container" id="coach-view" style="display: none; flex-direction: column; max-width: 800px; margin: 0 auto; gap: 20px;">
         
-        <!-- Cleanse Coach Specific State Overrides -->
+        <!-- Gear Cleanser Specific State Overrides -->
         <style>
+            /* Base state for stat buttons (fixes the black text) */
+            .stat-btn {
+                color: var(--text-muted);
+            }
+            
             /* Ties your cc.js .active toggle to the Sizzle Gold */
             .gear-btn.active {
                 background: var(--indicator-active) !important;
@@ -424,7 +433,7 @@
         </style>
 
         <div style="text-align: center; margin-bottom: -10px;">
-            <h2 style="color: var(--text-primary); font-size: 2rem; margin-bottom: 5px;">Cleanse Coach</h2>
+            <h2 style="color: var(--text-primary); font-size: 2rem; margin-bottom: 5px;">Gear Cleanser</h2>
             <p style="color: var(--accent-warning); font-weight: bold; font-size: 0.9rem; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 1px;">This page is under construction. Some features may be broken or wrong.</p>
             <p style="color: var(--text-muted); margin: 0;">Interactive batch filtering and gear purging.</p>
         </div>
@@ -654,27 +663,59 @@
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
     <script>
+        // Patch splash.js navigation transitions for the new Splash Nav State
+        const originalResetToSplash = window.resetToSplash;
+        window.resetToSplash = function() {
+            if (typeof originalResetToSplash === 'function') {
+                originalResetToSplash();
+            }
+            // Force top navigation to show the Splash button
+            const mainNav = document.getElementById('mainNavigation');
+            if(mainNav) mainNav.style.display = 'flex';
+            
+            const splashNav = document.getElementById('nav-state-splash');
+            if(splashNav) splashNav.style.display = 'flex';
+            
+            const lensNav = document.getElementById('nav-state-lens');
+            if(lensNav) lensNav.style.display = 'none';
+            
+            const coachNav = document.getElementById('nav-state-coach');
+            if(coachNav) coachNav.style.display = 'none';
+        };
+
+        const originalStartScanProcess = window.startScanProcess;
+        window.startScanProcess = function() {
+            if (typeof originalStartScanProcess === 'function') {
+                originalStartScanProcess();
+            }
+            // Hide splash nav when moving to lens
+            const splashNav = document.getElementById('nav-state-splash');
+            if(splashNav) splashNav.style.display = 'none';
+        };
+
         function switchView(view) {
             // Hide everything first
             document.getElementById('splash-view').style.display = 'none';
             document.getElementById('lens-view').style.display = 'none';
             document.getElementById('coach-view').style.display = 'none';
 
+            document.getElementById('nav-state-splash').style.display = 'none';
             document.getElementById('nav-state-lens').style.display = 'none';
             document.getElementById('nav-state-coach').style.display = 'none';
 
+            // Main nav should always be visible now
+            document.getElementById('mainNavigation').style.display = 'flex';
+
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'flex';
-                document.getElementById('mainNavigation').style.display = 'none';
+                document.getElementById('nav-state-splash').style.display = 'flex';
             }
             else if (view === "lens") {
                 document.getElementById('lens-view').style.display = 'grid';
-                document.getElementById('mainNavigation').style.display = 'flex';
                 document.getElementById('nav-state-lens').style.display = 'flex';
             }
             else if (view === "coach") {
                 document.getElementById('coach-view').style.display = 'flex';
-                document.getElementById('mainNavigation').style.display = 'flex';
                 document.getElementById('nav-state-coach').style.display = 'flex';
             }
         }
