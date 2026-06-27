@@ -393,6 +393,18 @@ details summary { padding: 12px 15px; font-weight: 600; cursor: pointer; list-st
     .right-top-wrapper #setupCard {
         order: -1; /* Forces this specific card to the very top of the stack */
     }
+    /* Mobile Header Stacking Fix */
+    .hero-header-wrap {
+        flex-direction: column; /* Stacks the logo and buttons vertically */
+        gap: 15px; /* Adds breathing room between them */
+        padding: 15px 0 25px 0;
+    }
+
+    #mainNavigation {
+        position: static; /* Strips the absolute positioning so it respects the logo */
+        justify-content: center; /* Centers the buttons under the brand */
+        width: 100%;
+    }
 }
 
 /* =========================================
@@ -849,3 +861,20 @@ input.goal-input:-webkit-autofill:active {
 .stat-btn.active { border-color: var(--indicator-active) !important; color: var(--text-primary) !important; background: rgba(234, 179, 8, 0.1) !important; }
 .stat-btn.active .cc-checkbox { background: var(--indicator-active) !important; border-color: var(--indicator-active) !important; }
 .cc-checkbox { width: 16px; height: 16px; border: 1px solid var(--border-lowkey); border-radius: 3px; background: var(--bg-canvas); transition: all 0.1s; }
+
+/* =========================================
+   MOBILE HEADER OVERRIDES (MUST BE AT BOTTOM)
+   ========================================= */
+@media (max-width: 960px) {
+    .hero-header-wrap {
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 15px 0 25px 0 !important;
+    }
+
+    #mainNavigation {
+        position: static !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+}

@@ -580,10 +580,7 @@
             const header = document.querySelector('.hero-header-wrap');
             header.style.transition = 'max-width 0.2s ease';
 
-            // 4. Snap the viewport back to the very top
-            window.scrollTo(0, 0);
-
-            // 5. Reveal targeted view, navigation, and brute-force the width
+            // 4. Reveal targeted view, navigation, and brute-force the width
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'flex';
                 header.style.maxWidth = '1200px'; 
@@ -598,7 +595,57 @@
                 document.getElementById('nav-state-coach').style.display = 'flex';
                 header.style.maxWidth = '800px'; 
             }
-        }
+
+            // 5. Snap the viewport back to the top (AFTER the new view has rendered)
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 10);
+        } // <--- This closing bracket is the key!
+
+        // ==========================================
+        // OBSERVERS (These must sit outside the function)
+        // ==========================================
+
+        // Ensures the Lens view always snaps to top when your engine reveals it
+        const lensObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                // When lens.js changes the display to 'grid', trigger the scroll
+                if (mutation.target.style.display === 'grid') {
+                    setTimeout(() => window.scrollTo(0, 0), 10);
+                }
+            });
+        });
+        
+        // Attach the observer to the lens-view container
+        lensObserver.observe(document.getElementById('lens-view'), { 
+            attributes: true, 
+            attributeFilter: ['style'] 
+        });
+
+        // Ensures the SCAN NOW button snaps into view with natural padding
+        const previewObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                // When splash.js reveals the preview zone
+                if (mutation.target.style.display !== 'none') {
+                    setTimeout(() => {
+                        // Target the privacy note beneath the button to create natural padding
+                        const privacyNote = document.querySelector('.privacy-note');
+                        if (privacyNote) {
+                            privacyNote.scrollIntoView({ 
+                                behavior: 'auto', // Instant snap, no slow crawl
+                                block: 'nearest' 
+                            });
+                        }
+                    }, 10);
+                }
+            });
+        });
+        
+        // Attach the observer to the preview-zone container
+        previewObserver.observe(document.getElementById('preview-zone'), { 
+            attributes: true, 
+            attributeFilter: ['style'] 
+        });
     </script>
 </body>
 
