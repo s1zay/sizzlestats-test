@@ -1,5 +1,5 @@
 // ==========================================
-// STAT-LENS UI: lens.js (V3.11 - The Bulletproof Dashboard Anchor)
+// STAT-LENS UI: lens.js (V3.12 - The UI Visibility Override)
 // ==========================================
 
 // 1. Establish the Global Vault
@@ -110,8 +110,10 @@ function paintLensUI(scanData) {
         if (scanData.Identity.Rarity && scanData.Identity.Rarity.toLowerCase() === 'mythical') {
             const isAlt = scanData.Identity.Form && scanData.Identity.Form.toLowerCase().includes('alternate');
             mythBadgeEl.innerText = isAlt ? "ALT" : "BASE";
+            mythBadgeEl.classList.remove('hidden'); // Override protection
             mythBadgeEl.style.display = "inline-block";
         } else {
+            mythBadgeEl.classList.add('hidden'); // Override protection
             mythBadgeEl.style.display = "none";
         }
     }
@@ -169,15 +171,19 @@ function paintLensUI(scanData) {
 
         if (masteriesSum === 0 && relicSum === 0) {
             warningsEl.innerText = "No Masteries and Relic detected.";
+            warningsEl.classList.remove('hidden'); // Override protection
             warningsEl.style.display = "block";
         } else if (masteriesSum === 0) {
             warningsEl.innerText = "No Masteries detected.";
+            warningsEl.classList.remove('hidden'); // Override protection
             warningsEl.style.display = "block";
         } else if (relicSum === 0) {
             warningsEl.innerText = "No Relic detected.";
+            warningsEl.classList.remove('hidden'); // Override protection
             warningsEl.style.display = "block";
         } else {
             warningsEl.innerText = "";
+            warningsEl.classList.add('hidden'); // Override protection
             warningsEl.style.display = "none";
         }
     }
@@ -248,7 +254,10 @@ function paintLensUI(scanData) {
                 const waitEl = document.getElementById('eff-waiting');
                 const coachUiEl = document.getElementById('eff-coach-ui');
                 if (waitEl) waitEl.style.display = 'none';
-                if (coachUiEl) coachUiEl.style.display = 'block';
+                if (coachUiEl) {
+                    coachUiEl.classList.remove('hidden'); // Override protection
+                    coachUiEl.style.display = 'block';
+                }
 
                 const multiWarning = document.getElementById('eff-multi-warning');
                 const standardUi = document.getElementById('eff-standard-ui');
@@ -336,7 +345,10 @@ function paintLensUI(scanData) {
 
                     if (data.outlier) {
                         if (data.outlier.stat === "EMHP") {
-                            if (outlierUi) outlierUi.style.display = 'none';
+                            if (outlierUi) {
+                                outlierUi.classList.add('hidden'); // Override protection
+                                outlierUi.style.display = 'none';
+                            }
 
                             if (!emhpBanner) {
                                 emhpBanner = document.createElement('div');
@@ -354,6 +366,7 @@ function paintLensUI(scanData) {
                         } else {
                             if (emhpBanner) emhpBanner.style.display = 'none';
                             if (outlierUi) {
+                                outlierUi.classList.remove('hidden'); // Override protection
                                 outlierUi.style.display = 'block';
                                 const scoreTextEl = outlierUi.querySelector('.coach-score-text');
                                 if (scoreTextEl) {
@@ -381,7 +394,10 @@ function paintLensUI(scanData) {
                         }
                     } else {
                         if (emhpBanner) emhpBanner.style.display = 'none';
-                        if (outlierUi) outlierUi.style.display = 'none';
+                        if (outlierUi) {
+                            outlierUi.classList.add('hidden'); // Override protection
+                            outlierUi.style.display = 'none';
+                        }
                         if (strategyMsgEl) strategyMsgEl.style.display = 'none';
 
                         if (isZeroed) {
@@ -403,7 +419,10 @@ function paintLensUI(scanData) {
                 };
 
                 if (effData.isMulti) {
-                    if (multiWarning) multiWarning.style.display = 'block';
+                    if (multiWarning) {
+                        multiWarning.classList.remove('hidden'); // Override protection
+                        multiWarning.style.display = 'block';
+                    }
                     if (standardUi) standardUi.style.display = 'none';
                     const pillsContainer = document.getElementById('eff-multi-pills');
                     if (pillsContainer) {
@@ -435,7 +454,10 @@ function paintLensUI(scanData) {
                         });
                     }
                 } else {
-                    if (multiWarning) multiWarning.style.display = 'none';
+                    if (multiWarning) {
+                        multiWarning.classList.add('hidden'); // Override protection
+                        multiWarning.style.display = 'none';
+                    }
                     if (standardUi) standardUi.style.display = 'block';
                     populateStandardEffUi(effData);
                 }
@@ -464,7 +486,10 @@ function paintLensUI(scanData) {
                 const waitEl = document.getElementById('ehp-waiting');
                 const coachUiEl = document.getElementById('ehp-coach-ui');
                 if (waitEl) waitEl.style.display = 'none';
-                if (coachUiEl) coachUiEl.style.display = 'block';
+                if (coachUiEl) {
+                    coachUiEl.classList.remove('hidden'); // Override protection
+                    coachUiEl.style.display = 'block';
+                }
 
                 const ehpScoreTextEl = document.getElementById('ehp-score-text');
                 if (ehpScoreTextEl) {
@@ -750,7 +775,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
     if (starsEl) starsEl.innerHTML = '';
 
     const badgeEl = document.getElementById('lens-mythical-badge');
-    if (badgeEl) badgeEl.style.display = 'none';
+    if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } // Override protection
 
     ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
         const el = document.getElementById(id);
@@ -775,14 +800,14 @@ imageLoaderEl.addEventListener('change', async function (e) {
     const effWaiting = document.getElementById('eff-waiting');
     if (effWaiting) { effWaiting.innerText = "Scanning..."; effWaiting.style.display = 'block'; }
     const effCoach = document.getElementById('eff-coach-ui');
-    if (effCoach) effCoach.style.display = 'none';
+    if (effCoach) { effCoach.classList.add('hidden'); effCoach.style.display = 'none'; } // Override protection
 
     const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
     if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
     const ehpWaiting = document.getElementById('ehp-waiting');
     if (ehpWaiting) { ehpWaiting.innerText = "Scanning..."; ehpWaiting.style.display = 'block'; }
     const ehpCoach = document.getElementById('ehp-coach-ui');
-    if (ehpCoach) ehpCoach.style.display = 'none';
+    if (ehpCoach) { ehpCoach.classList.add('hidden'); ehpCoach.style.display = 'none'; } // Override protection
 
     const areaNameEl = document.getElementById('val-area-name');
     if (areaNameEl) areaNameEl.innerText = "No Area Selected";
@@ -868,7 +893,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
             if (starsEl) starsEl.innerHTML = '';
 
             const badgeEl = document.getElementById('lens-mythical-badge');
-            if (badgeEl) badgeEl.style.display = 'none';
+            if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } // Override protection
 
             ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
                 const el = document.getElementById(id);
