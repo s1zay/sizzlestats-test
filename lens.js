@@ -5,6 +5,19 @@
 // 1. Establish the Global Vault
 window.SizzleState = window.SizzleState || { currentScan: null };
 
+// ==========================================
+// LENS STATE MACHINE
+// ==========================================
+window.setLensState = function(state) {
+    const idle = document.getElementById('lens-state-idle');
+    const scanning = document.getElementById('lens-state-scanning');
+    const results = document.getElementById('lens-state-results');
+
+    if (idle) idle.style.display = state === 'idle' ? 'flex' : 'none';
+    if (scanning) scanning.style.display = state === 'scanning' ? 'flex' : 'none';
+    if (results) results.style.display = state === 'results' ? 'block' : 'none';
+};
+
 let championDatabase = [];
 
 fetch(`champs.json?v=${new Date().getTime()}`, { cache: "no-store" })
@@ -63,6 +76,9 @@ function generateChampionStars(rank, ascension, awakening) {
 // THE UI PAINTER (Decoupled for Re-entrancy)
 // ==========================================
 function paintLensUI(scanData) {
+    // Lock Identity Card into Results State
+    if (window.setLensState) window.setLensState('results');
+
     const rowKeys = ["HP", "ATK", "DEF", "SPD", "CRate", "CDMG", "RES", "ACC", "IDEF"];
 
     const baseHp = scanData.Stats["HP"]?.Basic || 0;
@@ -760,6 +776,30 @@ function processScanResults(engine) {
 // INTAKE LISTENER & DUAL-THREAT ERROR NET
 // ==========================================
 const imageLoaderEl = document.getElementById('imageLoader');
+const dropZone = document.getElementById('drop-zone');
+
+// Adopted Drag and Drop Listeners for the Lens State
+if (dropZone && imageLoaderEl) {
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = 'rgba(234, 179, 8, 0.1)'; 
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = '';
+
+        if (e.dataTransfer.files.length > 0) {
+            imageLoaderEl.files = e.dataTransfer.files;
+            imageLoaderEl.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+}
 
 imageLoaderEl.addEventListener('change', async function (e) {
     const file = e.target.files[0];
@@ -767,15 +807,18 @@ imageLoaderEl.addEventListener('change', async function (e) {
 
     window.SizzleState = {};
 
-    // --- PRE-EMPTIVE UI WIPE (Clears Zombie Data Instantly) ---
+    // --- 1. SHIFT STATE MACHINE ---
+    if (window.setLensState) window.setLensState('scanning');
+
+    // --- 2. SILENT BACKGROUND UI WIPE ---
     const nameEl = document.getElementById('champ-name');
-    if (nameEl) nameEl.innerText = 'Scanning...';
+    if (nameEl) nameEl.innerText = '-';
 
     const starsEl = document.getElementById('champ-stars');
     if (starsEl) starsEl.innerHTML = '';
 
     const badgeEl = document.getElementById('lens-mythical-badge');
-    if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } // Override protection
+    if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } 
 
     ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
         const el = document.getElementById(id);
@@ -793,26 +836,26 @@ imageLoaderEl.addEventListener('change', async function (e) {
     const styleMatchEl = document.getElementById('val-style-match');
     if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
     const styleDetailsEl = document.getElementById('val-style-details');
-    if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Scanning...</span>`;
+    if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">-</span>`;
 
     const effAccordionTitle = document.getElementById('eff-accordion-title');
     if (effAccordionTitle) effAccordionTitle.style.color = "var(--text-primary)";
     const effWaiting = document.getElementById('eff-waiting');
-    if (effWaiting) { effWaiting.innerText = "Scanning..."; effWaiting.style.display = 'block'; }
+    if (effWaiting) { effWaiting.innerText = "-"; effWaiting.style.display = 'block'; }
     const effCoach = document.getElementById('eff-coach-ui');
-    if (effCoach) { effCoach.classList.add('hidden'); effCoach.style.display = 'none'; } // Override protection
+    if (effCoach) { effCoach.classList.add('hidden'); effCoach.style.display = 'none'; } 
 
     const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
     if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
     const ehpWaiting = document.getElementById('ehp-waiting');
-    if (ehpWaiting) { ehpWaiting.innerText = "Scanning..."; ehpWaiting.style.display = 'block'; }
+    if (ehpWaiting) { ehpWaiting.innerText = "-"; ehpWaiting.style.display = 'block'; }
     const ehpCoach = document.getElementById('ehp-coach-ui');
-    if (ehpCoach) { ehpCoach.classList.add('hidden'); ehpCoach.style.display = 'none'; } // Override protection
+    if (ehpCoach) { ehpCoach.classList.add('hidden'); ehpCoach.style.display = 'none'; } 
 
     const areaNameEl = document.getElementById('val-area-name');
     if (areaNameEl) areaNameEl.innerText = "No Area Selected";
     const areaDetailsEl = document.getElementById('val-area-details');
-    if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Scanning...</span>`;
+    if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">-</span>`;
 
     const auditContainer = document.getElementById('audit-container');
     if (auditContainer) auditContainer.innerHTML = '';
@@ -827,8 +870,6 @@ imageLoaderEl.addEventListener('change', async function (e) {
         const scanner = new window.SizzleScanner();
         
         // YIELD THE MAIN THREAD: 
-        // Give the browser 150ms to paint the preview UI and complete the scroll
-        // BEFORE we lock the thread with OpenCV and Tesseract.
         setTimeout(async () => {
             try {
                 await scanner.scanImage(img);
@@ -863,6 +904,9 @@ imageLoaderEl.addEventListener('change', async function (e) {
             } catch (err) {
                 console.error("[Sizzle Engine] Scan aborted:", err);
 
+                // Shift state so Error UI renders visibly
+                if (window.setLensState) window.setLensState('results');
+
                 const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
 
                 // ==========================================
@@ -890,33 +934,8 @@ imageLoaderEl.addEventListener('change', async function (e) {
                 // ==========================================
                 // STRIKE 3: MANUAL UI RECOVERY
                 // ==========================================
-                // Wipe Dashboard Clean
                 const nameTargetEl = document.getElementById('champ-name');
                 if (nameTargetEl) nameTargetEl.innerHTML = 'Scan Failed';
-
-                const starsEl = document.getElementById('champ-stars');
-                if (starsEl) starsEl.innerHTML = '';
-
-                const badgeEl = document.getElementById('lens-mythical-badge');
-                if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; }
-
-                ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = '-';
-                });
-
-                const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
-                statIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = '-';
-                });
-
-                const styleNameEl = document.getElementById('val-style-name');
-                if (styleNameEl) styleNameEl.innerText = "Build Style";
-                const styleMatchEl = document.getElementById('val-style-match');
-                if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
-                const styleDetailsEl = document.getElementById('val-style-details');
-                if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
 
                 let auditContainer = document.getElementById('audit-container');
                 if (!auditContainer) {
