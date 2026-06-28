@@ -314,15 +314,15 @@
 
                                     <div id="outlier-marker" class="kraken-marker"></div>
                                 </div>
-
-                                <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
-                                    Damage efficiency evaluates the balance between [NN]’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
-                                    To improve your [NN]’s damage, <strong id="eff-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
-                                </p>
-
-                                <button id="btn-eff-show-me" class="coach-show-me-btn"
-                                    onclick="window.openDmgLedgerSheet()">Improve Damage Efficiency ▲</button>
                             </div>
+
+                            <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
+                                Damage efficiency evaluates the balance between [NN]’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
+                                To improve your [NN]’s damage, <strong id="eff-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
+                            </p>
+
+                            <button id="btn-eff-show-me" class="coach-show-me-btn"
+                                onclick="window.openDmgLedgerSheet()">Improve Damage Efficiency ▲</button>
                         </div>
                     </div>
                 </div>
@@ -555,7 +555,10 @@
             if (typeof originalResetToSplash === 'function') {
                 originalResetToSplash();
             }
-            // Switch back to splash via our new view router
+            
+            // Force-close all accordions when leaving the Lens view
+            document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
+            
             switchView('splash');
         };
 
@@ -600,7 +603,7 @@
             setTimeout(() => {
                 window.scrollTo(0, 0);
             }, 10);
-        } // <--- This closing bracket is the key!
+        }
 
         // ==========================================
         // OBSERVERS (These must sit outside the function)
@@ -609,39 +612,39 @@
         // Ensures the Lens view always snaps to top when your engine reveals it
         const lensObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                // When lens.js changes the display to 'grid', trigger the scroll
                 if (mutation.target.style.display === 'grid') {
                     setTimeout(() => window.scrollTo(0, 0), 10);
                 }
             });
         });
         
-        // Attach the observer to the lens-view container
         lensObserver.observe(document.getElementById('lens-view'), { 
             attributes: true, 
             attributeFilter: ['style'] 
         });
 
-        // Ensures the SCAN NOW button snaps into view with natural padding
+        // The ultimate snap fix for the splash screen
         const previewObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                // When splash.js reveals the preview zone
                 if (mutation.target.style.display !== 'none') {
-                    setTimeout(() => {
-                        // Target the privacy note beneath the button to create natural padding
-                        const privacyNote = document.querySelector('.privacy-note');
-                        if (privacyNote) {
-                            privacyNote.scrollIntoView({ 
-                                behavior: 'auto', // Instant snap, no slow crawl
-                                block: 'nearest' 
-                            });
-                        }
-                    }, 10);
+                    // Double requestAnimationFrame ensures the DOM is fully repainted with the image 
+                    // before we ask the browser to calculate the scroll position.
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            // Target the privacy note instead of the button
+                            const privacyNote = document.querySelector('.privacy-note');
+                            if (privacyNote) {
+                                privacyNote.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'end' // Aligns the bottom of the privacy note to the bottom of the screen
+                                });
+                            }
+                        });
+                    });
                 }
             });
         });
         
-        // Attach the observer to the preview-zone container
         previewObserver.observe(document.getElementById('preview-zone'), { 
             attributes: true, 
             attributeFilter: ['style'] 

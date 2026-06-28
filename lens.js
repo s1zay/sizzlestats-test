@@ -825,213 +825,213 @@ imageLoaderEl.addEventListener('change', async function (e) {
         if (window.SizzleState) window.SizzleState.currentScan = null;
 
         const scanner = new window.SizzleScanner();
-        try {
-            await scanner.scanImage(img);
-            processScanResults(scanner);
-            URL.revokeObjectURL(img.src);
+        
+        // YIELD THE MAIN THREAD: 
+        // Give the browser 150ms to paint the preview UI and complete the scroll
+        // BEFORE we lock the thread with OpenCV and Tesseract.
+        setTimeout(async () => {
+            try {
+                await scanner.scanImage(img);
+                processScanResults(scanner);
+                URL.revokeObjectURL(img.src);
 
-            // ==========================================
-            // ANALYTICS TRACKER
-            // ==========================================
-            const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
-            if (liveDomains.includes(window.location.hostname)) {
-                fetch('https://snowy-unit-c9e5.anthonyyerhot.workers.dev/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error(`[Analytics] Server Error: ${data.error}`);
-                    } else {
-                        console.log(`[Analytics] Scan recorded. Total live scans: ${data.total}`);
-                    }
-                })
-                .catch(err => console.log("[Analytics] Ping failed completely."));
-            } else {
-                console.log("[Analytics] Dev environment: Scan ignored.");
-            }
-            // ==========================================
-
-        } catch (err) {
-            console.error("[Sizzle Engine] Scan aborted:", err);
-
-            const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
-
-            // ==========================================
-            // STRIKE 2: INVISIBLE RETRY
-            // ==========================================
-            if (isNameError && typeof scanner.runStrikeTwoRescue === 'function') {
-                console.log("[Sizzle Engine] Deploying Strike 2...");
-                try {
-                    const strikeTwoName = await scanner.runStrikeTwoRescue();
-                    const strikeTwoCheck = getChampionDetails(strikeTwoName);
-
-                    if (strikeTwoCheck) {
-                        console.log(`[Sizzle Engine] Strike 2 SUCCESS! Recovered: ${strikeTwoName}`);
-                        scanner.masterData.Identity.Champion = strikeTwoCheck.name || strikeTwoCheck.Name;
-                        processScanResults(scanner);
-                        return; // Exit the catch block early—the day is saved!
-                    } else {
-                        console.warn("[Sizzle Engine] Strike 2 FAILED. Falling back to manual entry.");
-                    }
-                } catch (strikeTwoErr) {
-                    console.error("[Sizzle Engine] Strike 2 crashed:", strikeTwoErr);
-                }
-            }
-
-            // ==========================================
-            // STRIKE 3: MANUAL UI RECOVERY
-            // ==========================================
-            // Wipe Dashboard Clean
-            const nameTargetEl = document.getElementById('champ-name');
-            if (nameTargetEl) nameTargetEl.innerHTML = 'Scan Failed';
-
-            const starsEl = document.getElementById('champ-stars');
-            if (starsEl) starsEl.innerHTML = '';
-
-            const badgeEl = document.getElementById('lens-mythical-badge');
-            if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } // Override protection
-
-            ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.innerText = '-';
-            });
-
-            const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
-            statIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.innerText = '-';
-            });
-
-            const styleNameEl = document.getElementById('val-style-name');
-            if (styleNameEl) styleNameEl.innerText = "Build Style";
-            const styleMatchEl = document.getElementById('val-style-match');
-            if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
-            const styleDetailsEl = document.getElementById('val-style-details');
-            if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
-
-            // THE BULLETPROOF UI INJECTION
-            let auditContainer = document.getElementById('audit-container');
-            if (!auditContainer) {
-                auditContainer = document.createElement('div');
-                auditContainer.id = 'audit-container';
-                const identityCard = document.getElementById('champ-identity-card');
-                if (identityCard && identityCard.parentNode) {
-                    identityCard.parentNode.insertBefore(auditContainer, identityCard.nextSibling);
-                }
-            }
-
-            if (isNameError) {
-                auditContainer.innerHTML = `
-                    <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
-                        <div class="action-content">
-                            <span class="action-highlight text-warning">Champion Name Unreadable</span>
-                        </div>
-                    </div>
-                    <div class="action-drawer audit-warning-drawer" style="display: block;">
-                        <p class="audit-instructions">Please enter the champion's name and level manually.</p>
-                        <div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 5px;">
-                            <div class="manual-name-wrapper" style="flex: 1; margin-top: 0;">
-                                <input type="text" id="manual-champ-input" class="manual-champ-input" placeholder="Champion name..." autocomplete="off">
-                                <ul id="manual-champ-list" class="manual-champ-list hidden-dropdown"></ul>
-                            </div>
-                            <input type="number" id="manual-level-input" class="manual-champ-input" placeholder="Lvl" value="60" min="1" max="60" style="width: 70px; text-align: center;">
-                            <button id="manual-submit-btn" class="btn-clear-sim btn-apply-audit" style="margin-top: 0; padding: 11px 16px; width: auto;">OK</button>
-                        </div>
-                    </div>
-                `;
-
-                const inputEl = document.getElementById('manual-champ-input');
-                const listEl = document.getElementById('manual-champ-list');
-                const levelEl = document.getElementById('manual-level-input');
-                const submitBtn = document.getElementById('manual-submit-btn');
-
-                if (inputEl && listEl && submitBtn) {
-                    setTimeout(() => inputEl.focus(), 100);
-
-                    // 1. Dropdown Logic (Fills input, DOES NOT scan)
-                    inputEl.addEventListener('input', (event) => {
-                        const rawVal = event.target.value;
-                        const searchVal = rawVal.toLowerCase().replace(/[^a-z]/g, '');
-
-                        listEl.innerHTML = '';
-
-                        if (searchVal.length < 2) {
-                            listEl.classList.add('hidden-dropdown');
-                            return;
+                // ==========================================
+                // ANALYTICS TRACKER
+                // ==========================================
+                const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
+                if (liveDomains.includes(window.location.hostname)) {
+                    fetch('https://snowy-unit-c9e5.anthonyyerhot.workers.dev/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
                         }
-
-                        const matches = championDatabase.filter(c => {
-                            const dbName = (c.name || c.Name || "").toLowerCase().replace(/[^a-z]/g, '');
-                            return dbName.includes(searchVal);
-                        }).slice(0, 6);
-
-                        if (matches.length > 0) {
-                            listEl.classList.remove('hidden-dropdown');
-                            matches.forEach(match => {
-                                const li = document.createElement('li');
-                                li.className = 'manual-champ-item';
-                                li.innerText = match.name || match.Name;
-
-                                li.addEventListener('click', () => {
-                                    // Just fill the box and close the dropdown
-                                    inputEl.value = match.name || match.Name;
-                                    listEl.classList.add('hidden-dropdown');
-                                });
-                                listEl.appendChild(li);
-                            });
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error(`[Analytics] Server Error: ${data.error}`);
                         } else {
-                            listEl.classList.add('hidden-dropdown');
+                            console.log(`[Analytics] Scan recorded. Total live scans: ${data.total}`);
                         }
-                    });
-
-                    document.addEventListener('click', (clickEvent) => {
-                        if (!inputEl.contains(clickEvent.target) && !listEl.contains(clickEvent.target)) {
-                            listEl.classList.add('hidden-dropdown');
-                        }
-                    });
-
-                    // 2. Submit Button Logic (Fires the scan)
-                    submitBtn.addEventListener('click', () => {
-                        const finalName = inputEl.value.trim();
-                        if (!finalName) {
-                            inputEl.style.borderColor = "var(--accent-warning)";
-                            return;
-                        }
-
-                        // Inject Name and Level
-                        scanner.masterData.Identity.Champion = finalName;
-                        scanner.masterData.Identity.Level = parseInt(levelEl.value) || 60;
-
-                        auditContainer.innerHTML = '';
-
-                        try {
-                            processScanResults(scanner);
-                        } catch (retryErr) {
-                            console.error("[Sizzle Engine] Override failed:", retryErr);
-                        }
-                    });
+                    })
+                    .catch(err => console.log("[Analytics] Ping failed completely."));
+                } else {
+                    console.log("[Analytics] Dev environment: Scan ignored.");
                 }
-            } else {
-                let errorTitle = "Scan Failed";
-                let errorDesc = err && err.message ? err.message : "The stat matrix could not be detected. Please ensure you uploaded a clear, full-screen screenshot of a champion's stat page.";
+                // ==========================================
 
-                auditContainer.innerHTML = `
-                    <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
-                        <div class="action-content">
-                            <span class="action-icon" style="color: var(--accent-warning);">❌</span>
-                            <span class="action-highlight text-warning">${errorTitle}</span>
+            } catch (err) {
+                console.error("[Sizzle Engine] Scan aborted:", err);
+
+                const isNameError = err && err.message && String(err.message).includes('CHAMPION_NOT_FOUND|');
+
+                // ==========================================
+                // STRIKE 2: INVISIBLE RETRY
+                // ==========================================
+                if (isNameError && typeof scanner.runStrikeTwoRescue === 'function') {
+                    console.log("[Sizzle Engine] Deploying Strike 2...");
+                    try {
+                        const strikeTwoName = await scanner.runStrikeTwoRescue();
+                        const strikeTwoCheck = getChampionDetails(strikeTwoName);
+
+                        if (strikeTwoCheck) {
+                            console.log(`[Sizzle Engine] Strike 2 SUCCESS! Recovered: ${strikeTwoName}`);
+                            scanner.masterData.Identity.Champion = strikeTwoCheck.name || strikeTwoCheck.Name;
+                            processScanResults(scanner);
+                            return; // Exit the catch block early—the day is saved!
+                        } else {
+                            console.warn("[Sizzle Engine] Strike 2 FAILED. Falling back to manual entry.");
+                        }
+                    } catch (strikeTwoErr) {
+                        console.error("[Sizzle Engine] Strike 2 crashed:", strikeTwoErr);
+                    }
+                }
+
+                // ==========================================
+                // STRIKE 3: MANUAL UI RECOVERY
+                // ==========================================
+                // Wipe Dashboard Clean
+                const nameTargetEl = document.getElementById('champ-name');
+                if (nameTargetEl) nameTargetEl.innerHTML = 'Scan Failed';
+
+                const starsEl = document.getElementById('champ-stars');
+                if (starsEl) starsEl.innerHTML = '';
+
+                const badgeEl = document.getElementById('lens-mythical-badge');
+                if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; }
+
+                ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = '-';
+                });
+
+                const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
+                statIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = '-';
+                });
+
+                const styleNameEl = document.getElementById('val-style-name');
+                if (styleNameEl) styleNameEl.innerText = "Build Style";
+                const styleMatchEl = document.getElementById('val-style-match');
+                if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
+                const styleDetailsEl = document.getElementById('val-style-details');
+                if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
+
+                let auditContainer = document.getElementById('audit-container');
+                if (!auditContainer) {
+                    auditContainer = document.createElement('div');
+                    auditContainer.id = 'audit-container';
+                    const identityCard = document.getElementById('champ-identity-card');
+                    if (identityCard && identityCard.parentNode) {
+                        identityCard.parentNode.insertBefore(auditContainer, identityCard.nextSibling);
+                    }
+                }
+
+                if (isNameError) {
+                    auditContainer.innerHTML = `
+                        <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
+                            <div class="action-content">
+                                <span class="action-highlight text-warning">Champion Name Unreadable</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="action-drawer audit-warning-drawer" style="display: block;">
-                        <p class="audit-instructions" style="color: var(--text-primary); margin-bottom: 0;">${errorDesc}</p>
-                    </div>
-                `;
+                        <div class="action-drawer audit-warning-drawer" style="display: block;">
+                            <p class="audit-instructions">Please enter the champion's name and level manually.</p>
+                            <div style="display: flex; gap: 10px; align-items: flex-start; margin-top: 5px;">
+                                <div class="manual-name-wrapper" style="flex: 1; margin-top: 0;">
+                                    <input type="text" id="manual-champ-input" class="manual-champ-input" placeholder="Champion name..." autocomplete="off">
+                                    <ul id="manual-champ-list" class="manual-champ-list hidden-dropdown"></ul>
+                                </div>
+                                <input type="number" id="manual-level-input" class="manual-champ-input" placeholder="Lvl" value="60" min="1" max="60" style="width: 70px; text-align: center;">
+                                <button id="manual-submit-btn" class="btn-clear-sim btn-apply-audit" style="margin-top: 0; padding: 11px 16px; width: auto;">OK</button>
+                            </div>
+                        </div>
+                    `;
+
+                    const inputEl = document.getElementById('manual-champ-input');
+                    const listEl = document.getElementById('manual-champ-list');
+                    const levelEl = document.getElementById('manual-level-input');
+                    const submitBtn = document.getElementById('manual-submit-btn');
+
+                    if (inputEl && listEl && submitBtn) {
+                        setTimeout(() => inputEl.focus(), 100);
+
+                        inputEl.addEventListener('input', (event) => {
+                            const rawVal = event.target.value;
+                            const searchVal = rawVal.toLowerCase().replace(/[^a-z]/g, '');
+
+                            listEl.innerHTML = '';
+
+                            if (searchVal.length < 2) {
+                                listEl.classList.add('hidden-dropdown');
+                                return;
+                            }
+
+                            const matches = championDatabase.filter(c => {
+                                const dbName = (c.name || c.Name || "").toLowerCase().replace(/[^a-z]/g, '');
+                                return dbName.includes(searchVal);
+                            }).slice(0, 6);
+
+                            if (matches.length > 0) {
+                                listEl.classList.remove('hidden-dropdown');
+                                matches.forEach(match => {
+                                    const li = document.createElement('li');
+                                    li.className = 'manual-champ-item';
+                                    li.innerText = match.name || match.Name;
+
+                                    li.addEventListener('click', () => {
+                                        inputEl.value = match.name || match.Name;
+                                        listEl.classList.add('hidden-dropdown');
+                                    });
+                                    listEl.appendChild(li);
+                                });
+                            } else {
+                                listEl.classList.add('hidden-dropdown');
+                            }
+                        });
+
+                        document.addEventListener('click', (clickEvent) => {
+                            if (!inputEl.contains(clickEvent.target) && !listEl.contains(clickEvent.target)) {
+                                listEl.classList.add('hidden-dropdown');
+                            }
+                        });
+
+                        submitBtn.addEventListener('click', () => {
+                            const finalName = inputEl.value.trim();
+                            if (!finalName) {
+                                inputEl.style.borderColor = "var(--accent-warning)";
+                                return;
+                            }
+
+                            scanner.masterData.Identity.Champion = finalName;
+                            scanner.masterData.Identity.Level = parseInt(levelEl.value) || 60;
+                            auditContainer.innerHTML = '';
+
+                            try {
+                                processScanResults(scanner);
+                            } catch (retryErr) {
+                                console.error("[Sizzle Engine] Override failed:", retryErr);
+                            }
+                        });
+                    }
+                } else {
+                    let errorTitle = "Scan Failed";
+                    let errorDesc = err && err.message ? err.message : "The stat matrix could not be detected. Please ensure you uploaded a clear, full-screen screenshot of a champion's stat page.";
+
+                    auditContainer.innerHTML = `
+                        <div class="action-bar open audit-warning-bar" style="margin-top: 15px;">
+                            <div class="action-content">
+                                <span class="action-icon" style="color: var(--accent-warning);">❌</span>
+                                <span class="action-highlight text-warning">${errorTitle}</span>
+                            </div>
+                        </div>
+                        <div class="action-drawer audit-warning-drawer" style="display: block;">
+                            <p class="audit-instructions" style="color: var(--text-primary); margin-bottom: 0;">${errorDesc}</p>
+                        </div>
+                    `;
+                }
             }
-        }
+        }, 150); // The critical 150ms delay
     };
 });
 
@@ -1040,8 +1040,15 @@ imageLoaderEl.addEventListener('change', async function (e) {
 // ==========================================
 document.querySelectorAll('.action-bar').forEach(bar => {
     bar.addEventListener('click', function () {
-        this.classList.toggle('open');
-        if (this.classList.contains('open')) {
+        // Check if the one we clicked is already open
+        const isCurrentlyOpen = this.classList.contains('open');
+
+        // 1. Close ALL accordions
+        document.querySelectorAll('.action-bar').forEach(b => b.classList.remove('open'));
+
+        // 2. If the clicked one wasn't open, open it and scroll
+        if (!isCurrentlyOpen) {
+            this.classList.add('open');
             setTimeout(() => {
                 const yOffset = -20;
                 const y = this.getBoundingClientRect().top + window.scrollY + yOffset;
