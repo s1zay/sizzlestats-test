@@ -927,10 +927,18 @@ input.goal-input:-webkit-autofill:active {
    MOBILE HEADER OVERRIDES (MUST BE AT BOTTOM)
    ========================================= */
 @media (max-width: 960px) {
+    body {
+        padding: 10px 10px 20px 10px !important; /* Shrunk top/side body padding to pull everything up */
+    }
+
     .hero-header-wrap {
         flex-direction: column !important;
-        gap: 15px !important;
-        padding: 15px 0 12px 0 !important; /* Cut bottom padding from 25px to 12px */
+        gap: 10px !important; /* Tightened gap between logo and navigation buttons */
+        padding: 10px 0 15px 0 !important; /* Reduced vertical padding */
+    }
+
+    .hero-brand .brand-subtitle { 
+        margin-top: 4px !important; /* Pulled the subtitle closer to the logo */
     }
 
     #mainNavigation {
@@ -941,15 +949,37 @@ input.goal-input:-webkit-autofill:active {
 
     /* Spacing optimizations for Splash page on Mobile */
     #splash-view {
-        gap: 15px !important;          /* Cut flex-container gap from 30px to 15px */
-        padding-top: 0px !important;    /* Pulled closer to the logo section */
+        gap: 10px !important;          /* Shrunk gap between 'Select a Tool' text and the cards */
+        padding: 0px 5px !important;   /* Shrunk container boundaries */
     }
 
     #splash-view .hero-scanner-section {
-        margin-bottom: 10px !important; /* Overrides inline 20px margin with 10px */
+        margin-bottom: 2px !important; 
     }
 
     #splash-view .hero-title {
-        margin-bottom: 5px !important;  /* Overrides inline 10px margin with 5px */
+        margin-bottom: 0px !important; 
+        font-size: 1.8rem !important;  /* Softly downscaled the size for better vertical proportion */
+    }
+
+    /* Spacing optimizations around the stacked cards */
+    #splash-view > div[style*="display: grid"] {
+        gap: 12px !important; /* Shrunk vertical spacing between the stacked cards */
+    }
+
+    #splash-view .discovery-card {
+        padding: 14px 14px !important; /* Tightened overall card padding */
+    }
+
+    #splash-view .discovery-card .section-header {
+        padding: 8px 12px !important; /* Compacted header height */
+    }
+
+    #splash-view .discovery-card .section-content {
+        padding: 10px 10px 2px 10px !important; /* Compacted vertical gaps inside the cards */
+    }
+
+    #splash-view .discovery-card .section-content p {
+        margin-bottom: 12px !important; /* Shrunk gap between the description paragraph and button */
     }
 }
