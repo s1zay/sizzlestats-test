@@ -1,5 +1,62 @@
 let gearData = {};
 
+// Helper function to handle smooth scrolling with an offset for sticky headers
+function scrollToElement(element) {
+  if (!element) return;
+  element.style.scrollMarginTop = "90px"; 
+  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Resets the Cleanse Coach UI and input elements to their default states
+function resetCoach() {
+  const pieceInput = document.getElementById('selectedPiece');
+  const statInput = document.getElementById('selectedStat');
+  if (pieceInput) pieceInput.value = "";
+  if (statInput) statInput.value = "";
+
+  const gearBtns = document.querySelectorAll('.gear-btn');
+  gearBtns.forEach(b => b.classList.remove('active'));
+
+  const statBtns = document.querySelectorAll('.stat-btn');
+  statBtns.forEach(sBtn => {
+    sBtn.classList.remove('active');
+    sBtn.style.display = 'flex'; // Restore visibility of all options
+  });
+
+  const slider = document.getElementById("strictnessSlider");
+  if (slider) {
+    slider.value = 10;
+    const sliderValueLabel = document.getElementById("sliderValue");
+    if (sliderValueLabel) {
+      sliderValueLabel.innerText = "10";
+    }
+  }
+
+  const clicksInput = document.getElementById("maxClicks");
+  if (clicksInput) {
+    clicksInput.value = 4;
+  }
+
+  const outputDiv = document.getElementById("output");
+  if (outputDiv) {
+    outputDiv.innerHTML = '<div class="terminal-text">Select a gear piece and primary stat to begin...</div>';
+  }
+}
+
+// Intercept the main navigation system to catch when users leave the Cleanse Coach
+if (typeof window.switchView === 'function') {
+  const originalSwitchView = window.switchView;
+  window.switchView = function(view) {
+    if (view !== 'coach') {
+      resetCoach();
+    }
+    originalSwitchView(view);
+  };
+}
+
+// Make resetCoach globally available
+window.resetCoach = resetCoach;
+
 async function initEngine() {
   console.log("Engine initialized! Waiting for JSON...");
 
@@ -54,6 +111,7 @@ async function initEngine() {
       });
 
       // Auto-select if there is only one valid primary stat (e.g. Weapon, Helmet, Shield)
+      let autoSelected = false;
       if (validPrimaries.length === 1) {
         const autoStat = validPrimaries[0];
         statBtns.forEach(sBtn => {
@@ -61,11 +119,24 @@ async function initEngine() {
             statBtns.forEach(b => b.classList.remove('active'));
             sBtn.classList.add('active');
             statInput.value = autoStat;
+            autoSelected = true;
           }
         });
       }
 
       checkAndRun();
+
+      // Scroll Snapping Orchestration
+      const isTopRow = ["weapon", "helmet", "shield"].includes(pieceKey);
+      if (isTopRow || autoSelected) {
+        // Snap directly to the Strictness Threshold (Card 3)
+        const cardSettings = document.getElementById("strictnessSlider")?.closest(".dashboard-card");
+        setTimeout(() => scrollToElement(cardSettings), 120);
+      } else {
+        // Snap to the Primary Stat list (Card 2)
+        const cardPrimary = document.getElementById("statGrid")?.closest(".dashboard-card");
+        setTimeout(() => scrollToElement(cardPrimary), 120);
+      }
     });
   });
 
@@ -80,11 +151,24 @@ async function initEngine() {
       statInput.value = targetBtn.dataset.stat;
       
       checkAndRun();
+
+      // Snap down to the Strictness Threshold (Card 3) after user selects a middle/bottom row primary
+      const cardSettings = document.getElementById("strictnessSlider")?.closest(".dashboard-card");
+      setTimeout(() => scrollToElement(cardSettings), 120);
     });
   });
 
+  // Find the slider and set its initial default value dynamically to 10
   const slider = document.getElementById("strictnessSlider");
   if (slider) {
+    const defaultStrictness = 10; 
+    slider.value = defaultStrictness;
+    
+    const sliderValueLabel = document.getElementById("sliderValue");
+    if (sliderValueLabel) {
+      sliderValueLabel.innerText = defaultStrictness;
+    }
+
     slider.addEventListener("input", (e) => {
       document.getElementById("sliderValue").innerText = e.target.value;
       checkAndRun();
@@ -251,51 +335,67 @@ function runDebug() {
   const keepPool = ranked.slice(0, keepCount);
   const trashPool = ranked.slice(keepCount);
 
-  const finalPlan = generateBatchedRecommendations(keepPool, trashPool, validSubstats, maxClicks);
-
   const displayPrimaryStat = statLabels[primaryStat] || primaryStat;
 
   let html = `<h3 style="color: var(--indicator-active); text-transform: uppercase; margin-bottom: 5px;">Analyzed: ${pieceKey} (${displayPrimaryStat})</h3>`;
   html += `<p style="color: var(--text-muted); font-size: 0.9em;">Total Combinations: <strong>${totalCombos}</strong> | Keeping: <strong>${keepCount}</strong> | Selling: <strong style="color: var(--accent-warning);">${sellCount}</strong></p>`;
 
-  html += `
-  <div style="margin-top: 15px; padding: 15px; background: var(--bg-canvas); border: 1px dashed var(--indicator-active); border-radius: 6px;">
-    <h3 style="margin-top: 0; color: var(--text-primary);">Recommended Filter Passes</h3>
-    <p style="color: var(--text-muted); font-size: 0.85em; margin-bottom: 15px;"><em>Execute these passes one at a time. After each pass, Select All, Sell, and hit the Clear button.</em></p>
-  `;
+  // Rings and Amulets have small substat pools yielding exactly 5 combinations.
+  const isAccessoryWithFewCombos = (pieceKey === "ring" || pieceKey === "amulet") || totalCombos <= 5;
 
-  finalPlan.rounds.forEach((round, index) => {
+  if (isAccessoryWithFewCombos) {
     html += `
-    <div style="background: var(--bg-card); border: 1px solid var(--border-lowkey); padding: 10px; margin-bottom: 10px; border-radius: 6px;">
-      <h4 style="margin-top: 0; color: var(--indicator-active); margin-bottom: 10px;">Filter Pass ${index + 1} <span style="color: var(--text-muted); font-size: 0.8em; float: right;">(-${round.removed} items)</span></h4>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
+    <div style="margin-top: 15px; padding: 15px; background: var(--bg-canvas); border: 1px dashed var(--indicator-active); border-radius: 6px;">
+      <h3 style="margin-top: 0; color: var(--text-primary);">Substat Analysis</h3>
+      <p style="color: var(--text-muted); font-size: 0.85em; margin-bottom: 0;">
+        Accessories like Rings and Amulets only have <strong>${totalCombos}</strong> possible substat combinations. 
+        Because the combination pool is so small, automated multi-pass filtering is unnecessary. Please evaluate your inventory directly using the ranked list below.
+      </p>
+    </div>`;
+  } else {
+    const finalPlan = generateBatchedRecommendations(keepPool, trashPool, validSubstats, maxClicks);
 
-    round.filters.forEach(f => {
-      const isHide = f.action === "Hide";
-      const icon = isHide ? '✖' : '✔';
-      const iconColor = isHide ? 'var(--accent-warning)' : '#22c55e';
-      const bgColor = isHide ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
-      const displayName = statLabels[f.stat] || f.stat;
+    html += `
+    <div style="margin-top: 15px; padding: 15px; background: var(--bg-canvas); border: 1px dashed var(--indicator-active); border-radius: 6px;">
+      <h3 style="margin-top: 0; color: var(--text-primary);">Recommended Purge Filters</h3>
+      <p style="color: var(--text-muted); font-size: 0.85em; margin-bottom: 15px;"><em>These filters are optimized to remove gear with the lowest roll potential first. Adjust the strictness to decide how aggressive you want your cleanse to be.</em></p>
+    `;
 
+    finalPlan.rounds.forEach((round, index) => {
       html += `
-        <div style="padding: 4px 10px; background: ${bgColor}; border: 1px solid ${iconColor}; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: var(--text-primary);">
-          ${displayName} <span style="color: ${iconColor}; margin-left: 4px;">${icon}</span>
-        </div>`;
+      <div style="background: var(--bg-card); border: 1px solid var(--border-lowkey); padding: 10px; margin-bottom: 10px; border-radius: 6px;">
+        <h4 style="margin-top: 0; color: var(--indicator-active); margin-bottom: 10px;">Filter Pass ${index + 1} <span style="color: var(--text-muted); font-size: 0.8em; float: right;">(-${round.removed} items)</span></h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">`;
+
+      round.filters.forEach(f => {
+        const isHide = f.action === "Hide";
+        const icon = isHide ? '✖' : '✔';
+        const iconColor = isHide ? 'var(--accent-warning)' : '#22c55e';
+        const bgColor = isHide ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
+        const displayName = statLabels[f.stat] || f.stat;
+
+        html += `
+          <div style="padding: 4px 10px; background: ${bgColor}; border: 1px solid ${iconColor}; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: var(--text-primary);">
+            ${displayName} <span style="color: ${iconColor}; margin-left: 4px;">${icon}</span>
+          </div>`;
+      });
+
+      html += `</div></div>`;
     });
 
-    html += `</div></div>`;
-  });
-
-  if (finalPlan.trashLeft > 0) {
-    html += `<p style="color: #facc15; font-size: 0.85em;"><em>Note: ${finalPlan.trashLeft} pieces of trash remain, but further filters were unsafe. Sell leftovers manually.</em></p>`;
-  } else {
-    html += `<p style="color: #22c55e; font-size: 0.85em; font-weight: bold;"><em>Success! 100% of the targeted trash was isolated cleanly.</em></p>`;
+    if (finalPlan.trashLeft > 0) {
+      html += `<p style="color: #facc15; font-size: 0.85em;"><em>Note: ${finalPlan.trashLeft} pieces of trash remain, but further filters were unsafe. Sell leftovers manually.</em></p>`;
+    } else {
+      html += `<p style="color: #22c55e; font-size: 0.85em; font-weight: bold;"><em>Success! 100% of the targeted trash was isolated cleanly.</em></p>`;
+    }
+    html += `</div>`;
   }
-  html += `</div>`;
 
+  // Automatically force-expand the details dropdown when showing Accessories
+  const detailsAttr = isAccessoryWithFewCombos ? "open" : "";
   html += `
-  <details style="margin-top: 15px;">
-    <summary style="color: var(--text-muted); font-size: 0.9em;">View Entire Ranked List</summary>
+  <details style="margin-top: 15px;" ${detailsAttr}>
+    <summary style="color: var(--text-muted); font-size: 0.9em; cursor: pointer;">View Entire Ranked List</summary>
     <div style="padding: 10px; background: var(--bg-canvas); max-height: 300px; overflow-y: auto; border-top: 1px solid var(--border-lowkey);">
       <table style="width: 100%; text-align: left; border-collapse: collapse; font-size: 0.85em;">
         <thead>

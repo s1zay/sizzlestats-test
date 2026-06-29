@@ -147,20 +147,22 @@
                     style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0;">
                     <div id="drop-zone" class="scanner-hero-box"
                         onclick="document.getElementById('imageLoader').click();"
-                        style="width: 100%; max-width: 340px; margin: 0; cursor: pointer;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indicator-active)"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            style="margin-bottom: 10px;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                        <h3>Tap to Upload</h3>
-                        <p>or drag and drop screenshot here</p>
-                        <!-- Temporarily bound to handleImagePreview until lens.js is refactored -->
-                        <input type="file" id="imageLoader" accept="image/*" class="hidden"
-                            onchange="handleImagePreview(event)" />
+                        style="width: 100%; max-width: 340px; margin: 0; cursor: pointer; padding: 25px 20px;">
+                        <h3 style="margin-bottom: 5px; font-size: 1.15rem;">Upload a Total Stats Screenshot</h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Example</p>
+                        <img src="example.png" alt="Example Stats Screenshot" style="width: 100%; max-width: 280px; height: auto; border-radius: 6px; border: 1px solid var(--border-lowkey); opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" />
+                        <input type="file" id="imageLoader" accept="image/*" class="hidden" />
                     </div>
+                </div>
+
+                <!-- STATE 1.5: CONFIRMATION PREVIEW -->
+                <div id="lens-state-preview"
+                    style="display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 340px; margin: 0 auto; gap: 15px; padding: 15px 0;">
+                    <div class="preview-image-container" style="width: 100%; height: 200px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-lowkey);">
+                        <img id="lens-preview-img" src="" alt="Scan Preview" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                    </div>
+                    <button id="btn-start-scan" class="btn-scan-now" style="width: 100%;">Scan Now</button>
+                    <button id="btn-cancel-preview" class="nav-btn" style="width: 100%; border-color: var(--border-lowkey); color: var(--text-muted);">Cancel</button>
                 </div>
 
                 <!-- STATE 2: SCANNING -->
@@ -399,8 +401,7 @@
 
         <div class="coach-header-text">
             <h2>Cleanse Coach</h2>
-            <p class="coach-warning">This page is under construction. Some features may be broken or wrong.</p>
-            <p class="coach-sub">Interactive batch filtering and gear purging.</p>
+            <p class="coach-sub">Interactive batch filtering for gear purging.</p>
         </div>
 
         <!-- 1. Select Gear Piece -->

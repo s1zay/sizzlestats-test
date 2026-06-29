@@ -1,5 +1,5 @@
 // ==========================================
-// STAT-LENS UI: lens.js (V3.13 - The Unified UI Reset)
+// STAT-LENS UI: lens.js (V3.14 - Confirmation Preview Flow)
 // ==========================================
 
 // 1. Establish the Global Vault
@@ -10,13 +10,17 @@ window.SizzleState = window.SizzleState || { currentScan: null };
 // ==========================================
 window.setLensState = function(state) {
     const idle = document.getElementById('lens-state-idle');
+    const preview = document.getElementById('lens-state-preview');
     const scanning = document.getElementById('lens-state-scanning');
     const results = document.getElementById('lens-state-results');
 
     if (idle) idle.style.display = state === 'idle' ? 'flex' : 'none';
+    if (preview) preview.style.display = state === 'preview' ? 'flex' : 'none';
     if (scanning) scanning.style.display = state === 'scanning' ? 'flex' : 'none';
     if (results) results.style.display = state === 'results' ? 'block' : 'none';
 };
+
+let selectedFileForScan = null;
 
 // ==========================================
 // LENS RESET SYSTEM
@@ -33,6 +37,16 @@ window.resetLens = function(clearFileInput = true) {
         const imageLoader = document.getElementById('imageLoader');
         if (imageLoader) imageLoader.value = '';
     }
+
+    // Revoke and clear preview image source if it's a blob
+    const previewImg = document.getElementById('lens-preview-img');
+    if (previewImg) {
+        if (previewImg.src && previewImg.src.startsWith('blob:')) {
+            URL.revokeObjectURL(previewImg.src);
+        }
+        previewImg.src = '';
+    }
+    selectedFileForScan = null;
 
     // 4. Reset Champion Identity UI
     const nameEl = document.getElementById('champ-name');
@@ -898,10 +912,46 @@ if (dropZone && imageLoaderEl) {
     });
 }
 
-imageLoaderEl.addEventListener('change', async function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
+if (imageLoaderEl) {
+    imageLoaderEl.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
+        selectedFileForScan = file;
+
+        // Display image confirmation preview first
+        const previewImg = document.getElementById('lens-preview-img');
+        if (previewImg) {
+            if (previewImg.src && previewImg.src.startsWith('blob:')) {
+                URL.revokeObjectURL(previewImg.src);
+            }
+            previewImg.src = URL.createObjectURL(file);
+        }
+
+        if (window.setLensState) window.setLensState('preview');
+    });
+}
+
+// Set up click handlers for Preview buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const btnStartScan = document.getElementById('btn-start-scan');
+    const btnCancelPreview = document.getElementById('btn-cancel-preview');
+
+    if (btnStartScan) {
+        btnStartScan.addEventListener('click', () => {
+            if (!selectedFileForScan) return;
+            triggerOcrSequence(selectedFileForScan);
+        });
+    }
+
+    if (btnCancelPreview) {
+        btnCancelPreview.addEventListener('click', () => {
+            window.resetLens(true);
+        });
+    }
+});
+
+async function triggerOcrSequence(file) {
     // --- 1. CLEAN RESET (Does not clear active input to preserve context) ---
     window.resetLens(false);
 
@@ -1099,7 +1149,7 @@ imageLoaderEl.addEventListener('change', async function (e) {
             }
         }, 150); // The critical 150ms delay
     };
-});
+}
 
 // ==========================================
 // ACCORDION UI LISTENER & SMART SCROLLING
