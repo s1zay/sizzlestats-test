@@ -880,7 +880,64 @@ input.goal-input:-webkit-autofill:active {
 .privacy-note svg { vertical-align: -2px; margin-right: 4px; color: var(--indicator-active); }
 
 .discovery-path { width: 100%; max-width: 550px; margin: 0 auto; }
-.discovery-card { text-align: left; margin-bottom: 0; }
+/* Enable smooth transition animations on discovery cards */
+.discovery-card { 
+    text-align: left; 
+    margin-bottom: 0; 
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                border-color 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* -------------------------------------------------------------
+   ANALYZE CARD (Faint Magic Blue Glow)
+   ------------------------------------------------------------- */
+.card-analyze {
+    border-color: rgba(56, 189, 248, 0.12); /* Subtle starting border */
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.03); /* Faint ambient blue glow */
+}
+
+/* Card Title Color */
+.card-analyze .section-header h2 {
+    color: var(--affinity-magic);
+}
+
+/* Analyze Card Hover States */
+.card-analyze:hover {
+    border-color: rgba(56, 189, 248, 0.35); /* Intensified border */
+    box-shadow: 0 8px 30px rgba(56, 189, 248, 0.1); /* Expanded glowing background shadow */
+    transform: translateY(-2px); /* Soft bounce lift */
+}
+
+.card-analyze:hover .rng-btn {
+    border-color: var(--affinity-magic);
+    background-color: rgba(56, 189, 248, 0.04);
+}
+
+/* -------------------------------------------------------------
+   LEARN CARD (Faint Gold Glow)
+   ------------------------------------------------------------- */
+.card-learn {
+    border-color: rgba(234, 179, 8, 0.12); /* Subtle starting border */
+    box-shadow: 0 4px 20px rgba(234, 179, 8, 0.03); /* Faint ambient gold glow */
+}
+
+/* Card Title Color */
+.card-learn .section-header h2 {
+    color: var(--indicator-active);
+}
+
+/* Learn Card Hover States */
+.card-learn:hover {
+    border-color: rgba(234, 179, 8, 0.35); /* Intensified border */
+    box-shadow: 0 8px 30px rgba(234, 179, 8, 0.1); /* Expanded glowing background shadow */
+    transform: translateY(-2px); /* Soft bounce lift */
+}
+
+.card-learn:hover .rng-btn {
+    border-color: var(--indicator-active);
+    background-color: rgba(234, 179, 8, 0.04);
+}
 .discovery-card .section-content p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5; }
 
 /* =========================================
