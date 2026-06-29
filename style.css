@@ -764,37 +764,73 @@ input.goal-input:-webkit-autofill:active {
    HERO & DISCOVERY LAYOUT (NEW)
    ========================================= */
 .hero-header-wrap { 
-    position: relative; /* CRITICAL: Traps the absolute positioned buttons */
+    position: relative; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    padding: 20px 0 40px 0; 
+    padding: 20px 0 15px 0; /* TIGHTENED BOTTOM PADDING */
     max-width: 1200px; 
     margin: 0 auto;
     width: 100%;
 }
 
 .hero-brand { 
+    display: flex;
+    flex-direction: column;
     align-items: center; 
     text-align: center; 
 }
 
 .hero-brand .brand-subtitle { 
-    font-size: 0.9rem; 
+    font-size: 0.95rem; /* Slightly larger for presence */
     color: var(--indicator-active); 
-    font-weight: 600; 
-    margin-top: 4px; 
-    letter-spacing: 1px; 
+    font-weight: 700; 
+    margin-top: 8px; /* Room from the logo */
+    letter-spacing: 2px; /* Punches up the subtext */
+    text-transform: uppercase;
+}
+
+.pixel-blob-container img {
+    position: relative;
+    z-index: 2;
+    width: 110px;
+    height: auto;
 }
 
 #mainNavigation {
     position: absolute;
-    right: 0; /* Snaps buttons to the right edge of the 1200px or 800px boundary */
+    right: 0; /* Snaps buttons to the right edge */
 }
 
-.hero-main { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 75vh; padding: 20px; max-width: 800px; margin: 0 auto; gap: 40px; }
-.hero-scanner-section { width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 20px; text-align: center; margin: 0 auto; }
-.hero-title { color: var(--text-primary); font-size: 2.2rem; line-height: 1.2; margin-bottom: 5px; }
+.hero-main { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start; /* Pulls content up towards header */
+    min-height: 60vh; 
+    padding: 10px 20px 20px 20px; /* Tightened top padding */
+    max-width: 800px; 
+    margin: 0 auto; 
+    gap: 30px; 
+}
+
+.hero-scanner-section { 
+    width: 100%; 
+    max-width: 550px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; /* Tighter gap */
+    text-align: center; 
+    margin: 0 auto; 
+}
+
+.hero-title { 
+    color: var(--text-primary); 
+    font-size: 2.2rem; 
+    line-height: 1.2; 
+    margin: 0; /* Let flex gap handle spacing */
+}
+
 .hero-subtitle { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
 
 .scanner-hero-box { border: 2px dashed var(--indicator-active); border-radius: 12px; padding: 60px 20px; text-align: center; background: var(--bg-card); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(234, 179, 8, 0.1); }
