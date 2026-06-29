@@ -54,9 +54,10 @@
 <body>
     <header class="hero-header-wrap">
         <div class="brand-container hero-brand">
-            
+
             <!-- PIXEL BLOB LOGO -->
             <div class="pixel-blob-container">
+                <canvas id="dither-canvas" width="32" height="32"></canvas>
                 <img src="icon.svg" alt="SizzleStats Logo" />
             </div>
 
@@ -66,8 +67,8 @@
         <div class="dynamic-nav" id="mainNavigation" style="display: flex;">
             <div id="nav-state-lens" style="display: none; gap: 10px;">
                 <button class="nav-btn" onclick="resetToSplash()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5"></path>
                         <path d="M12 19l-7-7 7-7"></path>
                     </svg>
@@ -76,8 +77,8 @@
 
                 <button class="nav-btn nav-forward" onclick="switchView('coach')">
                     Cleanse Coach
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14"></path>
                         <path d="M12 5l7 7-7 7"></path>
                     </svg>
@@ -86,8 +87,8 @@
 
             <div id="nav-state-coach" style="display: none; gap: 10px;">
                 <button class="nav-btn" onclick="resetToSplash()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 17l-5-5 5-5"></path>
                         <path d="M18 17l-5-5 5-5"></path>
                     </svg>
@@ -95,8 +96,8 @@
                 </button>
 
                 <button class="nav-btn" onclick="switchView('lens')">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5"></path>
                         <path d="M12 19l-7-7 7-7"></path>
                     </svg>
@@ -112,11 +113,13 @@
             <h1 class="hero-title" style="margin-bottom: 10px;">Select a Tool</h1>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; max-width: 800px; margin: 0 auto;">
             <!-- CARD 1: LENS -->
             <div class="dashboard-card discovery-card" style="margin-bottom: 0;">
                 <div class="section-header">
-                    <h2 style="color: var(--text-primary); font-size: 1.1rem; text-transform: none; letter-spacing: 0;">Analyze</h2>
+                    <h2 style="color: var(--text-primary); font-size: 1.1rem; text-transform: none; letter-spacing: 0;">
+                        Analyze</h2>
                 </div>
                 <div class="section-content">
                     <p style="margin-bottom: 20px;">Scan your champion and analyze build efficiency.</p>
@@ -127,7 +130,8 @@
             <!-- CARD 2: CLEANSE COACH -->
             <div class="dashboard-card discovery-card" style="margin-bottom: 0;">
                 <div class="section-header">
-                    <h2 style="color: var(--text-primary); font-size: 1.1rem; text-transform: none; letter-spacing: 0;">Learn</h2>
+                    <h2 style="color: var(--text-primary); font-size: 1.1rem; text-transform: none; letter-spacing: 0;">
+                        Learn</h2>
                 </div>
                 <div class="section-content">
                     <p style="margin-bottom: 20px;">Learn gear roll value and cleanse your inventory efficiently.</p>
@@ -142,11 +146,16 @@
         <section class="viewport-column">
 
             <div id="champ-identity-card" class="dashboard-card identity-card">
-                
+
                 <!-- STATE 1: IDLE / UPLOAD -->
-                <div id="lens-state-idle" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0;">
-                    <div id="drop-zone" class="scanner-hero-box" onclick="document.getElementById('imageLoader').click();" style="width: 100%; max-width: 340px; margin: 0; cursor: pointer;">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indicator-active)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px;">
+                <div id="lens-state-idle"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0;">
+                    <div id="drop-zone" class="scanner-hero-box"
+                        onclick="document.getElementById('imageLoader').click();"
+                        style="width: 100%; max-width: 340px; margin: 0; cursor: pointer;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indicator-active)"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="margin-bottom: 10px;">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -154,13 +163,17 @@
                         <h3>Tap to Upload</h3>
                         <p>or drag and drop screenshot here</p>
                         <!-- Temporarily bound to handleImagePreview until lens.js is refactored -->
-                        <input type="file" id="imageLoader" accept="image/*" class="hidden" onchange="handleImagePreview(event)" />
+                        <input type="file" id="imageLoader" accept="image/*" class="hidden"
+                            onchange="handleImagePreview(event)" />
                     </div>
                 </div>
 
                 <!-- STATE 2: SCANNING -->
-                <div id="lens-state-scanning" style="display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0;">
-                    <svg class="spinner" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indicator-active)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;">
+                <div id="lens-state-scanning"
+                    style="display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0;">
+                    <svg class="spinner" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="var(--indicator-active)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-bottom: 15px;">
                         <line x1="12" y1="2" x2="12" y2="6"></line>
                         <line x1="12" y1="18" x2="12" y2="22"></line>
                         <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
@@ -173,8 +186,15 @@
                     <h3 style="color: var(--text-primary);">Scanning...</h3>
                     <p style="color: var(--text-muted);">Reading stat matrix</p>
                     <style>
-                        .spinner { animation: spin 1.2s linear infinite; }
-                        @keyframes spin { 100% { transform: rotate(360deg); } }
+                        .spinner {
+                            animation: spin 1.2s linear infinite;
+                        }
+
+                        @keyframes spin {
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
                     </style>
                 </div>
 
@@ -198,15 +218,24 @@
             </div>
 
             <div id="stat-matrix" class="stat-grid">
-                <div class="stat-box"><span class="stat-label">HP</span><span id="val-hp" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">SPD</span><span id="val-spd" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">RES</span><span id="val-res" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">ATK</span><span id="val-atk" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">C. RATE</span><span id="val-cr" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">ACC</span><span id="val-acc" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">DEF</span><span id="val-def" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">C. DMG</span><span id="val-cd" class="stat-val">-</span></div>
-                <div class="stat-box"><span class="stat-label">IGNORE DEF</span><span id="val-ign" class="stat-val">0%</span></div>
+                <div class="stat-box"><span class="stat-label">HP</span><span id="val-hp" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">SPD</span><span id="val-spd" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">RES</span><span id="val-res" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">ATK</span><span id="val-atk" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">C. RATE</span><span id="val-cr" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">ACC</span><span id="val-acc" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">DEF</span><span id="val-def" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">C. DMG</span><span id="val-cd" class="stat-val">-</span>
+                </div>
+                <div class="stat-box"><span class="stat-label">IGNORE DEF</span><span id="val-ign"
+                        class="stat-val">0%</span></div>
             </div>
 
             <div class="warning-text">
@@ -263,12 +292,15 @@
                         <div id="kraken-tier-label" class="kraken-tier-name">--</div>
 
                         <p id="ehp-coach-desc" class="coach-description" style="margin-top: 16px;">
-                            eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability score.
-                            To improve your [NN]’s eHP, <strong id="inline-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
+                            eHP combines your <strong>HP</strong> and <strong>DEF</strong> into a single survivability
+                            score.
+                            To improve your [NN]’s eHP, <strong id="inline-coach-target"
+                                class="stat-highlight-white"></strong> is the most efficient investment.
                         </p>
 
                         <button id="btn-ehp-show-me" class="coach-show-me-btn"
-                            onclick="document.getElementById('ledger-sheet').classList.add('open')">Improve eHP ▲</button>
+                            onclick="document.getElementById('ledger-sheet').classList.add('open')">Improve eHP
+                            ▲</button>
                     </div>
                 </div>
             </div>
@@ -287,17 +319,20 @@
                     <div id="eff-coach-ui" class="coach-ui-container hidden">
 
                         <div id="eff-multi-warning" class="hidden" style="text-align: center; padding: 10px 5px;">
-                            <div id="eff-multi-warning-text" style="margin-bottom: 15px; font-size: 0.95rem; color: var(--text-primary);">
+                            <div id="eff-multi-warning-text"
+                                style="margin-bottom: 15px; font-size: 0.95rem; color: var(--text-primary);">
                                 [NN] uses multiple stats to scale damage.
                             </div>
-                            <div id="eff-multi-pills" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <div id="eff-multi-pills"
+                                style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                             </div>
                         </div>
 
                         <div id="eff-standard-ui">
                             <div id="eff-primary-bar">
                                 <p class="coach-score-text">
-                                    Your damage efficiency is <strong id="eff-inline-score" class="stat-highlight dmg-text"></strong>
+                                    Your damage efficiency is <strong id="eff-inline-score"
+                                        class="stat-highlight dmg-text"></strong>
                                 </p>
 
                                 <div class="kraken-labels labels-top">
@@ -314,7 +349,9 @@
                                 <div class="outlier-divider"></div>
 
                                 <p class="coach-score-text">
-                                    Utility Scaling: <strong id="outlier-inline-score" class="stat-highlight purple-text"></strong> <span id="outlier-stat-label"></span>
+                                    Utility Scaling: <strong id="outlier-inline-score"
+                                        class="stat-highlight purple-text"></strong> <span
+                                        id="outlier-stat-label"></span>
                                 </p>
 
                                 <div class="kraken-labels labels-top">
@@ -334,8 +371,10 @@
                             </div>
 
                             <p id="eff-coach-desc" class="coach-description" style="margin-top: 16px;">
-                                Damage efficiency evaluates the balance between [NN]’s damage scaling stat, <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
-                                To improve your [NN]’s damage, <strong id="eff-coach-target" class="stat-highlight-white"></strong> is the most efficient investment.
+                                Damage efficiency evaluates the balance between [NN]’s damage scaling stat,
+                                <strong>C.DMG</strong>, and <strong>C.RATE</strong>.
+                                To improve your [NN]’s damage, <strong id="eff-coach-target"
+                                    class="stat-highlight-white"></strong> is the most efficient investment.
                             </p>
 
                             <button id="btn-eff-show-me" class="coach-show-me-btn"
@@ -362,7 +401,7 @@
 
     <!-- CLEANSER VIEW -->
     <main class="coach-container" id="coach-view" style="display: none;">
-        
+
         <div class="coach-header-text">
             <h2>Cleanse Coach</h2>
             <p class="coach-warning">This page is under construction. Some features may be broken or wrong.</p>
@@ -375,7 +414,8 @@
                 <h2 style="color: var(--text-primary); font-size: 1.1rem;">1. Select Gear Piece</h2>
             </div>
             <div class="section-content" style="padding-top: 0;">
-                <div class="gear-grid" id="gearGrid" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0;">
+                <div class="gear-grid" id="gearGrid"
+                    style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0;">
                     <button class="rng-btn gear-btn gear-btn-override" data-piece="weapon_weights">Weapon</button>
                     <button class="rng-btn gear-btn gear-btn-override" data-piece="helmet_weights">Helmet</button>
                     <button class="rng-btn gear-btn gear-btn-override" data-piece="shield_weights">Shield</button>
@@ -395,39 +435,51 @@
                 <h2 style="color: var(--text-primary); font-size: 1.1rem;">2. Select Primary Stat</h2>
             </div>
             <div class="section-content" style="padding-top: 0;">
-                <div class="toggle-group" id="statGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0;">
+                <div class="toggle-group" id="statGrid"
+                    style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0;">
                     <button class="gh-toggle stat-btn flex-between" data-stat="FLAT_HP">
-                        <span style="font-weight: bold;">HP</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">HP</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="SPD">
-                        <span style="font-weight: bold;">SPD</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">SPD</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="HP_PCT">
-                        <span style="font-weight: bold;">HP%</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">HP%</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="CRATE">
-                        <span style="font-weight: bold;">C. RATE%</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">C. RATE%</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="FLAT_ATK">
-                        <span style="font-weight: bold;">ATK</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">ATK</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="CDMG">
-                        <span style="font-weight: bold;">C. DMG%</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">C. DMG%</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="ATK_PCT">
-                        <span style="font-weight: bold;">ATK%</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">ATK%</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="RES">
-                        <span style="font-weight: bold;">RES</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">RES</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="FLAT_DEF">
-                        <span style="font-weight: bold;">DEF</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">DEF</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="ACC">
-                        <span style="font-weight: bold;">ACC</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">ACC</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                     <button class="gh-toggle stat-btn flex-between" data-stat="DEF_PCT">
-                        <span style="font-weight: bold;">DEF%</span><div class="cc-checkbox"></div>
+                        <span style="font-weight: bold;">DEF%</span>
+                        <div class="cc-checkbox"></div>
                     </button>
                 </div>
             </div>
@@ -441,12 +493,14 @@
                         <label for="strictnessSlider" class="input-label">Strictness Threshold</label>
                         <span class="slider-val">Sell bottom <span id="sliderValue">20</span>%</span>
                     </div>
-                    <input type="range" id="strictnessSlider" min="5" max="95" value="20" step="5" style="width: 100%; accent-color: var(--accent-warning);">
+                    <input type="range" id="strictnessSlider" min="5" max="95" value="20" step="5"
+                        style="width: 100%; accent-color: var(--accent-warning);">
                 </div>
-                
+
                 <div class="settings-row">
                     <label for="maxClicks" class="input-label">Max Buttons per Pass (3-6)</label>
-                    <input type="number" id="maxClicks" value="4" min="3" max="6" class="custom-glyph-input" style="width: 60px; font-size: 1.1em; color: var(--text-primary); border-color: var(--border-lowkey); background: var(--bg-canvas);">
+                    <input type="number" id="maxClicks" value="4" min="3" max="6" class="custom-glyph-input"
+                        style="width: 60px; font-size: 1.1em; color: var(--text-primary); border-color: var(--border-lowkey); background: var(--bg-canvas);">
                 </div>
             </div>
         </div>
@@ -511,7 +565,8 @@
                     </div>
 
                     <div class="ledger-summary">
-                        <strong id="sheet-best-stat" style="color: #fafafa;">--</strong> is currently <strong style="color: #fafafa;"><span id="sheet-multiplier">--</span>x more effective</strong>.
+                        <strong id="sheet-best-stat" style="color: #fafafa;">--</strong> is currently <strong
+                            style="color: #fafafa;"><span id="sheet-multiplier">--</span>x more effective</strong>.
                     </div>
 
                 </div>
@@ -551,7 +606,8 @@
                     </div>
 
                     <div class="ledger-summary">
-                        <strong id="sheet-dmg-best-stat" style="color: #fafafa;">--</strong> is currently your most effective upgrade path.
+                        <strong id="sheet-dmg-best-stat" style="color: #fafafa;">--</strong> is currently your most
+                        effective upgrade path.
                     </div>
 
                 </div>
@@ -568,19 +624,19 @@
     <script src="lens.js?v=1.2"></script>
     <script>
         const originalResetToSplash = window.resetToSplash;
-        window.resetToSplash = function() {
+        window.resetToSplash = function () {
             if (typeof originalResetToSplash === 'function') {
                 originalResetToSplash();
             }
-            
+
             // Force-close all accordions when leaving the Lens view
             document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
-            
+
             switchView('splash');
         };
 
         const originalStartScanProcess = window.startScanProcess;
-        window.startScanProcess = function() {
+        window.startScanProcess = function () {
             if (typeof originalStartScanProcess === 'function') {
                 originalStartScanProcess();
             }
@@ -603,12 +659,12 @@
             // 4. Reveal targeted view, navigation, and brute-force the width
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'block';
-                header.style.maxWidth = '1200px'; 
+                header.style.maxWidth = '1200px';
             }
             else if (view === "lens") {
                 document.getElementById('lens-view').style.display = 'grid';
                 document.getElementById('nav-state-lens').style.display = 'flex';
-                header.style.maxWidth = '1200px'; 
+                header.style.maxWidth = '1200px';
 
                 // Guarantee Identity Card defaults to State 1 (Idle) when entering Lens
                 document.getElementById('lens-state-idle').style.display = 'flex';
@@ -618,7 +674,7 @@
             else if (view === "coach") {
                 document.getElementById('coach-view').style.display = 'flex';
                 document.getElementById('nav-state-coach').style.display = 'flex';
-                header.style.maxWidth = '800px'; 
+                header.style.maxWidth = '800px';
             }
 
             // 5. Snap the viewport back to the top (AFTER the new view has rendered)
@@ -639,10 +695,10 @@
                 }
             });
         });
-        
-        lensObserver.observe(document.getElementById('lens-view'), { 
-            attributes: true, 
-            attributeFilter: ['style'] 
+
+        lensObserver.observe(document.getElementById('lens-view'), {
+            attributes: true,
+            attributeFilter: ['style']
         });
 
     </script>

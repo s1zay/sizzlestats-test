@@ -53,7 +53,7 @@ body.no-scroll { overflow: hidden; }
 .brand-container { display: flex; flex-direction: column; }
 .brand-stamp { font-size: 1.5rem; font-weight: 800; }
 .brand-stamp .domain { color: var(--text-muted); font-weight: 400; }
-.brand-subtitle { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.brand-subtitle { font-size: 0.7rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 .dynamic-nav { display: flex; align-items: center; }
 .nav-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-lowkey); padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease; }
 .nav-btn svg { margin-bottom: 1px; }
@@ -352,9 +352,9 @@ input[type="range"] { width: 100%; accent-color: var(--indicator-active); cursor
 
 .sizzle-footer { width: 100%; margin-top: 40px; padding: 20px 0 30px 0; border-top: 1px solid #1e293b; text-align: center; }
 .footer-content { display: flex; justify-content: center; align-items: center; gap: 12px; font-size: 0.75rem; letter-spacing: 0.5px; }
-.footer-text { color: #64748b; }
-.footer-divider { color: #334155; }
-.bug-report-link { color: #94a3b8; text-decoration: none; transition: color 0.2s ease; }
+.footer-text { color: #a1a1aa; } /* Lightened from #64748b */
+.footer-divider { color: #52525b; } /* Lightened from #334155 */
+.bug-report-link { color: #fafafa; text-decoration: none; transition: color 0.2s ease; } /* Lightened from #94a3b8 */
 .bug-report-link:hover { color: var(--accent-warning); }
 
 details { background-color: var(--bg-card); border: 1px solid var(--border-lowkey); border-radius: 6px; margin-top: 30px; opacity: 0.7; }
@@ -790,11 +790,36 @@ input.goal-input:-webkit-autofill:active {
     text-transform: uppercase;
 }
 
+.pixel-blob-container {
+    position: relative;
+    width: 180px;   /* Provides proper breathing room for the background dither spray */
+    height: 180px;  /* Equal dimensions ensure a balanced, circular radial falloff */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .pixel-blob-container img {
     position: relative;
     z-index: 2;
     width: 110px;
     height: auto;
+}
+
+#dither-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    
+    /* Disables anti-aliasing to preserve crisp, chunky retro pixel edges */
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 #mainNavigation {
@@ -905,12 +930,26 @@ input.goal-input:-webkit-autofill:active {
     .hero-header-wrap {
         flex-direction: column !important;
         gap: 15px !important;
-        padding: 15px 0 25px 0 !important;
+        padding: 15px 0 12px 0 !important; /* Cut bottom padding from 25px to 12px */
     }
 
     #mainNavigation {
         position: static !important;
         justify-content: center !important;
         width: 100% !important;
+    }
+
+    /* Spacing optimizations for Splash page on Mobile */
+    #splash-view {
+        gap: 15px !important;          /* Cut flex-container gap from 30px to 15px */
+        padding-top: 0px !important;    /* Pulled closer to the logo section */
+    }
+
+    #splash-view .hero-scanner-section {
+        margin-bottom: 10px !important; /* Overrides inline 20px margin with 10px */
+    }
+
+    #splash-view .hero-title {
+        margin-bottom: 5px !important;  /* Overrides inline 10px margin with 5px */
     }
 }
