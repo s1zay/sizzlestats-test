@@ -662,9 +662,9 @@
                 document.getElementById('splash-view').style.display = 'block';
                 header.style.maxWidth = '1200px';
 
-                // Restore full brand identity on the splash menu
-                if (logoFull) logoFull.style.display = 'block';
-                if (subtitleFull) subtitleFull.style.display = 'block';
+                // Restore full brand identity on the splash menu (using stylesheet defaults)
+                if (logoFull) logoFull.style.display = '';
+                if (subtitleFull) subtitleFull.style.display = '';
                 if (logoSimple) logoSimple.style.display = 'none';
             }
             else {
