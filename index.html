@@ -53,24 +53,29 @@
 
 <body>
     <header class="hero-header-wrap">
-        <div class="brand-container hero-brand">
+        <div class="brand-container hero-brand" onclick="resetToSplash()" style="cursor: pointer;">
 
-            <!-- PIXEL BLOB LOGO -->
-            <div class="pixel-blob-container">
+            <!-- PIXEL BLOB LOGO (Visible only on splash) -->
+            <div class="pixel-blob-container" id="brand-logo-full">
                 <canvas id="dither-canvas" width="32" height="32"></canvas>
                 <img src="icon.svg" alt="SizzleStats Logo" />
             </div>
 
-            <div class="brand-subtitle">Analyze & Learn.</div>
+            <div class="brand-subtitle" id="brand-subtitle-full">Analyze & Learn.</div>
+
+            <!-- SIMPLE LOGO (Visible only on Lens & Coach views) -->
+            <span id="brand-logo-simple"
+                style="display: none; font-weight: 800; font-size: 1.45rem; letter-spacing: -0.03em; color: var(--text-primary); text-transform: uppercase;">SizzleStats</span>
         </div>
 
         <div class="dynamic-nav" id="mainNavigation" style="display: flex;">
             <div id="nav-state-lens" style="display: none; gap: 10px;">
-                <button class="nav-btn" onclick="resetToSplash()">
+                <!-- Updated action to trigger resetLens() directly with circular reload icon -->
+                <button class="nav-btn" onclick="resetLens()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5"></path>
-                        <path d="M12 19l-7-7 7-7"></path>
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                     </svg>
                     New Scan
                 </button>
@@ -86,16 +91,8 @@
             </div>
 
             <div id="nav-state-coach" style="display: none; gap: 10px;">
-                <button class="nav-btn" onclick="resetToSplash()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 17l-5-5 5-5"></path>
-                        <path d="M18 17l-5-5 5-5"></path>
-                    </svg>
-                    New Scan
-                </button>
-
-                <button class="nav-btn" onclick="switchView('lens')">
+                <!-- Replaced redundant button with single Reset + Redirect action labeled 'Lens' -->
+                <button class="nav-btn" onclick="resetLens(); switchView('lens');">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5"></path>
@@ -654,25 +651,42 @@
             const header = document.querySelector('.hero-header-wrap');
             header.style.transition = 'max-width 0.2s ease';
 
-            // 4. Reveal targeted view, navigation, and brute-force the width
+            // Cache logo elements
+            const logoFull = document.getElementById('brand-logo-full');
+            const subtitleFull = document.getElementById('brand-subtitle-full');
+            const logoSimple = document.getElementById('brand-logo-simple');
+
+            // 4. Reveal targeted view, navigation, and adjust layout
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'block';
                 header.style.maxWidth = '1200px';
-            }
-            else if (view === "lens") {
-                document.getElementById('lens-view').style.display = 'grid';
-                document.getElementById('nav-state-lens').style.display = 'flex';
-                header.style.maxWidth = '1200px';
 
-                // Guarantee Identity Card defaults to State 1 (Idle) when entering Lens
-                document.getElementById('lens-state-idle').style.display = 'flex';
-                document.getElementById('lens-state-scanning').style.display = 'none';
-                document.getElementById('lens-state-results').style.display = 'none';
+                // Restore full brand identity on the splash menu
+                if (logoFull) logoFull.style.display = 'block';
+                if (subtitleFull) subtitleFull.style.display = 'block';
+                if (logoSimple) logoSimple.style.display = 'none';
             }
-            else if (view === "coach") {
-                document.getElementById('coach-view').style.display = 'flex';
-                document.getElementById('nav-state-coach').style.display = 'flex';
-                header.style.maxWidth = '800px';
+            else {
+                // Simplify to simple brand text on utility views
+                if (logoFull) logoFull.style.display = 'none';
+                if (subtitleFull) subtitleFull.style.display = 'none';
+                if (logoSimple) logoSimple.style.display = 'inline-block';
+
+                if (view === "lens") {
+                    document.getElementById('lens-view').style.display = 'grid';
+                    document.getElementById('nav-state-lens').style.display = 'flex';
+                    header.style.maxWidth = '1200px';
+
+                    // Guarantee Identity Card defaults to State 1 (Idle) when entering Lens
+                    document.getElementById('lens-state-idle').style.display = 'flex';
+                    document.getElementById('lens-state-scanning').style.display = 'none';
+                    document.getElementById('lens-state-results').style.display = 'none';
+                }
+                else if (view === "coach") {
+                    document.getElementById('coach-view').style.display = 'flex';
+                    document.getElementById('nav-state-coach').style.display = 'flex';
+                    header.style.maxWidth = '800px';
+                }
             }
 
             // 5. Snap the viewport back to the top (AFTER the new view has rendered)

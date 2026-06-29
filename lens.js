@@ -1,5 +1,5 @@
 // ==========================================
-// STAT-LENS UI: lens.js (V3.12 - The UI Visibility Override)
+// STAT-LENS UI: lens.js (V3.13 - The Unified UI Reset)
 // ==========================================
 
 // 1. Establish the Global Vault
@@ -16,6 +16,103 @@ window.setLensState = function(state) {
     if (idle) idle.style.display = state === 'idle' ? 'flex' : 'none';
     if (scanning) scanning.style.display = state === 'scanning' ? 'flex' : 'none';
     if (results) results.style.display = state === 'results' ? 'block' : 'none';
+};
+
+// ==========================================
+// LENS RESET SYSTEM
+// ==========================================
+window.resetLens = function(clearFileInput = true) {
+    // 1. Reset visual state back to idle
+    if (window.setLensState) window.setLensState('idle');
+
+    // 2. Clear state vault
+    window.SizzleState = { currentScan: null };
+
+    // 3. Clear file input value to allow consecutive uploads of the same image
+    if (clearFileInput) {
+        const imageLoader = document.getElementById('imageLoader');
+        if (imageLoader) imageLoader.value = '';
+    }
+
+    // 4. Reset Champion Identity UI
+    const nameEl = document.getElementById('champ-name');
+    if (nameEl) nameEl.innerHTML = 'Awaiting Upload...';
+
+    const starsEl = document.getElementById('champ-stars');
+    if (starsEl) starsEl.innerHTML = '';
+
+    const badgeEl = document.getElementById('lens-mythical-badge');
+    if (badgeEl) {
+        badgeEl.classList.add('hidden');
+        badgeEl.style.display = 'none';
+    }
+
+    ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = id === 'champ-lvl' ? '' : '-';
+    });
+
+    // Strip Rarity Glow colors from the identity card wrapper
+    const cardEl = document.getElementById('champ-identity-card');
+    if (cardEl) {
+        cardEl.classList.forEach(className => {
+            if (className.startsWith('glow-')) cardEl.classList.remove(className);
+        });
+    }
+
+    // 5. Reset Matrix Stats to blank states
+    const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc'];
+    statIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = '-';
+    });
+    const ignEl = document.getElementById('val-ign');
+    if (ignEl) ignEl.innerText = '0%';
+
+    // 6. Clear style appraisal
+    const styleNameEl = document.getElementById('val-style-name');
+    if (styleNameEl) styleNameEl.innerText = "Build Style";
+    const styleMatchEl = document.getElementById('val-style-match');
+    if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
+    const styleDetailsEl = document.getElementById('val-style-details');
+    if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
+
+    // 7. Clear Coach/Damage UI
+    const effAccordionTitle = document.getElementById('eff-accordion-title');
+    if (effAccordionTitle) effAccordionTitle.style.color = "var(--text-primary)";
+    const effWaiting = document.getElementById('eff-waiting');
+    if (effWaiting) { effWaiting.innerText = "Waiting for scan data..."; effWaiting.style.display = 'block'; }
+    const effCoach = document.getElementById('eff-coach-ui');
+    if (effCoach) { effCoach.classList.add('hidden'); effCoach.style.display = 'none'; }
+
+    // 8. Clear Coach/eHP UI
+    const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
+    if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
+    const ehpWaiting = document.getElementById('ehp-waiting');
+    if (ehpWaiting) { ehpWaiting.innerText = "Waiting for scan data..."; ehpWaiting.style.display = 'block'; }
+    const ehpCoach = document.getElementById('ehp-coach-ui');
+    if (ehpCoach) { ehpCoach.classList.add('hidden'); ehpCoach.style.display = 'none'; }
+
+    // 9. Clear Area Selector
+    const areaNameEl = document.getElementById('val-area-name');
+    if (areaNameEl) areaNameEl.innerText = "No Area Selected";
+    const areaDetailsEl = document.getElementById('val-area-details');
+    if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">Waiting for scan data...</span>`;
+
+    // 10. Clear Audit Container & manual override overlays
+    const auditContainer = document.getElementById('audit-container');
+    if (auditContainer) auditContainer.innerHTML = '';
+
+    // 11. Clear validation warning elements
+    const warningsEl = document.getElementById('val-warnings');
+    if (warningsEl) {
+        warningsEl.innerText = "";
+        warningsEl.classList.add('hidden');
+        warningsEl.style.display = "none";
+    }
+
+    // 12. Force-close all open accordions
+    document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
 };
 
 let championDatabase = [];
@@ -805,61 +902,11 @@ imageLoaderEl.addEventListener('change', async function (e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    window.SizzleState = {};
+    // --- 1. CLEAN RESET (Does not clear active input to preserve context) ---
+    window.resetLens(false);
 
-    // --- 1. SHIFT STATE MACHINE ---
+    // --- 2. SHIFT STATE MACHINE ---
     if (window.setLensState) window.setLensState('scanning');
-
-    // --- 2. SILENT BACKGROUND UI WIPE ---
-    const nameEl = document.getElementById('champ-name');
-    if (nameEl) nameEl.innerText = '-';
-
-    const starsEl = document.getElementById('champ-stars');
-    if (starsEl) starsEl.innerHTML = '';
-
-    const badgeEl = document.getElementById('lens-mythical-badge');
-    if (badgeEl) { badgeEl.classList.add('hidden'); badgeEl.style.display = 'none'; } 
-
-    ['champ-lvl', 'champ-affinity', 'champ-faction', 'champ-role'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = '-';
-    });
-
-    const statIds = ['val-hp', 'val-atk', 'val-def', 'val-spd', 'val-cr', 'val-cd', 'val-res', 'val-acc', 'val-ign'];
-    statIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = '-';
-    });
-
-    const styleNameEl = document.getElementById('val-style-name');
-    if (styleNameEl) styleNameEl.innerText = "Build Style";
-    const styleMatchEl = document.getElementById('val-style-match');
-    if (styleMatchEl) { styleMatchEl.innerText = ""; styleMatchEl.className = "text-muted"; }
-    const styleDetailsEl = document.getElementById('val-style-details');
-    if (styleDetailsEl) styleDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">-</span>`;
-
-    const effAccordionTitle = document.getElementById('eff-accordion-title');
-    if (effAccordionTitle) effAccordionTitle.style.color = "var(--text-primary)";
-    const effWaiting = document.getElementById('eff-waiting');
-    if (effWaiting) { effWaiting.innerText = "-"; effWaiting.style.display = 'block'; }
-    const effCoach = document.getElementById('eff-coach-ui');
-    if (effCoach) { effCoach.classList.add('hidden'); effCoach.style.display = 'none'; } 
-
-    const ehpAccordionTitle = document.getElementById('ehp-accordion-title');
-    if (ehpAccordionTitle) ehpAccordionTitle.style.color = "var(--text-primary)";
-    const ehpWaiting = document.getElementById('ehp-waiting');
-    if (ehpWaiting) { ehpWaiting.innerText = "-"; ehpWaiting.style.display = 'block'; }
-    const ehpCoach = document.getElementById('ehp-coach-ui');
-    if (ehpCoach) { ehpCoach.classList.add('hidden'); ehpCoach.style.display = 'none'; } 
-
-    const areaNameEl = document.getElementById('val-area-name');
-    if (areaNameEl) areaNameEl.innerText = "No Area Selected";
-    const areaDetailsEl = document.getElementById('val-area-details');
-    if (areaDetailsEl) areaDetailsEl.innerHTML = `<span style="color: var(--text-muted); text-align: center">-</span>`;
-
-    const auditContainer = document.getElementById('audit-container');
-    if (auditContainer) auditContainer.innerHTML = '';
-    // --------------------------------------------------------
 
     const img = new Image();
     img.src = URL.createObjectURL(file);

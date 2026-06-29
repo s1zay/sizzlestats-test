@@ -1040,3 +1040,64 @@ input.goal-input:-webkit-autofill:active {
         margin-bottom: 12px !important; /* Shrunk gap between the description paragraph and button */
     }
 }
+
+/* =========================================
+   22. VIEW-SPECIFIC HEADER LAYOUT OVERRIDES
+   ========================================= */
+@media (min-width: 768px) {
+    /* LENS VIEW HEADER: Convert header to grid to align with .app-container columns */
+    .hero-header-wrap.header-view-lens {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 20px !important;
+    }
+    
+    .hero-header-wrap.header-view-lens .brand-container {
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        text-align: center !important;
+    }
+    
+    /* Override absolute positioning of mainNavigation on Lens layout to respect grid container flow */
+    .hero-header-wrap.header-view-lens #mainNavigation {
+        position: static !important;
+        display: flex !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+    
+    .hero-header-wrap.header-view-lens #nav-state-lens {
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    /* COACH VIEW HEADER: Separate the brand and Lens button with space in the middle */
+    .hero-header-wrap.header-view-coach {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    .hero-header-wrap.header-view-coach .brand-container {
+        display: flex !important;
+        justify-content: flex-start !important;
+        margin: 0 !important;
+    }
+    
+    /* Override absolute positioning of mainNavigation on Coach layout to push elements to opposite ends */
+    .hero-header-wrap.header-view-coach #mainNavigation {
+        position: static !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        margin: 0 !important;
+    }
+    
+    .hero-header-wrap.header-view-coach #nav-state-coach {
+        display: flex !important;
+        justify-content: flex-end !important;
+    }
+}
