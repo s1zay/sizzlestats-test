@@ -754,6 +754,11 @@
             attributeFilter: ['style']
         });
 
+        // Track splash view on initial site entry
+        if (typeof window.trackSizzleEvent === 'function') {
+            window.trackSizzleEvent('splash_view');
+        }
+
     </script>
 </body>
 
