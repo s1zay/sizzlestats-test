@@ -107,7 +107,7 @@
     <!-- SPLASH VIEW (LAUNCHER) -->
     <main class="hero-main" id="splash-view">
         <div class="hero-scanner-section" style="margin-bottom: 20px;">
-            <h1 class="hero-title" style="margin-bottom: 10px;">Select a Tool</h1>
+            <h1 class="hero-title" style="margin-bottom: 10px;">Raid: Shadow Legends Tools</h1>
         </div>
 
         <div
@@ -150,7 +150,9 @@
                         style="width: 100%; max-width: 340px; margin: 0; cursor: pointer; padding: 25px 20px;">
                         <h3 style="margin-bottom: 5px; font-size: 1.15rem;">Upload a Total Stats Screenshot</h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Example</p>
-                        <img src="example.png" alt="Example Stats Screenshot" style="width: 100%; max-width: 280px; height: auto; border-radius: 6px; border: 1px solid var(--border-lowkey); opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" />
+                        <img src="example.png" alt="Example Stats Screenshot"
+                            style="width: 100%; max-width: 280px; height: auto; border-radius: 6px; border: 1px solid var(--border-lowkey); opacity: 0.8; transition: opacity 0.2s;"
+                            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'" />
                         <input type="file" id="imageLoader" accept="image/*" class="hidden" />
                     </div>
                 </div>
@@ -158,11 +160,14 @@
                 <!-- STATE 1.5: CONFIRMATION PREVIEW -->
                 <div id="lens-state-preview"
                     style="display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 340px; margin: 0 auto; gap: 15px; padding: 15px 0;">
-                    <div class="preview-image-container" style="width: 100%; height: 200px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-lowkey);">
-                        <img id="lens-preview-img" src="" alt="Scan Preview" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                    <div class="preview-image-container"
+                        style="width: 100%; height: 200px; background: #000; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-lowkey);">
+                        <img id="lens-preview-img" src="" alt="Scan Preview"
+                            style="max-width: 100%; max-height: 100%; object-fit: contain;" />
                     </div>
                     <button id="btn-start-scan" class="btn-scan-now" style="width: 100%;">Scan Now</button>
-                    <button id="btn-cancel-preview" class="nav-btn" style="width: 100%; border-color: var(--border-lowkey); color: var(--text-muted);">Cancel</button>
+                    <button id="btn-cancel-preview" class="nav-btn"
+                        style="width: 100%; border-color: var(--border-lowkey); color: var(--text-muted);">Cancel</button>
                 </div>
 
                 <!-- STATE 2: SCANNING -->
@@ -515,11 +520,12 @@
 
     <!-- FOOTER -->
     <footer class="sizzle-footer">
-        <div class="footer-content" style="position: relative;">
+        <div class="footer-content"
+            style="position: relative; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span class="footer-text">SizzleStats v2.0.0</span>
             <span class="footer-divider">|</span>
 
-            <div class="footer-actions">
+            <div class="footer-actions" style="display: flex; align-items: center; gap: 4px;">
                 <a href="mailto:sizzlestats@gmail.com?subject=SizzleStats Feedback" class="bug-report-link">Report a Bug
                     or Request a Feature</a>
 
@@ -533,6 +539,13 @@
 
                 <span id="email-toast" class="toast-msg">Copied!</span>
             </div>
+        </div>
+
+        <div class="footer-disclaimer"
+            style="margin-top: 16px; font-size: 0.65rem; color: #666666; text-align: center; line-height: 1.4; padding: 0 10px;">
+            SizzleStats is a community-created utility and is not affiliated with, endorsed, or sponsored by Plarium
+            Global Ltd. Raid: Shadow Legends and all related images, assets, and trademarks are the property of Plarium
+            Global Ltd.
         </div>
     </footer>
 
@@ -619,6 +632,22 @@
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
     <script>
+        // Global Analytics Event Tracker
+        window.trackSizzleEvent = function (event) {
+            const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
+            if (liveDomains.includes(window.location.hostname)) {
+                fetch(`https://snowy-unit-c9e5.anthonyyerhot.workers.dev/${event}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => console.log(`[Analytics] Recorded ${event}:`, data))
+                    .catch(err => console.error(`[Analytics] Ping failed for ${event}:`, err));
+            } else {
+                console.log(`[Analytics] Local Dev: Event '${event}' simulated.`);
+            }
+        };
+
         const originalResetToSplash = window.resetToSplash;
         window.resetToSplash = function () {
             if (typeof originalResetToSplash === 'function') {
@@ -662,13 +691,16 @@
                 document.getElementById('splash-view').style.display = 'block';
                 header.style.maxWidth = '1200px';
 
-                // Restore full brand identity on the splash menu (using stylesheet defaults)
                 if (logoFull) logoFull.style.display = '';
                 if (subtitleFull) subtitleFull.style.display = '';
                 if (logoSimple) logoSimple.style.display = 'none';
+
+                // TRACK SPLASH VIEW
+                if (typeof window.trackSizzleEvent === 'function') {
+                    window.trackSizzleEvent('splash_view');
+                }
             }
             else {
-                // Simplify to simple brand text on utility views
                 if (logoFull) logoFull.style.display = 'none';
                 if (subtitleFull) subtitleFull.style.display = 'none';
                 if (logoSimple) logoSimple.style.display = 'inline-block';
@@ -678,19 +710,27 @@
                     document.getElementById('nav-state-lens').style.display = 'flex';
                     header.style.maxWidth = '1200px';
 
-                    // Guarantee Identity Card defaults to State 1 (Idle) when entering Lens
                     document.getElementById('lens-state-idle').style.display = 'flex';
                     document.getElementById('lens-state-scanning').style.display = 'none';
                     document.getElementById('lens-state-results').style.display = 'none';
+
+                    // TRACK LENS OPEN
+                    if (typeof window.trackSizzleEvent === 'function') {
+                        window.trackSizzleEvent('lens_open');
+                    }
                 }
                 else if (view === "coach") {
                     document.getElementById('coach-view').style.display = 'flex';
                     document.getElementById('nav-state-coach').style.display = 'flex';
                     header.style.maxWidth = '800px';
+
+                    // TRACK SANDBOX ENTER (Assumes Cleanse Coach is the target)
+                    if (typeof window.trackSizzleEvent === 'function') {
+                        window.trackSizzleEvent('sandbox_enter');
+                    }
                 }
             }
 
-            // 5. Snap the viewport back to the top (AFTER the new view has rendered)
             setTimeout(() => {
                 window.scrollTo(0, 0);
             }, 10);

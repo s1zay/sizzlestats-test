@@ -976,25 +976,8 @@ async function triggerOcrSequence(file) {
                 // ==========================================
                 // ANALYTICS TRACKER
                 // ==========================================
-                const liveDomains = ['sizzlestats.com', 'www.sizzlestats.com'];
-                if (liveDomains.includes(window.location.hostname)) {
-                    fetch('https://snowy-unit-c9e5.anthonyyerhot.workers.dev/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error(`[Analytics] Server Error: ${data.error}`);
-                        } else {
-                            console.log(`[Analytics] Scan recorded. Total live scans: ${data.total}`);
-                        }
-                    })
-                    .catch(err => console.log("[Analytics] Ping failed completely."));
-                } else {
-                    console.log("[Analytics] Dev environment: Scan ignored.");
+                if (typeof window.trackSizzleEvent === 'function') {
+                    window.trackSizzleEvent('scan_success');
                 }
                 // ==========================================
 
@@ -1019,6 +1002,9 @@ async function triggerOcrSequence(file) {
                             console.log(`[Sizzle Engine] Strike 2 SUCCESS! Recovered: ${strikeTwoName}`);
                             scanner.masterData.Identity.Champion = strikeTwoCheck.name || strikeTwoCheck.Name;
                             processScanResults(scanner);
+                            if (typeof window.trackSizzleEvent === 'function') {
+                                window.trackSizzleEvent('scan_success');
+                            }
                             return; // Exit the catch block early—the day is saved!
                         } else {
                             console.warn("[Sizzle Engine] Strike 2 FAILED. Falling back to manual entry.");
@@ -1026,6 +1012,11 @@ async function triggerOcrSequence(file) {
                     } catch (strikeTwoErr) {
                         console.error("[Sizzle Engine] Strike 2 crashed:", strikeTwoErr);
                     }
+                }
+
+                // Register a scan_fail if we couldn't recover
+                if (typeof window.trackSizzleEvent === 'function') {
+                    window.trackSizzleEvent('scan_fail');
                 }
 
                 // ==========================================
@@ -1125,6 +1116,9 @@ async function triggerOcrSequence(file) {
 
                             try {
                                 processScanResults(scanner);
+                                if (typeof window.trackSizzleEvent === 'function') {
+                                    window.trackSizzleEvent('scan_success');
+                                }
                             } catch (retryErr) {
                                 console.error("[Sizzle Engine] Override failed:", retryErr);
                             }
