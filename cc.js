@@ -348,7 +348,7 @@ function runDebug() {
     <div style="margin-top: 15px; padding: 15px; background: var(--bg-canvas); border: 1px dashed var(--indicator-active); border-radius: 6px;">
       <h3 style="margin-top: 0; color: var(--text-primary);">Substat Analysis</h3>
       <p style="color: var(--text-muted); font-size: 0.85em; margin-bottom: 0;">
-        Accessories like Rings and Amulets only have <strong>${totalCombos}</strong> possible substat combinations. 
+        Rings and Amulets only have <strong>${totalCombos}</strong> possible substat combinations. 
         Because the combination pool is so small, automated multi-pass filtering is unnecessary. Please evaluate your inventory directly using the ranked list below.
       </p>
     </div>`;
