@@ -3,7 +3,7 @@ let gearData = {};
 // Helper function to handle smooth scrolling with an offset for sticky headers
 function scrollToElement(element) {
   if (!element) return;
-  element.style.scrollMarginTop = "90px"; 
+  element.style.scrollMarginTop = "90px";
   element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -43,22 +43,22 @@ function resetCoach() {
   }
 }
 
-// Intercept the main navigation system to catch when users leave the Cleanse Coach
-if (typeof window.switchView === 'function') {
-  const originalSwitchView = window.switchView;
-  window.switchView = function(view) {
-    if (view !== 'coach') {
-      resetCoach();
-    }
-    originalSwitchView(view);
-  };
-}
-
 // Make resetCoach globally available
 window.resetCoach = resetCoach;
 
 async function initEngine() {
   console.log("Engine initialized! Waiting for JSON...");
+
+  // Intercept navigation inside initEngine (onload) once switchView is guaranteed to exist
+  if (typeof window.switchView === 'function') {
+    const originalSwitchView = window.switchView;
+    window.switchView = function (view) {
+      if (view !== 'coach') {
+        resetCoach();
+      }
+      originalSwitchView(view);
+    };
+  }
 
   try {
     const response = await fetch('master.json');
@@ -67,7 +67,7 @@ async function initEngine() {
   } catch (error) {
     console.error("Failed to load master.json.", error);
     document.getElementById("output").innerText = "Error loading data. Check console.";
-    return; 
+    return;
   }
 
   const gearBtns = document.querySelectorAll('.gear-btn');
@@ -85,23 +85,23 @@ async function initEngine() {
   gearBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       // Prevent child elements from stealing the click
-      const targetBtn = e.currentTarget; 
-      
+      const targetBtn = e.currentTarget;
+
       gearBtns.forEach(b => b.classList.remove('active'));
       targetBtn.classList.add('active');
-      
+
       const pieceKey = targetBtn.dataset.piece.replace('_weights', '');
       pieceInput.value = pieceKey;
 
       // Visually REMOVE invalid primary stats for this piece
       const validPrimaries = gearData.GameRules.Primaries[pieceKey] || [];
-      
+
       statBtns.forEach(sBtn => {
         if (validPrimaries.includes(sBtn.dataset.stat)) {
           sBtn.style.display = 'flex'; // Show valid stats
         } else {
           sBtn.style.display = 'none'; // Completely hide invalid stats
-          
+
           // Clear active state if it was hidden
           if (sBtn.classList.contains('active')) {
             sBtn.classList.remove('active');
@@ -145,11 +145,11 @@ async function initEngine() {
     btn.addEventListener('click', (e) => {
       // Ensure we always target the main button, even if a user clicks the inner span/checkbox
       const targetBtn = e.currentTarget;
-      
+
       statBtns.forEach(b => b.classList.remove('active'));
       targetBtn.classList.add('active');
       statInput.value = targetBtn.dataset.stat;
-      
+
       checkAndRun();
 
       // Snap down to the Strictness Threshold (Card 3) after user selects a middle/bottom row primary
@@ -161,9 +161,9 @@ async function initEngine() {
   // Find the slider and set its initial default value dynamically to 10
   const slider = document.getElementById("strictnessSlider");
   if (slider) {
-    const defaultStrictness = 10; 
+    const defaultStrictness = 10;
     slider.value = defaultStrictness;
-    
+
     const sliderValueLabel = document.getElementById("sliderValue");
     if (sliderValueLabel) {
       sliderValueLabel.innerText = defaultStrictness;
