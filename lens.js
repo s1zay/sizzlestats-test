@@ -129,15 +129,6 @@ window.resetLens = function (clearFileInput = true) {
     document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
 };
 
-let championDatabase = [];
-
-fetch(`champs.json?v=${new Date().getTime()}`, { cache: "no-store" })
-    .then(response => response.json())
-    .then(data => {
-        championDatabase = data;
-    })
-    .catch(err => { });
-
 function getChampionDetails(scannedName) {
     if (!scannedName || championDatabase.length === 0) return null;
     const cleanOcr = scannedName.toLowerCase().replace(/[^a-z]/g, '');
@@ -629,17 +620,10 @@ function paintLensUI(scanData) {
                 const marker = document.getElementById('kraken-marker');
                 if (marker) marker.style.left = `${krakenPct}%`;
 
-                let tierName = "Low";
-                let tierColor = "#14532d";
-                const thresh = window.EHP_THRESHOLDS || { low: 100000, average: 250000, high: 450000, elite: 750000, kraken: 1200000 };
-
-                if (currentEhp >= thresh.kraken) { tierName = "Kraken"; tierColor = "#22c55e"; }
-                else if (currentEhp >= thresh.elite) { tierName = "Elite"; tierColor = "#16a34a"; }
-                else if (currentEhp >= thresh.high) { tierName = "High"; tierColor = "#15803d"; }
-                else if (currentEhp >= thresh.average) { tierName = "Average"; tierColor = "#166534"; }
+                const tier = window.getEhpTier(currentEhp);
 
                 const tierLabel = document.getElementById('kraken-tier-label');
-                if (tierLabel) { tierLabel.innerText = `${tierName} Tier`; tierLabel.style.color = tierColor; }
+                if (tierLabel) { tierLabel.innerText = `${tier.name}`; tierLabel.style.color = tier.color; }
 
                 const gainHp = window.calculateTrueEHP(totalHP + (baseHP * 0.06), totalDEF) - currentEhp;
                 const gainDef = window.calculateTrueEHP(totalHP, totalDEF + (baseDEF * 0.06)) - currentEhp;

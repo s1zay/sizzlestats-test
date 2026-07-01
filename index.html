@@ -38,7 +38,51 @@
 
     <link rel="stylesheet" href="style.css?v=1000" />
     <link rel="icon" type="image/png" href="favicon.png" />
+    <!-- SizzleStats Master Bootloader -->
+    <script>
+        window.SizzleApp = {
+            databases: {
+                champs: [],
+                master: {},
+                sim: {},
+                ehpExample: []
+            },
+            loadingPromise: null,
+            init: function() {
+                if (this.loadingPromise) return this.loadingPromise;
+                
+                console.log("[Bootloader] Initiating parallel database sync...");
+                
+                this.loadingPromise = Promise.all([
+                    fetch('champs.json?v=' + Date.now()).then(r => r.json()),
+                    fetch('master.json?v=' + Date.now()).then(r => r.json()),
+                    fetch('sim-database.json?v=' + Date.now()).then(r => r.json()),
+                    fetch('ehp-example.json?v=' + Date.now()).then(r => r.json())
+                ]).then(([champs, master, sim, ehpExample]) => {
+                    this.databases.champs = champs;
+                    this.databases.master = master;
+                    this.databases.sim = sim;
+                    this.databases.ehpExample = ehpExample;
 
+                    // Alias back to legacy globals to preserve runtime compatibility
+                    window.championDatabase = champs;
+                    window.gearData = master;
+                    window.simDatabase = sim;
+                    window.ehpDatabase = ehpExample;
+
+                    console.log("[Bootloader] All databases synchronized successfully.");
+                    return this.databases;
+                }).catch(err => {
+                    console.error("[Bootloader] Critical database load failure:", err);
+                    throw err;
+                });
+                return this.loadingPromise;
+            }
+        };
+
+        // Start fetching immediately
+        window.SizzleApp.init();
+    </script>
     <script src="grid-data.js?v=1.2"></script>
     <script src="style-card-engine.js?v=1.2"></script>
     <script src="damage-engine.js?v=1.2"></script>

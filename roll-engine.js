@@ -7,9 +7,8 @@ window.RollEngine = {
 
     boot: async function () {
         try {
-            const response = await fetch('sim-database.json');
-            this.db = await response.json();
-            // console.log("[Roll Engine] DB Loaded for Cleanse Coach");
+            await window.SizzleApp.init();
+            this.db = window.simDatabase;
         } catch (error) {
             console.error("[Roll Engine] Failed to load sim-database.json", error);
         }

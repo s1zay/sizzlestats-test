@@ -5,23 +5,6 @@
 
 let dmgRollAvgs = { statP: 0.06, cd: 6, cr: 5 };
 
-// 1. BOOTSTRAP THE DATABASE
-fetch('sim-database.json')
-    .then(res => res.json())
-    .then(simData => {
-        const bounds = simData.ArtifactSettings.RngRollBounds;
-
-        // We use atkP as the universal scaling average since ATK/DEF/HP % bounds are identical
-        dmgRollAvgs.statP = ((bounds.atkP.AR["5"][0] + bounds.atkP.AR["6"][1]) / 2) / 100;
-        dmgRollAvgs.cd = (bounds.cd.AR["5"][0] + bounds.cd.AR["6"][1]) / 2;
-        dmgRollAvgs.cr = (bounds.cr.AR["5"][0] + bounds.cr.AR["6"][1]) / 2;
-
-        // console.log(`[Damage Engine] Economy Loaded.`);
-    })
-    .catch(err => {
-        // console.error("[Damage Engine] DB Fetch Failure:", err);
-    });
-
 // 2. THE MATH ENGINE
 function getGoldenRatio(base, total, cdmg) {
     if (!base || base === 0) return 0;

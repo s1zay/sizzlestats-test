@@ -61,8 +61,7 @@ async function initEngine() {
   }
 
   try {
-    const response = await fetch('master.json');
-    gearData = await response.json();
+    await window.SizzleApp.init();
     console.log("JSON loaded successfully:", gearData);
   } catch (error) {
     console.error("Failed to load master.json.", error);

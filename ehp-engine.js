@@ -3,36 +3,17 @@
 // Simplified 1-to-1 Roll Comparison
 // ==========================================
 
-// The eHP Kraken Scale (Adjust these thresholds anytime)
+// The eHP Scale (Adjust these thresholds anytime)
 window.EHP_THRESHOLDS = {
     low: 100000,      // 0 - 100k (Squishy Nukers)
     average: 250000,  // 100k - 250k (Standard Support)
     high: 450000,     // 250k - 450k (Solid Tanks)
     elite: 750000,    // 450k - 750k (Endgame Tanks)
-    kraken: 1200000   // 750k+ (Platinum Arena Walls)
+    godTier: 1200000  // 750k+ (Platinum Arena Walls)
 };
 
 let ehpDatabase = [];
-let rollAvgs = { hpP: 0.06, defP: 0.06 }; 
-
-// 1. BOOTSTRAP THE DATABASES
-Promise.all([
-    fetch('ehp-example.json').then(res => res.json()),
-    fetch('sim-database.json').then(res => res.json())
-])
-    .then(([bossData, simData]) => {
-        ehpDatabase = bossData;
-        const bounds = simData.ArtifactSettings.RngRollBounds;
-
-        // Percent Averages 
-        rollAvgs.hpP = ((bounds.hpP.AR["5"][0] + bounds.hpP.AR["6"][1]) / 2) / 100;
-        rollAvgs.defP = ((bounds.defP.AR["5"][0] + bounds.defP.AR["6"][1]) / 2) / 100;
-
-        // console.log(`[eHP Engine] Economy Loaded.`);
-    })
-    .catch(err => {
-        // console.error("[eHP Engine] DB Fetch Failure:", err);
-    });
+let rollAvgs = { hpP: 0.06, defP: 0.06 };
 
 // 2. THE MATH ENGINE
 function calculateTrueEHP(hp, def) {
@@ -41,10 +22,26 @@ function calculateTrueEHP(hp, def) {
     return Math.round(hp / (1 - mitigation));
 }
 
+// Classifies the calculated eHP into a display tier and color
+function getEhpTier(currentEhp) {
+    const thresh = window.EHP_THRESHOLDS;
+
+    if (currentEhp >= thresh.godTier) {
+        return { name: "God Tier", color: "#22c55e" };
+    } else if (currentEhp >= thresh.elite) {
+        return { name: "Elite", color: "#16a34a" };
+    } else if (currentEhp >= thresh.high) {
+        return { name: "High", color: "#15803d" };
+    } else if (currentEhp >= thresh.average) {
+        return { name: "Average", color: "#166534" };
+    }
+    return { name: "Low", color: "#14532d" };
+}
+
 // 3. THE DATA EXPORT
-window.getEhpData = function(hp, def, baseHP, baseDef) {
+window.getEhpData = function (hp, def, baseHP, baseDef) {
     if (!hp || !def) return null;
-    
+
     const safeBaseHp = baseHP || 15000;
     const safeBaseDef = baseDef || 1000;
 
@@ -54,7 +51,7 @@ window.getEhpData = function(hp, def, baseHP, baseDef) {
     const currentEhp = calculateTrueEHP(hp, def);
     const hpGain = calculateTrueEHP(hp + hpRollAmount, def) - currentEhp;
     const defGain = calculateTrueEHP(hp, def + defRollAmount) - currentEhp;
-    
+
     const bestStat = hpGain > defGain ? "HP%" : "DEF%";
     const maxGain = Math.max(hpGain, defGain);
     const minGain = Math.max(1, Math.min(hpGain, defGain));
@@ -71,3 +68,4 @@ window.getEhpData = function(hp, def, baseHP, baseDef) {
 
 // Expose the core formula globally for other engines and views
 window.calculateTrueEHP = calculateTrueEHP;
+window.getEhpTier = getEhpTier;
