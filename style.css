@@ -105,8 +105,9 @@ input[type="range"] { width: 100%; accent-color: var(--indicator-active); cursor
    6. CHAMPION IDENTITY & SETS
    ========================================= */
 .identity-card { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 5px; padding: 15px; overflow: visible !important; }
-#champ-name { font-size: 1.6rem; font-weight: 800; margin: 0; }
-.champ-level-row { display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.champ-name-row { width: 100%; text-align: center; }
+#champ-name { font-size: 1.6rem; font-weight: 800; margin: 0; text-align: center; }
+.champ-level-row { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
 .champ-lvl { color: var(--text-primary); }
 .star-container { display: inline-flex; gap: 2px; align-items: center; }
 .champ-star { width: 18px; height: 18px; filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.6)); }
@@ -116,7 +117,7 @@ input[type="range"] { width: 100%; accent-color: var(--indicator-active); cursor
 .star-empty { fill: #334155; opacity: 0.5; }
 .mythical-badge { color: #FFD700; font-weight: 900; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1.5px; margin-left: 12px; text-shadow: 0px 0px 8px rgba(255, 215, 0, 0.4); vertical-align: middle; }
 .empowerment-tag { color: #f59e0b; font-size: 0.65em; vertical-align: baseline; margin-left: 4px; }
-.champ-traits-row { display: flex; gap: 8px; font-size: 0.95rem; color: var(--text-primary); }
+.champ-traits-row { display: flex; justify-content: center; gap: 8px; font-size: 0.95rem; color: var(--text-primary); }
 .affinity-magic { color: var(--affinity-magic); font-weight: 600; }
 .affinity-force { color: var(--affinity-force); font-weight: 600; }
 .affinity-spirit { color: var(--affinity-spirit); font-weight: 600; }

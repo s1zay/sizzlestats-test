@@ -68,3 +68,6 @@ window.getEhpData = function(hp, def, baseHP, baseDef) {
         multiplier: multiplier
     };
 };
+
+// Expose the core formula globally for other engines and views
+window.calculateTrueEHP = calculateTrueEHP;

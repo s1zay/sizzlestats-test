@@ -8,7 +8,7 @@ window.SizzleState = window.SizzleState || { currentScan: null };
 // ==========================================
 // LENS STATE MACHINE
 // ==========================================
-window.setLensState = function(state) {
+window.setLensState = function (state) {
     const idle = document.getElementById('lens-state-idle');
     const preview = document.getElementById('lens-state-preview');
     const scanning = document.getElementById('lens-state-scanning');
@@ -25,7 +25,7 @@ let selectedFileForScan = null;
 // ==========================================
 // LENS RESET SYSTEM
 // ==========================================
-window.resetLens = function(clearFileInput = true) {
+window.resetLens = function (clearFileInput = true) {
     // 1. Reset visual state back to idle
     if (window.setLensState) window.setLensState('idle');
 
@@ -606,8 +606,8 @@ function paintLensUI(scanData) {
             const baseDEF = renderData.Stats["DEF"]?.Basic || 1000;
 
             if (totalHP > 0 && totalDEF > 0) {
-                const calcEhpLocal = (h, d) => Math.round(h / (1 - (0.85 * (1 - Math.exp(-d / 1500)))));
-                const currentEhp = calcEhpLocal(totalHP, totalDEF);
+
+                const currentEhp = window.calculateTrueEHP(totalHP, totalDEF);
                 ehpAccordionTitle.style.color = "#22c55e";
 
                 const waitEl = document.getElementById('ehp-waiting');
@@ -641,8 +641,8 @@ function paintLensUI(scanData) {
                 const tierLabel = document.getElementById('kraken-tier-label');
                 if (tierLabel) { tierLabel.innerText = `${tierName} Tier`; tierLabel.style.color = tierColor; }
 
-                const gainHp = calcEhpLocal(totalHP + (baseHP * 0.06), totalDEF) - currentEhp;
-                const gainDef = calcEhpLocal(totalHP, totalDEF + (baseDEF * 0.06)) - currentEhp;
+                const gainHp = window.calculateTrueEHP(totalHP + (baseHP * 0.06), totalDEF) - currentEhp;
+                const gainDef = window.calculateTrueEHP(totalHP, totalDEF + (baseDEF * 0.06)) - currentEhp;
                 const bestStat = gainHp > gainDef ? "HP%" : "DEF%";
                 const multiplier = (Math.max(gainHp, gainDef) / Math.max(1, Math.min(gainHp, gainDef))).toFixed(1);
 
@@ -708,7 +708,7 @@ function paintLensUI(scanData) {
             }
         }
     }
-} 
+}
 
 // ==========================================
 // CORE SCAN PROCESSOR (Math Audit & Routing)
@@ -893,7 +893,7 @@ const dropZone = document.getElementById('drop-zone');
 if (dropZone && imageLoaderEl) {
     dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        dropZone.style.backgroundColor = 'rgba(234, 179, 8, 0.1)'; 
+        dropZone.style.backgroundColor = 'rgba(234, 179, 8, 0.1)';
     });
 
     dropZone.addEventListener('dragleave', (e) => {
@@ -965,7 +965,7 @@ async function triggerOcrSequence(file) {
         if (window.SizzleState) window.SizzleState.currentScan = null;
 
         const scanner = new window.SizzleScanner();
-        
+
         // YIELD THE MAIN THREAD: 
         setTimeout(async () => {
             try {
