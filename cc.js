@@ -62,6 +62,8 @@ async function initEngine() {
 
   try {
     await window.SizzleApp.init();
+    // Assign the global loaded database to the local file variable
+    gearData = window.gearData; 
     console.log("JSON loaded successfully:", gearData);
   } catch (error) {
     console.error("Failed to load master.json.", error);
