@@ -48,11 +48,11 @@
                 ehpExample: []
             },
             loadingPromise: null,
-            init: function() {
+            init: function () {
                 if (this.loadingPromise) return this.loadingPromise;
-                
+
                 console.log("[Bootloader] Initiating parallel database sync...");
-                
+
                 this.loadingPromise = Promise.all([
                     fetch('champs.json?v=' + Date.now()).then(r => r.json()),
                     fetch('master.json?v=' + Date.now()).then(r => r.json()),
@@ -675,11 +675,11 @@
     <!-- APP SCRIPTS -->
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
-    
+
     <!-- ShapeEngine Telemetry Integration -->
     <script src="shape-engine.js"></script>
     <script>
-        (function() {
+        (function () {
             const TELEMETRY_ENDPOINT = "https://shape-d1-telemetry.anthonyyerhot.workers.dev/";
 
             window.addEventListener('beforeunload', function () {
