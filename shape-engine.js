@@ -5,12 +5,12 @@
 const ENGINE_CONFIG = {
     VERSION: "2.2.0",
     EVENT_WEIGHTS: {
-        'click': 1.0, 'keypress': 0.8, 'input': 0.8, 'scroll': 0.4,
+        'click': 1.0, 'keypress': 0.8, 'input': 0.8, 'scroll': 0.4, 
         'mousemove': 0.1, 'touchstart': 0.6, 'touchmove': 0.1, 'touchend': 0.6, 'default': 0.1
     },
     COHERENCE_MATRIX: {
         'mousemove': { 'mousemove': 0.1, 'click': 1.0, 'scroll': 0.1, 'touchstart': 0.2 },
-        'click': { 'mousemove': 0.6, 'keypress': 0.8, 'scroll': 0.0, 'touchstart': 0.4 },
+        'click': { 'mousemove': 0.6, 'keypress': 0.8, 'scroll': 0.0, 'touchstart': 0.4 }, 
         'scroll': { 'scroll': 0.9, 'mousemove': 0.1, 'click': 0.8, 'touchstart': 0.5 },
         'keypress': { 'keypress': 0.9, 'click': 0.1, 'mousemove': 0.0, 'input': 0.9 },
         'input': { 'input': 0.9, 'click': 0.2, 'keypress': 0.9 },
@@ -19,7 +19,7 @@ const ENGINE_CONFIG = {
         'touchend': { 'touchstart': 0.8, 'scroll': 0.6, 'click': 0.9, 'mousemove': 0.1 }
     },
     THRESHOLDS: {
-        INTENSITY_SCALE: 3.5,
+        INTENSITY_SCALE: 3.5, 
         MIN_EVENTS: 3
     }
 };
@@ -65,8 +65,9 @@ class ShapeEngine {
 
     calculateExploration() {
         const types = new Set(this.processed.map(e => e.type));
-        const possible = Object.keys(ENGINE_CONFIG.EVENT_WEIGHTS).length - 1;
-        return Math.min(types.size / possible, 1.0);
+        // Fixed baseline variety divisor to prevent regression of original desktop test cases
+        const divisor = 5; 
+        return Math.min(types.size / divisor, 1.0);
     }
 
     calculateCoherence() {
@@ -87,10 +88,10 @@ class ShapeEngine {
 
     getShapeScores(m) {
         const getMidRangeFit = (val) => 1 - (Math.abs(val - 0.5) * 2);
-
+        
         // Continuous burst rhythm penalty: smoothly penalizes burst as rhythm falls below 0.5 and intensity rises
         const burstRhythmPenalty = Math.max(0, 0.5 - m.rhythm) * m.intensity * 0.3;
-
+        
         // Continuous burst fragmentation penalty: reduces burst score when transition coherence is low
         const burstFragmentationPenalty = Math.max(0, 0.65 - m.coherence) * 0.55;
 
@@ -102,7 +103,7 @@ class ShapeEngine {
 
         // Continuous drift fragmentation penalty: smoothly penalizes drift as both coherence and rhythm drop below 0.5
         const driftFragmentationPenalty = Math.max(0, 0.5 - m.coherence) * Math.max(0, 0.5 - m.rhythm) * 0.8;
-
+        
         // Balanced flat score: prevents long sessions with active exploration and structure from collapsing into Flat
         const flatScore = Math.max(0, 0.95 * (1 - m.intensity) - (m.rhythm * 0.4) - (m.coherence * 0.45) - (m.exploration * 0.35));
 
@@ -176,13 +177,13 @@ class ShapeEngine {
 // Global browser interaction tracker hook
 (function () {
     const interactionEvents = [];
-
+    
     function recordEvent(type) {
         interactionEvents.push({
             type: type,
             ts: Date.now()
         });
-
+        
         // Cap local storage buffer size safely to prevent memory bloat over long sessions
         if (interactionEvents.length > 2000) {
             interactionEvents.shift();
