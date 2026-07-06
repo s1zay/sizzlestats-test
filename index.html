@@ -37,7 +37,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <link rel="stylesheet" href="style.css?v=1000" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link class="favicon" rel="icon" type="image/png" href="favicon.png" />
     <!-- SizzleStats Master Bootloader -->
     <script>
         window.SizzleApp = {
@@ -675,6 +675,38 @@
     <!-- APP SCRIPTS -->
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
+    
+    <!-- ShapeEngine Telemetry Integration -->
+    <script src="shape-engine.js"></script>
+    <script>
+        (function() {
+            const TELEMETRY_ENDPOINT = "https://shape-d1-telemetry.anthonyyerhot.workers.dev/";
+
+            window.addEventListener('beforeunload', function () {
+                try {
+                    if (typeof ShapeEngine !== 'undefined' && typeof ShapeEngine.getSessionShape === 'function') {
+                        const sessionShape = ShapeEngine.getSessionShape();
+                        if (sessionShape && typeof sessionShape === 'object') {
+                            sessionShape.project = "sizzlestats";
+                            fetch(TELEMETRY_ENDPOINT, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(sessionShape),
+                                keepalive: true
+                            }).catch(function (err) {
+                                console.error("[Telemetry] Failed to post telemetry payload:", err);
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error("[Telemetry] Safe execution check failed inside beforeunload handler:", err);
+                }
+            });
+        })();
+    </script>
+
     <script>
         // Global Analytics Event Tracker
         window.trackSizzleEvent = function (event) {
