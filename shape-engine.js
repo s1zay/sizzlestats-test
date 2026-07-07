@@ -450,8 +450,12 @@ class ShapeEngine {
     }
 }
 
-// Global browser interaction tracker hook
-(function () {
+// Explicit Window Attachment to survive global scope overwrites
+window.ShapeEngine = ShapeEngine;
+window.GlobalMetrics = GlobalMetrics;
+
+// Insulate internal interaction logging lexically to bypass global changes
+(function (EngineClass) {
     const interactionEvents = [];
     
     function recordEvent(type) {
@@ -475,11 +479,8 @@ class ShapeEngine {
     });
 
     // Provide static initialization method for tracking hook on unload
-    ShapeEngine.getSessionShape = function () {
-        const engineInstance = new ShapeEngine(interactionEvents);
+    EngineClass.getSessionShape = function () {
+        const engineInstance = new EngineClass(interactionEvents);
         return engineInstance.analyze();
     };
-})();
-
-// Attach metric modules globally to window
-window.GlobalMetrics = GlobalMetrics;
+})(ShapeEngine);
