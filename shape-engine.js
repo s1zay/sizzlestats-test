@@ -1,3 +1,5 @@
+--- START OF FILE shape-engine.js ---
+
 /**
  * ShapeEngine v3.0.0
  * Core Dynamic State Estimator and Chronological Segmenter
@@ -453,39 +455,37 @@ class ShapeEngine {
             session_duration_ms: 0
         };
     }
-}
 
-// Explicit Window Attachment to survive global scope overwrites
-window.ShapeEngine = ShapeEngine;
-window.GlobalMetrics = GlobalMetrics;
+    // Explicit Static Properties to handle state without IIFE scoping issues
+    static interactionEvents = [];
 
-// Insulate internal interaction logging lexically to bypass global changes
-(function (EngineClass) {
-    const interactionEvents = [];
-    
-    function recordEvent(type) {
-        interactionEvents.push({
+    static recordEvent(type) {
+        ShapeEngine.interactionEvents.push({
             type: type,
             ts: Date.now()
         });
         
-        // Cap local storage buffer size safely to prevent memory bloat over long sessions
-        if (interactionEvents.length > 2000) {
-            interactionEvents.shift();
+        if (ShapeEngine.interactionEvents.length > 2000) {
+            ShapeEngine.interactionEvents.shift();
         }
     }
 
-    // Set passive listeners to prevent scroll/touch stuttering
+    static getSessionShape() {
+        const engineInstance = new ShapeEngine(ShapeEngine.interactionEvents);
+        return engineInstance.analyze();
+    }
+}
+
+// Global Export
+window.ShapeEngine = ShapeEngine;
+window.GlobalMetrics = GlobalMetrics;
+
+// Attach passive event listeners to populate the static state
+(function initListeners() {
     const eventTypes = ['click', 'keypress', 'scroll', 'mousemove', 'touchstart', 'touchmove', 'touchend', 'input'];
     eventTypes.forEach(function (type) {
         window.addEventListener(type, function () {
-            recordEvent(type);
-        }, { passive: true });
+            ShapeEngine.recordEvent(type);
+        }, { passive: true, capture: true });
     });
-
-    // Provide static initialization method for tracking hook on unload
-    EngineClass.getSessionShape = function () {
-        const engineInstance = new EngineClass(interactionEvents);
-        return engineInstance.analyze();
-    };
-})(ShapeEngine);
+})();
