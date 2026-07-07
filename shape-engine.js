@@ -211,25 +211,30 @@ class ShapeEngine {
             if (activeSegment.length >= minSize) {
                 const nextEvent = this.processed[i + 1];
                 if (nextEvent) {
-                    // Evaluate current segments
-                    const currentMetrics = GlobalMetrics.evaluateAll(activeSegment, ENGINE_CONFIG);
-                    const mockNextSegment = [...activeSegment, nextEvent];
-                    const nextMetrics = GlobalMetrics.evaluateAll(mockNextSegment, ENGINE_CONFIG);
+                    const segmentDuration = currentEvent.ts - activeSegment[0].ts;
+                    const temporalGap = nextEvent.ts - currentEvent.ts;
 
                     let trigger = null;
-                    let maxDelta = 0;
 
-                    // 1. Time gap trigger
-                    const temporalGap = nextEvent.ts - currentEvent.ts;
+                    // 1. Time gap trigger (Overrides temporal constraints)
                     if (temporalGap > ENGINE_CONFIG.THRESHOLDS.IDLE_GAP_MS) {
                         trigger = {
                             metric: 'temporal_gap',
                             delta: Number(temporalGap.toFixed(0)),
                             duration_ms: temporalGap
                         };
-                    } else {
-                        // 2. Metric drift trigger
+                    } 
+                    // 2. Metric drift trigger: Only allow if the active segment has matured for at least 2.5 seconds
+                    else if (segmentDuration >= 2500) {
+                        const currentMetrics = GlobalMetrics.evaluateAll(activeSegment, ENGINE_CONFIG);
+                        const mockNextSegment = [...activeSegment, nextEvent];
+                        const nextMetrics = GlobalMetrics.evaluateAll(mockNextSegment, ENGINE_CONFIG);
+
+                        let maxDelta = 0;
                         for (const key in currentMetrics) {
+                            // Guard: prevent unactivated metric jump anomaly
+                            if (key === 'rhythm' && activeSegment.length < 5) continue;
+
                             const delta = Math.abs(nextMetrics[key] - currentMetrics[key]);
                             if (delta > ENGINE_CONFIG.THRESHOLDS.VARIANCE_SPLIT && delta > maxDelta) {
                                 maxDelta = delta;
