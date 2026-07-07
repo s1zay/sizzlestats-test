@@ -681,28 +681,47 @@
     <script>
         (function () {
             const TELEMETRY_ENDPOINT = "https://shape-d1-telemetry.anthonyyerhot.workers.dev/";
+            let telemetrySent = false;
 
-            window.addEventListener('beforeunload', function () {
+            function sendTelemetry() {
+                if (telemetrySent) return; // Prevent duplicate uploads
+
                 try {
                     if (typeof ShapeEngine !== 'undefined' && typeof ShapeEngine.getSessionShape === 'function') {
                         const sessionShape = ShapeEngine.getSessionShape();
-                        if (sessionShape && typeof sessionShape === 'object') {
+
+                        // Only upload if the user actively interacted (duration > 0)
+                        if (sessionShape && typeof sessionShape === 'object' && sessionShape.session_duration_ms > 0) {
                             sessionShape.project = "sizzlestats";
+                            telemetrySent = true;
+
+                            // USING text/plain BYPASSES THE OPTIONS PREFLIGHT HANDSHAKE,
+                            // ENSURING THE POST REQUEST FIRES INSTANTLY BEFORE THE PROCESS IS KILLED.
                             fetch(TELEMETRY_ENDPOINT, {
                                 method: 'POST',
                                 headers: {
-                                    'Content-Type': 'application/json'
+                                    'Content-Type': 'text/plain'
                                 },
                                 body: JSON.stringify(sessionShape),
                                 keepalive: true
-                            }).catch(function (err) {
-                                console.error("[Telemetry] Failed to post telemetry payload:", err);
                             });
                         }
                     }
                 } catch (err) {
-                    console.error("[Telemetry] Safe execution check failed inside beforeunload handler:", err);
+                    // Fail silently in production to protect page performance
                 }
+            }
+
+            // 1. Core trigger: fires when user leaves tab, switches apps, or locks device (Standard for modern web)
+            window.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'hidden') {
+                    sendTelemetry();
+                }
+            });
+
+            // 2. Fallback trigger: fires when closing/reloading the tab directly
+            window.addEventListener('beforeunload', function () {
+                sendTelemetry();
             });
         })();
     </script>
