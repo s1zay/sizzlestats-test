@@ -677,43 +677,78 @@
     <script src="lens.js?v=1.2"></script>
 
     <!-- ShapeEngine Telemetry Integration -->
-    <script src="shape-engine.js"></script>
+    <script src="shape-engine.js?v=3.0.0"></script>
     <script>
         (function () {
             const TELEMETRY_ENDPOINT = "https://shape-d1-telemetry.anthonyyerhot.workers.dev/";
             let telemetrySent = false;
 
+            console.log("[Telemetry Debug] Integration wrapper loaded. Tracking interaction events in background...");
+
             function sendTelemetry() {
-                if (telemetrySent) return; // Prevent duplicate uploads
+                console.log("[Telemetry Debug] sendTelemetry() triggered.");
+                if (telemetrySent) {
+                    console.warn("[Telemetry Debug] Send aborted: telemetry already marked as sent for this page lifecycle.");
+                    return;
+                }
 
                 try {
-                    if (typeof ShapeEngine !== 'undefined' && typeof ShapeEngine.getSessionShape === 'function') {
-                        const sessionShape = ShapeEngine.getSessionShape();
-
-                        // Only upload if the user actively interacted (duration > 0)
-                        if (sessionShape && typeof sessionShape === 'object' && sessionShape.session_duration_ms > 0) {
-                            sessionShape.project = "sizzlestats";
-                            telemetrySent = true;
-
-                            // USING text/plain BYPASSES THE OPTIONS PREFLIGHT HANDSHAKE,
-                            // ENSURING THE POST REQUEST FIRES INSTANTLY BEFORE THE PROCESS IS KILLED.
-                            fetch(TELEMETRY_ENDPOINT, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'text/plain'
-                                },
-                                body: JSON.stringify(sessionShape),
-                                keepalive: true
-                            });
-                        }
+                    if (typeof ShapeEngine === 'undefined') {
+                        console.error("[Telemetry Debug] Error: ShapeEngine class is undefined in global scope.");
+                        return;
                     }
+                    if (typeof ShapeEngine.getSessionShape !== 'function') {
+                        console.error("[Telemetry Debug] Error: ShapeEngine.getSessionShape function is missing.");
+                        return;
+                    }
+
+                    console.log("[Telemetry Debug] Evaluating active session shapes via ShapeEngine...");
+                    const sessionShape = ShapeEngine.getSessionShape();
+                    console.log("[Telemetry Debug] Shape evaluation payload generated:", sessionShape);
+
+                    if (!sessionShape || typeof sessionShape !== 'object') {
+                        console.error("[Telemetry Debug] Error: Generated shape object is null or invalid.");
+                        return;
+                    }
+
+                    // Log the metrics and duration
+                    console.log("[Telemetry Debug] Check thresholds - Duration MS:", sessionShape.session_duration_ms);
+
+                    // Check if duration > 0 (if 0, user didn't move mouse, scroll, or type)
+                    if (sessionShape.session_duration_ms <= 0) {
+                        console.warn("[Telemetry Debug] Upload Bypassed: Active session duration is 0ms (no qualifying interaction events captured).");
+                        return;
+                    }
+
+                    sessionShape.project = "sizzlestats";
+                    telemetrySent = true;
+
+                    console.log("[Telemetry Debug] Preparing CORS-simple raw POST payload transmission to D1 worker...");
+                    console.log("[Telemetry Debug] Payload data string:", JSON.stringify(sessionShape));
+
+                    fetch(TELEMETRY_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain'
+                        },
+                        body: JSON.stringify(sessionShape),
+                        keepalive: true
+                    })
+                    .then(function (res) {
+                        console.log("[Telemetry Debug] Handshake completed successfully. HTTP Ingestion Code:", res.status);
+                    })
+                    .catch(function (fetchErr) {
+                        console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
+                    });
+
                 } catch (err) {
-                    // Fail silently in production to protect page performance
+                    console.error("[Telemetry Debug] Exception encountered during shape delivery checks:", err);
                 }
             }
 
             // 1. Core trigger: fires when user leaves tab, switches apps, or locks device (Standard for modern web)
             window.addEventListener('visibilitychange', function () {
+                console.log("[Telemetry Debug] Event triggered: visibilitychange. Current state:", document.visibilityState);
                 if (document.visibilityState === 'hidden') {
                     sendTelemetry();
                 }
@@ -721,6 +756,7 @@
 
             // 2. Fallback trigger: fires when closing/reloading the tab directly
             window.addEventListener('beforeunload', function () {
+                console.log("[Telemetry Debug] Event triggered: beforeunload.");
                 sendTelemetry();
             });
         })();
