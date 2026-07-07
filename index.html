@@ -685,8 +685,14 @@
 
             console.log("[Telemetry Debug] Integration wrapper loaded. Tracking interaction events in background...");
 
-            function sendTelemetry() {
-                console.log("[Telemetry Debug] sendTelemetry() triggered.");
+            // EXPOSE TEST HOOK FOR DIRECT BROWSER CONSOLE TESTING
+            window.triggerTelemetry = function() {
+                console.log("[Telemetry Debug] Manual triggerTelemetry() executed from console.");
+                sendTelemetry(true); // pass true to bypass duration checks
+            };
+
+            function sendTelemetry(forceUpload = false) {
+                console.log("[Telemetry Debug] sendTelemetry() triggered. Force Upload:", forceUpload);
                 if (telemetrySent) {
                     console.warn("[Telemetry Debug] Send aborted: telemetry already marked as sent for this page lifecycle.");
                     return;
@@ -697,49 +703,48 @@
                         console.error("[Telemetry Debug] Error: ShapeEngine class is undefined in global scope.");
                         return;
                     }
-                    if (typeof ShapeEngine.getSessionShape !== 'function') {
+                    if (typeof ShapeEngine.getSessionShape === 'function') {
+                        console.log("[Telemetry Debug] Evaluating active session shapes via ShapeEngine...");
+                        const sessionShape = ShapeEngine.getSessionShape();
+                        console.log("[Telemetry Debug] Shape evaluation payload generated:", sessionShape);
+
+                        if (!sessionShape || typeof sessionShape !== 'object') {
+                            console.error("[Telemetry Debug] Error: Generated shape object is null or invalid.");
+                            return;
+                        }
+
+                        // Log the metrics and duration
+                        console.log("[Telemetry Debug] Check thresholds - Duration MS:", sessionShape.session_duration_ms);
+
+                        // Check if duration > 0 (if 0, user didn't move mouse, scroll, or type) unless we are forcing the test
+                        if (!forceUpload && sessionShape.session_duration_ms <= 0) {
+                            console.warn("[Telemetry Debug] Upload Bypassed: Active session duration is 0ms (no qualifying interaction events captured).");
+                            return;
+                        }
+
+                        sessionShape.project = "sizzlestats";
+                        telemetrySent = true;
+
+                        console.log("[Telemetry Debug] Preparing CORS-simple raw POST payload transmission to D1 worker...");
+                        console.log("[Telemetry Debug] Payload data string:", JSON.stringify(sessionShape));
+
+                        fetch(TELEMETRY_ENDPOINT, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'text/plain'
+                            },
+                            body: JSON.stringify(sessionShape),
+                            keepalive: true
+                        })
+                        .then(function (res) {
+                            console.log("[Telemetry Debug] Handshake completed successfully. HTTP Ingestion Code:", res.status);
+                        })
+                        .catch(function (fetchErr) {
+                            console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
+                        });
+                    } else {
                         console.error("[Telemetry Debug] Error: ShapeEngine.getSessionShape function is missing.");
-                        return;
                     }
-
-                    console.log("[Telemetry Debug] Evaluating active session shapes via ShapeEngine...");
-                    const sessionShape = ShapeEngine.getSessionShape();
-                    console.log("[Telemetry Debug] Shape evaluation payload generated:", sessionShape);
-
-                    if (!sessionShape || typeof sessionShape !== 'object') {
-                        console.error("[Telemetry Debug] Error: Generated shape object is null or invalid.");
-                        return;
-                    }
-
-                    // Log the metrics and duration
-                    console.log("[Telemetry Debug] Check thresholds - Duration MS:", sessionShape.session_duration_ms);
-
-                    // Check if duration > 0 (if 0, user didn't move mouse, scroll, or type)
-                    if (sessionShape.session_duration_ms <= 0) {
-                        console.warn("[Telemetry Debug] Upload Bypassed: Active session duration is 0ms (no qualifying interaction events captured).");
-                        return;
-                    }
-
-                    sessionShape.project = "sizzlestats";
-                    telemetrySent = true;
-
-                    console.log("[Telemetry Debug] Preparing CORS-simple raw POST payload transmission to D1 worker...");
-                    console.log("[Telemetry Debug] Payload data string:", JSON.stringify(sessionShape));
-
-                    fetch(TELEMETRY_ENDPOINT, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'text/plain'
-                        },
-                        body: JSON.stringify(sessionShape),
-                        keepalive: true
-                    })
-                    .then(function (res) {
-                        console.log("[Telemetry Debug] Handshake completed successfully. HTTP Ingestion Code:", res.status);
-                    })
-                    .catch(function (fetchErr) {
-                        console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
-                    });
 
                 } catch (err) {
                     console.error("[Telemetry Debug] Exception encountered during shape delivery checks:", err);
@@ -893,4 +898,14 @@
     </script>
 </body>
 
-</html>
+</html> I see what you did with the trigger telemetry. Very cool idea.
+I am on the test domain and I typed triggerTelemetry() in the console. 
+Console output:
+
+[Telemetry Debug] sendTelemetry() triggered.
+ShapeEngine.js?v=3.0.0:402 Uncaught TypeError: ShapeEngine is not a constructor
+    at new ShapeEngine.getSessionShape (ShapeEngine.js:402:34)
+    at Object.ShapeEngine.getSessionShape (ShapeEngine.js:403:36)
+    at sendTelemetry (sizzlestats-test.pages.dev/:902:51)
+    at window.triggerTelemetry (sizzlestats-test.pages.dev/:890:17)
+    at <anonymous>:1:1
