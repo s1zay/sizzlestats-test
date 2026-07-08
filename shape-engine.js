@@ -1,9 +1,11 @@
+--- START OF FILE shape-engine.js ---
+
 /**
- * ShapeEngine v3.0.0
+ * ShapeEngine v3.0.1
  * Core Dynamic State Estimator and Chronological Segmenter
  */
 const ENGINE_CONFIG = {
-    VERSION: "3.0.0",
+    VERSION: "3.0.1",
     EVENT_WEIGHTS: {
         'click': 1.0, 
         'keypress': 0.8, 
@@ -16,7 +18,8 @@ const ENGINE_CONFIG = {
         'default': 0.1
     },
     COHERENCE_MATRIX: {
-        'mousemove': { 'mousemove': 0.3, 'click': 0.8, 'scroll': 0.5, 'touchstart': 0.5, 'touchend': 0.5 },
+        // Boosted mousemove->mousemove from 0.3 to 0.5 to prevent dragging down desktop coherence
+        'mousemove': { 'mousemove': 0.5, 'click': 0.8, 'scroll': 0.5, 'touchstart': 0.5, 'touchend': 0.5 },
         'click': { 'mousemove': 0.5, 'click': 0.9, 'keypress': 0.8, 'scroll': 0.6, 'touchstart': 0.6, 'touchend': 0.6, 'input': 0.8 },
         'scroll': { 'scroll': 0.9, 'mousemove': 0.6, 'click': 0.7, 'touchstart': 0.8, 'touchmove': 0.8, 'touchend': 0.8 },
         'keypress': { 'keypress': 0.9, 'click': 0.7, 'mousemove': 0.2, 'input': 0.9 },
@@ -33,14 +36,16 @@ const ENGINE_CONFIG = {
         IDLE_GAP_MS: 5000,          // Gap size above which a timeline split is forced
         MAX_RHYTHM_GAP_MS: 3000     // Upper bound limit on intervals for rhythm analysis
     },
+    // Retuned Activation Thresholds to match mathematical realities of the scoring formulas
     ACTIVATION_THRESHOLDS: {
-        'steady': 0.35,
-        'burst': 0.40,
-        'drift': 0.30,
-        'chaotic': 0.35,
-        'flat': 0.20
+        'steady': 0.18,
+        'burst': 0.20,
+        'drift': 0.15,
+        'chaotic': 0.18,
+        'flat': 0.15
     },
-    CONFIDENCE_FLOOR: 0.08          // Minimum separation margin between top shapes before declaring Unresolved
+    // Lowered confidence floor to 2.5% separation to prevent endless ties
+    CONFIDENCE_FLOOR: 0.025          
 };
 
 /**
@@ -144,9 +149,9 @@ class MetricRegistry {
                 const matrix = config.COHERENCE_MATRIX[prev];
                 
                 if (matrix) {
-                    score += (matrix[curr] !== undefined ? matrix[curr] : 0.15);
+                    score += (matrix[curr] !== undefined ? matrix[curr] : 0.25);
                 } else {
-                    score += 0.15;
+                    score += 0.25;
                 }
                 transitions++;
             }
@@ -319,12 +324,12 @@ class ShapeEngine {
             primaryShape = 'unresolved';
             // Unresolved confidence calculated as distance from target threshold
             confidence = 1.0 - (top.score / threshold);
-            classificationReason = `Low signature activation (highest candidate scored ${top.score.toFixed(2)} vs target threshold ${threshold.toFixed(2)}).`;
+            classificationReason = `Low signature activation (highest candidate scored ${top.score.toFixed(3)} vs target threshold ${threshold.toFixed(2)}).`;
         } else if (confidence < ENGINE_CONFIG.CONFIDENCE_FLOOR) {
             primaryShape = 'unresolved';
             // Unresolved confidence calculated from signal conflict entropy
             confidence = 1.0 - (confidence / ENGINE_CONFIG.CONFIDENCE_FLOOR);
-            classificationReason = `Conflicting shape signatures detected between '${top.name}' and '${runnerUp.name}'.`;
+            classificationReason = `Conflicting shape signatures detected between '${top.name}' and '${runnerUp.name}' (Gap: ${confidence.toFixed(3)}).`;
         } else {
             classificationReason = `Strong activation matched pattern '${top.name}'.`;
         }
@@ -421,17 +426,23 @@ class ShapeEngine {
         const overallScores = this.getShapeScores(overallMetrics).sort((a, b) => b.score - a.score);
         const overallWinner = overallScores[0];
         const overallRunner = overallScores[1];
-        const sessionConfidence = overallWinner.score - (overallRunner ? overallRunner.score : 0);
+        
+        let sessionConfidence = overallWinner.score - (overallRunner ? overallRunner.score : 0);
+        let globalShape = overallWinner.name;
+        
+        if (overallWinner.score < ENGINE_CONFIG.ACTIVATION_THRESHOLDS[overallWinner.name] || sessionConfidence < ENGINE_CONFIG.CONFIDENCE_FLOOR) {
+            globalShape = 'unresolved';
+        }
 
         return {
             shape_version: ENGINE_CONFIG.VERSION,
-            primary_shape: overallWinner.name, // Global session classification fallback
+            primary_shape: globalShape,
             intensity: Number(overallMetrics.intensity.toFixed(3)),
             rhythm: Number(overallMetrics.rhythm.toFixed(3)),
             exploration: Number(overallMetrics.exploration.toFixed(3)),
             coherence: Number(overallMetrics.coherence.toFixed(3)),
             confidence: Number(sessionConfidence.toFixed(3)),
-            explanation: `Session comprised of ${behavioralTimeline.length} segments. Dominant signature matches '${overallWinner.name}' with global confidence of ${(sessionConfidence * 100).toFixed(0)}%.`,
+            explanation: `Session comprised of ${behavioralTimeline.length} segments. Dominant signature matches '${globalShape}'.`,
             behavioral_timeline: behavioralTimeline,
             aggregated_summary: summaryProfile,
             session_duration_ms: totalDuration
@@ -454,7 +465,7 @@ class ShapeEngine {
         };
     }
 
-    // Explicit Static Properties to handle state without IIFE scoping issues
+    // Explicit Static Properties to handle state safely
     static interactionEvents = [];
 
     static recordEvent(type) {
