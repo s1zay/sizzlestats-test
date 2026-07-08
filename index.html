@@ -685,91 +685,79 @@
 
             console.log("[Telemetry Debug] Integration wrapper loaded. Tracking interaction events in background...");
 
-            // EXPOSE TEST HOOK FOR DIRECT BROWSER CONSOLE TESTING
             window.triggerTelemetry = function() {
-                console.log("[Telemetry Debug] Manual triggerTelemetry() executed from console.");
                 sendTelemetry(true);
             };
 
             function sendTelemetry(forceUpload = false) {
-                console.log("[Telemetry Debug] sendTelemetry() triggered. Force Upload:", forceUpload);
-                
                 if (telemetrySent && !forceUpload) {
-                    console.warn("[Telemetry Debug] Send aborted: telemetry already marked as sent for this page lifecycle.");
+                    console.log("[Telemetry Debug] Send aborted: telemetry already marked as sent for this page lifecycle.");
                     return;
                 }
 
                 try {
                     if (typeof ShapeEngine === 'undefined' || typeof ShapeEngine.getSessionShape !== 'function') {
-                        console.error("[Telemetry Debug] Error: ShapeEngine class or getSessionShape method is undefined in global scope.");
+                        console.error("[Telemetry Debug] Error: ShapeEngine class or getSessionShape method is undefined.");
                         return;
                     }
 
-                    console.log("[Telemetry Debug] Evaluating active session shapes via ShapeEngine...");
                     const sessionShape = ShapeEngine.getSessionShape();
-                    console.log("[Telemetry Debug] Shape evaluation payload generated:", sessionShape);
-
-                    if (!sessionShape || typeof sessionShape !== 'object') {
-                        console.error("[Telemetry Debug] Error: Generated shape object is null or invalid.");
-                        return;
-                    }
-
-                    console.log("[Telemetry Debug] Check thresholds - Duration MS:", sessionShape.session_duration_ms);
-
-                    if (!forceUpload && sessionShape.session_duration_ms <= 0) {
-                        console.warn("[Telemetry Debug] Upload Bypassed: Active session duration is 0ms (no qualifying interaction events captured).");
-                        return;
-                    }
+                    
+                    if (!sessionShape || typeof sessionShape !== 'object') return;
+                    if (!forceUpload && sessionShape.session_duration_ms <= 0) return;
 
                     sessionShape.project = "sizzlestats";
                     telemetrySent = true;
                     
                     const payloadString = JSON.stringify(sessionShape);
 
-                    console.log("[Telemetry Debug] Preparing CORS-simple raw POST payload transmission...");
-                    console.log("[Telemetry Debug] Payload data string:", payloadString);
+                    // Creating a Blob explicitly with text/plain bypasses the CORS OPTIONS preflight
+                    // This is strictly required for the request to succeed when the window is closing
+                    const blob = new Blob([payloadString], { type: 'text/plain' });
 
-                    // Reliable Exit Intent: Primary approach uses navigator.sendBeacon
+                    let beaconSuccess = false;
+                    
+                    // 1. Primary Exit-Intent Method: sendBeacon
                     if (navigator.sendBeacon) {
                         console.log("[Telemetry Debug] Attempting queue via navigator.sendBeacon...");
-                        const success = navigator.sendBeacon(TELEMETRY_ENDPOINT, payloadString);
-                        if (success) {
-                            console.log("[Telemetry Debug] Beacon successfully queued by browser.");
-                            return;
-                        }
-                        console.warn("[Telemetry Debug] sendBeacon returned false, falling back to fetch.");
+                        beaconSuccess = navigator.sendBeacon(TELEMETRY_ENDPOINT, blob);
                     }
 
-                    // Fallback to Keep-alive fetch for browsers where Beacon is disabled or failed
-                    console.log("[Telemetry Debug] Executing keepalive fetch transmission...");
-                    fetch(TELEMETRY_ENDPOINT, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain' },
-                        body: payloadString,
-                        keepalive: true
-                    }).then(function (res) {
-                        console.log("[Telemetry Debug] Keepalive Handshake completed. HTTP Ingestion Code:", res.status);
-                    }).catch(function (fetchErr) {
-                        console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
-                    });
+                    // 2. Fallback Exit-Intent Method: keepalive fetch (For adblocked beacon APIs)
+                    if (!beaconSuccess && window.fetch) {
+                        console.log("[Telemetry Debug] Executing keepalive fetch transmission...");
+                        fetch(TELEMETRY_ENDPOINT, {
+                            method: 'POST',
+                            body: blob,
+                            keepalive: true
+                        }).catch(function (fetchErr) {
+                            console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
+                        });
+                    }
 
                 } catch (err) {
-                    console.error("[Telemetry Debug] Exception encountered during shape delivery checks:", err);
+                    console.error("[Telemetry Debug] Exception encountered during shape delivery:", err);
                 }
             }
 
-            // Standard graceful lifecycle hooks (Handles tab changes, minimizes)
+            // --- LIFECYCLE EVENT LISTENERS ---
+            
+            // Primary hook for modern browsers (covers tab switching, minimizing)
             window.addEventListener('visibilitychange', function () {
-                console.log("[Telemetry Debug] Event triggered: visibilitychange. Current state:", document.visibilityState);
                 if (document.visibilityState === 'hidden') {
                     sendTelemetry();
+                } else if (document.visibilityState === 'visible') {
+                    // CRITICAL FIX: Re-arm the transmitter if the user returns to the tab!
+                    telemetrySent = false;
                 }
             });
 
-            // The absolute highest reliability event for full Window / Tab close on Mobile & Desktop
-            window.addEventListener('pagehide', function (event) {
-                console.log("[Telemetry Debug] Event triggered: pagehide. Persisted:", event.persisted);
-                sendTelemetry();
+            // Aggressive fallback hooks strictly for Window/Tab closure across all device types
+            const exitEvents = ['pagehide', 'beforeunload', 'unload'];
+            exitEvents.forEach(function(evt) {
+                window.addEventListener(evt, function () {
+                    sendTelemetry();
+                });
             });
             
         })();
@@ -798,9 +786,7 @@
                 originalResetToSplash();
             }
 
-            // Force-close all accordions when leaving the Lens view
             document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
-
             switchView('splash');
         };
 
@@ -812,25 +798,20 @@
         };
 
         function switchView(view) {
-            // 1. Hide all main views
             document.getElementById('splash-view').style.display = 'none';
             document.getElementById('lens-view').style.display = 'none';
             document.getElementById('coach-view').style.display = 'none';
 
-            // 2. Hide all nav states
             document.getElementById('nav-state-lens').style.display = 'none';
             document.getElementById('nav-state-coach').style.display = 'none';
 
-            // 3. Grab the header and apply a smooth transition
             const header = document.querySelector('.hero-header-wrap');
             header.style.transition = 'max-width 0.2s ease';
 
-            // Cache logo elements
             const logoFull = document.getElementById('brand-logo-full');
             const subtitleFull = document.getElementById('brand-subtitle-full');
             const logoSimple = document.getElementById('brand-logo-simple');
 
-            // 4. Reveal targeted view, navigation, and adjust layout
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'block';
                 header.style.maxWidth = '1200px';
@@ -839,7 +820,6 @@
                 if (subtitleFull) subtitleFull.style.display = '';
                 if (logoSimple) logoSimple.style.display = 'none';
 
-                // TRACK SPLASH VIEW
                 if (typeof window.trackSizzleEvent === 'function') {
                     window.trackSizzleEvent('splash_view');
                 }
@@ -858,7 +838,6 @@
                     document.getElementById('lens-state-scanning').style.display = 'none';
                     document.getElementById('lens-state-results').style.display = 'none';
 
-                    // TRACK LENS OPEN
                     if (typeof window.trackSizzleEvent === 'function') {
                         window.trackSizzleEvent('lens_open');
                     }
@@ -868,7 +847,6 @@
                     document.getElementById('nav-state-coach').style.display = 'flex';
                     header.style.maxWidth = '800px';
 
-                    // TRACK CLEANSE COACH ENTER
                     if (typeof window.trackSizzleEvent === 'function') {
                         window.trackSizzleEvent('coach_enter');
                     }
@@ -880,11 +858,6 @@
             }, 10);
         }
 
-        // ==========================================
-        // OBSERVERS (These must sit outside the function)
-        // ==========================================
-
-        // Ensures the Lens view always snaps to top when your engine reveals it
         const lensObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.target.style.display === 'grid') {
@@ -898,11 +871,9 @@
             attributeFilter: ['style']
         });
 
-        // Track splash view on initial site entry
         if (typeof window.trackSizzleEvent === 'function') {
             window.trackSizzleEvent('splash_view');
         }
-
     </script>
 </body>
 
