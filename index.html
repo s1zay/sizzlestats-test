@@ -676,92 +676,6 @@
     <script src="scanner-engine.js?v=1.2"></script>
     <script src="lens.js?v=1.2"></script>
 
-    <!-- ShapeEngine Telemetry Integration -->
-    <script src="shape-engine.js?v=3.0.0"></script>
-    <script>
-        (function () {
-            const TELEMETRY_ENDPOINT = "https://shape-d1-telemetry.anthonyyerhot.workers.dev/";
-            let telemetrySent = false;
-
-            console.log("[Telemetry Debug] Integration wrapper loaded. Tracking interaction events in background...");
-
-            window.triggerTelemetry = function() {
-                sendTelemetry(true);
-            };
-
-            function sendTelemetry(forceUpload = false) {
-                if (telemetrySent && !forceUpload) {
-                    console.log("[Telemetry Debug] Send aborted: telemetry already marked as sent for this page lifecycle.");
-                    return;
-                }
-
-                try {
-                    if (typeof ShapeEngine === 'undefined' || typeof ShapeEngine.getSessionShape !== 'function') {
-                        console.error("[Telemetry Debug] Error: ShapeEngine class or getSessionShape method is undefined.");
-                        return;
-                    }
-
-                    const sessionShape = ShapeEngine.getSessionShape();
-                    
-                    if (!sessionShape || typeof sessionShape !== 'object') return;
-                    if (!forceUpload && sessionShape.session_duration_ms <= 0) return;
-
-                    sessionShape.project = "sizzlestats";
-                    telemetrySent = true;
-                    
-                    const payloadString = JSON.stringify(sessionShape);
-                    let beaconSuccess = false;
-                    
-                    // 1. Primary Exit-Intent Method: sendBeacon with a RAW STRING
-                    // By passing a string instead of a Blob, the browser automatically sets the 
-                    // Content-Type to text/plain;charset=UTF-8, bypassing the CORS preflight check 
-                    // and avoiding the bug where Blob construction fails during window teardown.
-                    if (navigator.sendBeacon) {
-                        console.log("[Telemetry Debug] Attempting queue via navigator.sendBeacon...");
-                        beaconSuccess = navigator.sendBeacon(TELEMETRY_ENDPOINT, payloadString);
-                    }
-
-                    // 2. Fallback Exit-Intent Method: keepalive fetch (For adblocked beacon APIs)
-                    if (!beaconSuccess && window.fetch) {
-                        console.log("[Telemetry Debug] Executing keepalive fetch transmission...");
-                        fetch(TELEMETRY_ENDPOINT, {
-                            method: 'POST',
-                            body: payloadString,
-                            keepalive: true,
-                            headers: {
-                                'Content-Type': 'text/plain'
-                            }
-                        }).catch(function (fetchErr) {
-                            console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
-                        });
-                    }
-
-                } catch (err) {
-                    console.error("[Telemetry Debug] Exception encountered during shape delivery:", err);
-                }
-            }
-
-            // --- LIFECYCLE EVENT LISTENERS ---
-            
-            // Primary hook for modern browsers (covers tab switching, minimizing)
-            window.addEventListener('visibilitychange', function () {
-                if (document.visibilityState === 'hidden') {
-                    sendTelemetry();
-                } else if (document.visibilityState === 'visible') {
-                    // Re-arm the transmitter if the user returns to the tab!
-                    telemetrySent = false;
-                }
-            });
-
-            // Fallback hook strictly for tab/window closure.
-            // Note: 'beforeunload' and 'unload' have been intentionally removed. 
-            // They actively block bfcache in modern browsers and often cause the exit request to be cancelled.
-            window.addEventListener('pagehide', function () {
-                sendTelemetry();
-            });
-            
-        })();
-    </script>
 
     <script>
         // Global Analytics Event Tracker
@@ -786,7 +700,9 @@
                 originalResetToSplash();
             }
 
+            // Force-close all accordions when leaving the Lens view
             document.querySelectorAll('.action-bar').forEach(bar => bar.classList.remove('open'));
+
             switchView('splash');
         };
 
@@ -798,20 +714,25 @@
         };
 
         function switchView(view) {
+            // 1. Hide all main views
             document.getElementById('splash-view').style.display = 'none';
             document.getElementById('lens-view').style.display = 'none';
             document.getElementById('coach-view').style.display = 'none';
 
+            // 2. Hide all nav states
             document.getElementById('nav-state-lens').style.display = 'none';
             document.getElementById('nav-state-coach').style.display = 'none';
 
+            // 3. Grab the header and apply a smooth transition
             const header = document.querySelector('.hero-header-wrap');
             header.style.transition = 'max-width 0.2s ease';
 
+            // Cache logo elements
             const logoFull = document.getElementById('brand-logo-full');
             const subtitleFull = document.getElementById('brand-subtitle-full');
             const logoSimple = document.getElementById('brand-logo-simple');
 
+            // 4. Reveal targeted view, navigation, and adjust layout
             if (view === "splash") {
                 document.getElementById('splash-view').style.display = 'block';
                 header.style.maxWidth = '1200px';
@@ -820,6 +741,7 @@
                 if (subtitleFull) subtitleFull.style.display = '';
                 if (logoSimple) logoSimple.style.display = 'none';
 
+                // TRACK SPLASH VIEW
                 if (typeof window.trackSizzleEvent === 'function') {
                     window.trackSizzleEvent('splash_view');
                 }
@@ -838,6 +760,7 @@
                     document.getElementById('lens-state-scanning').style.display = 'none';
                     document.getElementById('lens-state-results').style.display = 'none';
 
+                    // TRACK LENS OPEN
                     if (typeof window.trackSizzleEvent === 'function') {
                         window.trackSizzleEvent('lens_open');
                     }
@@ -847,6 +770,7 @@
                     document.getElementById('nav-state-coach').style.display = 'flex';
                     header.style.maxWidth = '800px';
 
+                    // TRACK CLEANSE COACH ENTER
                     if (typeof window.trackSizzleEvent === 'function') {
                         window.trackSizzleEvent('coach_enter');
                     }
@@ -858,6 +782,11 @@
             }, 10);
         }
 
+        // ==========================================
+        // OBSERVERS (These must sit outside the function)
+        // ==========================================
+
+        // Ensures the Lens view always snaps to top when your engine reveals it
         const lensObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.target.style.display === 'grid') {
@@ -871,9 +800,11 @@
             attributeFilter: ['style']
         });
 
+        // Track splash view on initial site entry
         if (typeof window.trackSizzleEvent === 'function') {
             window.trackSizzleEvent('splash_view');
         }
+
     </script>
 </body>
 
