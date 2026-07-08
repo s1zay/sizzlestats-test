@@ -1,5 +1,3 @@
---- START OF FILE shape-engine.js ---
-
 /**
  * ShapeEngine v3.0.0
  * Core Dynamic State Estimator and Chronological Segmenter
