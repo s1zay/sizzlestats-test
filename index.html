@@ -710,17 +710,15 @@
                     telemetrySent = true;
                     
                     const payloadString = JSON.stringify(sessionShape);
-
-                    // Creating a Blob explicitly with text/plain bypasses the CORS OPTIONS preflight
-                    // This is strictly required for the request to succeed when the window is closing
-                    const blob = new Blob([payloadString], { type: 'text/plain' });
-
                     let beaconSuccess = false;
                     
-                    // 1. Primary Exit-Intent Method: sendBeacon
+                    // 1. Primary Exit-Intent Method: sendBeacon with a RAW STRING
+                    // By passing a string instead of a Blob, the browser automatically sets the 
+                    // Content-Type to text/plain;charset=UTF-8, bypassing the CORS preflight check 
+                    // and avoiding the bug where Blob construction fails during window teardown.
                     if (navigator.sendBeacon) {
                         console.log("[Telemetry Debug] Attempting queue via navigator.sendBeacon...");
-                        beaconSuccess = navigator.sendBeacon(TELEMETRY_ENDPOINT, blob);
+                        beaconSuccess = navigator.sendBeacon(TELEMETRY_ENDPOINT, payloadString);
                     }
 
                     // 2. Fallback Exit-Intent Method: keepalive fetch (For adblocked beacon APIs)
@@ -728,8 +726,11 @@
                         console.log("[Telemetry Debug] Executing keepalive fetch transmission...");
                         fetch(TELEMETRY_ENDPOINT, {
                             method: 'POST',
-                            body: blob,
-                            keepalive: true
+                            body: payloadString,
+                            keepalive: true,
+                            headers: {
+                                'Content-Type': 'text/plain'
+                            }
                         }).catch(function (fetchErr) {
                             console.error("[Telemetry Debug] Error: HTTP POST delivery failed:", fetchErr);
                         });
@@ -747,17 +748,16 @@
                 if (document.visibilityState === 'hidden') {
                     sendTelemetry();
                 } else if (document.visibilityState === 'visible') {
-                    // CRITICAL FIX: Re-arm the transmitter if the user returns to the tab!
+                    // Re-arm the transmitter if the user returns to the tab!
                     telemetrySent = false;
                 }
             });
 
-            // Aggressive fallback hooks strictly for Window/Tab closure across all device types
-            const exitEvents = ['pagehide', 'beforeunload', 'unload'];
-            exitEvents.forEach(function(evt) {
-                window.addEventListener(evt, function () {
-                    sendTelemetry();
-                });
+            // Fallback hook strictly for tab/window closure.
+            // Note: 'beforeunload' and 'unload' have been intentionally removed. 
+            // They actively block bfcache in modern browsers and often cause the exit request to be cancelled.
+            window.addEventListener('pagehide', function () {
+                sendTelemetry();
             });
             
         })();
